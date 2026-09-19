@@ -23,3 +23,11 @@
 - En pantallas táctiles el arrastre HTML5 desde el panel no funciona: se toca la ficha y luego el tablero.
 - El proyecto vive solo en memoria hasta la Fase 4 (persistencia).
 - lineales.js se carga en tiempo de ejecución desde public/biblioteca/ (Blob + import dinámico) para que actualizar la biblioteca no exija tocar código.
+
+## Fase 2
+- Panel de propiedades a la derecha (bajo el canvas en pantallas de menos de 900 px), generado desde los `campos` de la ficha. Los selectores y el texto aplican en vivo; los enteros aplican al ser válidos.
+- Ediciones seguidas del mismo campo (por ejemplo, escribir en un texto) cuentan como un solo paso de deshacer.
+- Largo de rieles y canaletas: se aplica al pulsar Enter o al salir del campo; el error de rango se muestra bajo el campo. Si el largo choca con algo, se rechaza con el aviso del canvas.
+- Plantillas: un `{campo}` inexistente queda vacío (no rompe); las líneas que quedan vacías se omiten y el resto se reparte en la altura de la zona `etiqueta`. Los valores se toman de `atributos`, luego los defectos de los campos y luego lo editado.
+- Si una línea es más ancha que la zona, se reduce el tamaño de letra para que quepa (estimación de 0,62 × tamaño por carácter). Texto libre limitado a 12 caracteres.
+- Se corrigió un error de Fase 1: acortar un riel con aparatos montados era rechazado por colisión con sus propios aparatos.

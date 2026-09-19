@@ -85,46 +85,17 @@ function Seleccion() {
   const ctx = useContexto();
   const uid = useEditor((s) => s.seleccion);
   const el = useEditor((s) => s.proyecto.elementos.find((e) => e.uid === s.seleccion));
-  const { duplicar, borrar, rotar, cambiarLargo, avisar } = useEditor.getState();
+  const { duplicar, borrar, rotar } = useEditor.getState();
   const comp = el && ctx?.comps.get(el.componenteId);
   if (!uid || !el || !comp) return <span className="hint">Selecciona un elemento para moverlo, girarlo, duplicarlo o borrarlo.</span>;
 
   const r = huella(el, comp);
-  const largo = comp.montaje === 'lineal' ? ((el.rotacion ?? 0) === 90 ? r.h : r.w) : null;
-
-  const confirmarLargo = (texto: string) => {
-    const v = Number(texto);
-    if (!Number.isInteger(v)) {
-      avisar('El largo debe ser un número entero de milímetros.');
-      return;
-    }
-    if (v !== largo) cambiarLargo(uid, v);
-  };
-
   return (
     <div className="grupo-barra">
       <strong className="sel-nombre">{comp.nombre}</strong>
       <span className="hint">
         x {formatearMm(r.x)} · y {formatearMm(r.y)} mm
       </span>
-      {largo !== null && comp.montaje === 'lineal' && (
-        <label>
-          Largo (mm)
-          <input
-            key={`${uid}:${largo}`}
-            type="number"
-            inputMode="numeric"
-            min={comp.largo_min_mm}
-            max={comp.largo_max_mm}
-            defaultValue={largo}
-            onBlur={(e) => {
-              confirmarLargo(e.target.value);
-              e.target.value = String(largo);
-            }}
-            onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-          />
-        </label>
-      )}
       {esCanaleta(comp) && (
         <button type="button" onClick={() => rotar(uid)} title="Girar 90° (R)">
           Girar 90°

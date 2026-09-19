@@ -179,6 +179,15 @@ describe('límites', () => {
     expect(cambiarLargo(els, ctx, id, 300).ok).toBe(true);
   });
 
+  it('acortar o alargar un riel con aparatos montados es válido si siguen dentro', () => {
+    const ctx = contexto();
+    const els = poner(conRiel(ctx), ctx, 'automatico_1p', 100, 100);
+    const corto = cambiarLargo(els, ctx, uidDe(els, 0), 300);
+    expect(corto.ok).toBe(true);
+    const largo = cambiarLargo(els, ctx, uidDe(els, 0), 420);
+    expect(largo.ok).toBe(true);
+  });
+
   it('no deja acortar un riel dejando aparatos fuera', () => {
     const ctx = contexto();
     let els = conRiel(ctx);

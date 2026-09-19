@@ -59,6 +59,16 @@ export type Colocacion =
   | { ok: true; x_mm: number; y_mm: number; largo_mm?: number; rotacion?: 0 | 90; rielUid?: string }
   | { ok: false; motivo: string };
 
+/** Mensaje de error si el largo no es válido para el lineal; null si lo es. */
+export function validarLargo(comp: Componente, largo: number): string | null {
+  if (comp.montaje !== 'lineal') return 'Solo los rieles y canaletas tienen largo.';
+  if (!Number.isInteger(largo)) return 'El largo debe ser un número entero de milímetros.';
+  if (largo < comp.largo_min_mm || largo > comp.largo_max_mm) {
+    return `El largo debe estar entre ${comp.largo_min_mm} y ${comp.largo_max_mm} mm.`;
+  }
+  return null;
+}
+
 const fallo = (motivo: string): { ok: false; motivo: string } => ({ ok: false, motivo });
 
 export const MOTIVOS = {
@@ -233,16 +243,15 @@ export function resolverColocacion(elementos: readonly Elemento[], ctx: Contexto
   const disponible = rotacion === 90 ? area.h : area.w;
   const largo =
     s.largo_mm ?? s.actual?.largo_mm ?? Math.min(largoPorDefecto(comp), Math.max(comp.largo_min_mm, Math.floor(disponible)));
-  if (!Number.isFinite(largo) || largo < comp.largo_min_mm || largo > comp.largo_max_mm) {
-    return fallo(`El largo debe estar entre ${comp.largo_min_mm} y ${comp.largo_max_mm} mm.`);
-  }
+  const errorLargo = validarLargo(comp, largo);
+  if (errorLargo) return fallo(errorLargo);
   const w = rotacion === 90 ? comp.alto_mm : largo;
   const h = rotacion === 90 ? largo : comp.alto_mm;
   const x = s.sinSnap ? s.punto.x - w / 2 : Math.round(s.punto.x - w / 2);
   const y = s.sinSnap ? s.punto.y - h / 2 : Math.round(s.punto.y - h / 2);
   const rect: Rect = { x: redondear(x), y: redondear(y), w, h };
   if (!contiene(area, rect)) return fallo(MOTIVOS.fueraArea);
-  if (buscarColision({ uid: '', clase: esR ? 'riel' : 'canaleta', rect }, piezas, excluir)) {
+  if (buscarColision({ uid: s.actual?.uid ?? '', clase: esR ? 'riel' : 'canaleta', rect }, piezas, excluir)) {
     return fallo(MOTIVOS.colision);
   }
   return { ok: true, x_mm: rect.x, y_mm: rect.y, largo_mm: largo, rotacion };
@@ -323,7 +332,8 @@ export function cambiarLargo(elementos: readonly Elemento[], ctx: Contexto, uid:
   const el = elementos.find((e) => e.uid === uid);
   const comp = el && ctx.comps.get(el.componenteId);
   if (!el || !comp || comp.montaje !== 'lineal') return fallo('Solo los rieles y canaletas tienen largo.');
-  if (!Number.isInteger(largo)) return fallo('El largo debe ser un número entero de milímetros.');
+  const invalido = validarLargo(comp, largo);
+  if (invalido) return fallo(invalido);
   if (esRiel(comp)) {
     const rect = huella(el, comp);
     const hijos = hijosDeRiel(elementos, ctx, uid);

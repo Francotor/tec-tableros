@@ -17,7 +17,7 @@ import { deshacer as deshacerH, historialVacio, rehacer as rehacerH, registrar }
 import type { Historial } from '../core/historial';
 import { proyectoNuevo, valoresPorDefecto } from '../core/modelo';
 import type { CajaProyecto, Elemento, Proyecto } from '../core/modelo';
-import type { Biblioteca } from '../core/tipos';
+import type { Biblioteca, ValorCampo } from '../core/tipos';
 import { useBiblioteca } from './biblioteca';
 
 const CAJA_INICIAL = 'caja_metalica_400x500x200';
@@ -54,6 +54,7 @@ interface EstadoEditor {
   duplicar: (uid: string) => void;
   rotar: (uid: string) => void;
   cambiarLargo: (uid: string, largo: number) => boolean;
+  cambiarValor: (uid: string, campoId: string, valor: ValorCampo) => void;
   deshacer: () => void;
   rehacer: () => void;
 }
@@ -79,6 +80,8 @@ export function useContexto(): Contexto | null {
 }
 
 let contadorAvisos = 0;
+/** Campo que se está editando: las ediciones seguidas del mismo campo son un solo paso de historial. */
+let edicionActual: string | null = null;
 
 export const useEditor = create<EstadoEditor>((set, get) => {
   const contexto = (): Contexto | null => contextoDe(useBiblioteca.getState().biblioteca, get().proyecto.caja);
@@ -93,6 +96,7 @@ export const useEditor = create<EstadoEditor>((set, get) => {
       avisar(c.motivo);
       return false;
     }
+    edicionActual = null;
     const { proyecto, historial } = get();
     if (JSON.stringify(c.elementos) === JSON.stringify(proyecto.elementos)) return true;
     set({
@@ -104,6 +108,7 @@ export const useEditor = create<EstadoEditor>((set, get) => {
   };
 
   const restaurar = (i: Instantanea, historial: Historial<Instantanea>): void => {
+    edicionActual = null;
     const { proyecto, seleccion } = get();
     set({
       historial,
@@ -120,7 +125,10 @@ export const useEditor = create<EstadoEditor>((set, get) => {
     fichaActiva: null,
     cuadricula: true,
 
-    seleccionar: (uid) => set({ seleccion: uid }),
+    seleccionar: (uid) => {
+      edicionActual = null;
+      set({ seleccion: uid });
+    },
     setFichaActiva: (id) => set({ fichaActiva: id }),
     alternarCuadricula: () => set((s) => ({ cuadricula: !s.cuadricula })),
     avisar,
@@ -129,6 +137,7 @@ export const useEditor = create<EstadoEditor>((set, get) => {
     cambiarCaja: (caja) => {
       const { proyecto, historial } = get();
       if (JSON.stringify(caja) === JSON.stringify(proyecto.caja)) return;
+      edicionActual = null;
       // Se conservan todos los elementos: los que ya no caben se marcan en rojo, no se borran.
       set({
         historial: registrar(historial, instantanea()),
@@ -169,6 +178,23 @@ export const useEditor = create<EstadoEditor>((set, get) => {
     cambiarLargo: (uid, largo) => {
       const ctx = contexto();
       return ctx ? aplicar(cambiarLargoCore(get().proyecto.elementos, ctx, uid, largo)) : false;
+    },
+
+    cambiarValor: (uid, campoId, valor) => {
+      const { proyecto, historial } = get();
+      const el = proyecto.elementos.find((e) => e.uid === uid);
+      if (!el || el.valores[campoId] === valor) return;
+      const clave = `${uid}:${campoId}`;
+      const seguida = edicionActual === clave;
+      edicionActual = clave;
+      set({
+        historial: seguida ? historial : registrar(historial, instantanea()),
+        proyecto: {
+          ...proyecto,
+          elementos: proyecto.elementos.map((e) => (e.uid === uid ? { ...e, valores: { ...e.valores, [campoId]: valor } } : e)),
+          actualizadoEn: new Date().toISOString(),
+        },
+      });
     },
 
     deshacer: () => {

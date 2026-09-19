@@ -3,10 +3,11 @@ import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Vector2d } from 'konva/lib/types';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DragEvent as ReactDragEvent } from 'react';
-import { Group, Image as KImage, Layer, Rect, Shape, Stage } from 'react-konva';
+import { Group, Image as KImage, Layer, Rect, Shape, Stage, Text } from 'react-konva';
 import { calcularTopes, elementosFuera, esRiel, huella, listarRieles, moverElemento, TOPE_ID } from '../core/colocacion';
 import type { Contexto } from '../core/colocacion';
 import type { Rect as Rectangulo } from '../core/geometria';
+import { lineasEtiqueta, tamanoAjustado } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Componente } from '../core/tipos';
 import { contextoActual, useContexto, useEditor } from '../store/editor';
@@ -69,6 +70,8 @@ const ElementoKonva = memo(function ElementoKonva({ el, comp, seleccionado, fuer
   const r = huella(el, comp);
   const girado = comp.montaje === 'lineal' && (el.rotacion ?? 0) === 90;
   const largo = comp.montaje === 'lineal' ? (girado ? r.h : r.w) : 0;
+  const etiqueta = 'etiqueta' in comp ? comp.etiqueta : null;
+  const lineas = etiqueta ? lineasEtiqueta(comp, el) : [];
   const elegir = (e: KonvaEventObject<Event>) => {
     e.cancelBubble = true;
     onSeleccionar(el.uid);
@@ -94,6 +97,28 @@ const ElementoKonva = memo(function ElementoKonva({ el, comp, seleccionado, fuer
           <ImagenComponente comp={comp} largo={largo} />
         </Group>
       )}
+      {etiqueta &&
+        lineas.map((linea, i) => {
+          const alto = etiqueta.h / lineas.length;
+          return (
+            <Text
+              key={i}
+              x={etiqueta.x}
+              y={etiqueta.y + alto * i}
+              width={etiqueta.w}
+              height={alto}
+              align="center"
+              verticalAlign="middle"
+              wrap="none"
+              text={linea}
+              fontSize={tamanoAjustado(linea, etiqueta.w, etiqueta.tamano_mm)}
+              fontStyle="bold"
+              fontFamily="Arial, Helvetica, sans-serif"
+              fill="#2B2F36"
+              listening={false}
+            />
+          );
+        })}
       {(seleccionado || fuera) && (
         <Rect
           width={r.w}
