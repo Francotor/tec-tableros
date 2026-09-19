@@ -3,7 +3,7 @@ import { useBiblioteca } from '../store/biblioteca';
 import { BarraHerramientas } from './BarraHerramientas';
 import { Lienzo } from './Lienzo';
 import { PanelCatalogo } from './PanelCatalogo';
-import { PanelPropiedades } from './PanelPropiedades';
+import { PanelDerecho } from './PanelDerecho';
 
 export function App() {
   const { estado, biblioteca, error, cargar } = useBiblioteca();
@@ -30,7 +30,7 @@ export function App() {
             <BarraHerramientas />
             <div className="area">
               <Lienzo />
-              <PanelPropiedades />
+              <PanelDerecho />
             </div>
           </div>
         </main>

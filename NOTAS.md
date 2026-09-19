@@ -31,3 +31,13 @@
 - Plantillas: un `{campo}` inexistente queda vacío (no rompe); las líneas que quedan vacías se omiten y el resto se reparte en la altura de la zona `etiqueta`. Los valores se toman de `atributos`, luego los defectos de los campos y luego lo editado.
 - Si una línea es más ancha que la zona, se reduce el tamaño de letra para que quepa (estimación de 0,62 × tamaño por carácter). Texto libre limitado a 12 caracteres.
 - Se corrigió un error de Fase 1: acortar un riel con aparatos montados era rechazado por colisión con sus propios aparatos.
+
+## Fase 3
+- Lista de materiales (`src/core/lista.ts`): caja + cada aparato + cada riel y canaleta con su corte + topes; líneas iguales agrupadas y ordenadas alfabéticamente (orden por código de carácter, como el CSV de referencia). La prueba de referencia arma por código el tablero de `ejemplo_tablero_armado.svg` y compara línea por línea con `ejemplo_lista_materiales.csv` (el CSV de referencia no lleva los totales; se compara sin ellos).
+- La descripción de la caja incluye `(placa A x B mm)` en metálicas, inox y medida libre; en las plásticas solo el nombre. En las plásticas el riel incluido no se lista ni suma metros.
+- Topes: se cuentan solo en rieles con aparatos (2 por riel), igual que se dibujan. Un riel vacío no genera topes.
+- Totales: se agregan al final de la lista, del texto copiado y del CSV, en metros (`Total riel DIN`, `Total canaleta`; la canaleta suma todos los anchos).
+- Texto copiado: `cantidad x descripcion`, una línea por material. CSV: cabecera `descripcion,cantidad,unidad`, con BOM UTF-8 al descargar para que Excel lo abra bien; el punto decimal en el CSV es punto (metros), en pantalla es coma.
+- Sugerir caja: solo para cajas metálicas/inox (incluida medida libre); elige, entre las cajas del mismo tipo, la de placa de menor área que contiene la extensión del dibujo (incluye topes). "Usar esta caja" cambia la caja y traslada el dibujo a la esquina superior izquierda de la placa, en un solo paso de deshacer. Con cajas plásticas no se sugiere (sus rieles son fijos).
+- Avisos (pestaña Lista de materiales, con insignia numérica): elementos fuera de la caja; fila que excede los módulos de la caja (suma de anchos / 18 mm contra `modulos_por_fila`; en medida libre se calcula con los parámetros de `gabinetes.json`); topes que no caben en el riel; caja "mucho más grande" = placa de al menos el doble de área que la sugerida.
+- Corrección de UX: con una ficha elegida (modo toque) ya se puede colocar sobre un elemento existente (antes el toque sobre un riel solo lo seleccionaba y no se podían montar aparatos).

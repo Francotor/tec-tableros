@@ -110,10 +110,10 @@ export function PanelPropiedades() {
 
   if (!el || !comp) {
     return (
-      <aside className="panel-props" aria-label="Propiedades">
+      <div>
         <h2>Propiedades</h2>
         <p className="vacio">Selecciona un elemento del tablero para editar sus datos.</p>
-      </aside>
+      </div>
     );
   }
 
@@ -122,7 +122,7 @@ export function PanelPropiedades() {
   const largoActual = el.largo_mm ?? Number(valores.largo ?? 0);
 
   return (
-    <aside className="panel-props" aria-label="Propiedades">
+    <div>
       <h2>{comp.nombre}</h2>
       {comp.notas && <p className="sub">{comp.notas}</p>}
       {/* La clave incluye el uid para reiniciar el estado local al cambiar de selección. */}
@@ -131,6 +131,6 @@ export function PanelPropiedades() {
         <CampoEditable key={`${el.uid}:${c.id}`} uid={el.uid} campo={c} valor={valores[c.id] ?? c.defecto} />
       ))}
       {editables.length === 0 && comp.montaje !== 'lineal' && <p className="vacio">Esta pieza no tiene datos editables.</p>}
-    </aside>
+    </div>
   );
 }

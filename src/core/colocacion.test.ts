@@ -22,6 +22,7 @@ import {
 } from './colocacion';
 import type { Contexto } from './colocacion';
 import { deshacer, historialVacio, LIMITE_HISTORIAL, rehacer, registrar } from './historial';
+import { armarEjemplo } from './ejemplo.testutil';
 import { valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
 
@@ -351,47 +352,10 @@ describe('historial', () => {
 describe('reconstrucción del tablero de ejemplo (caja 400 x 500, dos filas)', () => {
   it('todas las piezas de ejemplo_tablero_armado.svg son válidas con estas reglas', () => {
     const ctx = contexto();
-    let els: Elemento[] = [];
-    const exacto = (id: string, x: number, yRiel: number) => {
-      const comp = ctx.comps.get(id);
-      if (!comp || comp.ancho_mm === null) throw new Error(`falta ${id}`);
-      const r = resolverColocacion(els, ctx, { comp, punto: { x: x + comp.ancho_mm / 2, y: yRiel }, sinSnap: true });
-      if (!r.ok) throw new Error(`${id} en x=${x}: ${r.motivo}`);
-      els = [...els, { uid: `${id}-${x}`, componenteId: id, x_mm: r.x_mm, y_mm: r.y_mm, largo_mm: r.largo_mm, valores: {} }];
-    };
-    // Canaletas y rieles de 396 mm desde x = 52.
-    const lineal = (id: string, yCentro: number) => {
-      const comp = ctx.comps.get(id);
-      if (!comp) throw new Error(`falta ${id}`);
-      const r = resolverColocacion(els, ctx, { comp, punto: { x: 52 + 198, y: yCentro }, largo_mm: 396, sinSnap: true });
-      if (!r.ok) throw new Error(`${id}: ${r.motivo}`);
-      els = [...els, { uid: `${id}-${yCentro}`, componenteId: id, x_mm: r.x_mm, y_mm: r.y_mm, largo_mm: 396, valores: {} }];
-    };
-    for (const y of [33, 164, 295]) lineal('canaleta_25', y + 12.5);
-    for (const yc of [111, 242]) lineal('riel_din', yc);
-    let x = 61;
-    for (const id of ['automatico_2p', 'diferencial_2p', 'automatico_1p', 'automatico_1p', 'automatico_1p', 'automatico_1p', 'automatico_1p', 'automatico_1p']) {
-      exacto(id, x, 111);
-      x += ctx.comps.get(id)?.ancho_mm ?? 0;
-    }
-    x += 18;
-    for (const id of ['reloj_control', 'rele_crepuscular']) {
-      exacto(id, x, 111);
-      x += ctx.comps.get(id)?.ancho_mm ?? 0;
-    }
-    x = 61;
-    for (const id of ['automatico_3p', 'diferencial_4p', 'contactor_3p', 'automatico_3p']) {
-      exacto(id, x, 242);
-      x += ctx.comps.get(id)?.ancho_mm ?? 0;
-    }
-    x += 5;
-    for (const id of ['borne_16_gris', 'borne_16_azul', 'borne_16_tierra']) {
-      exacto(id, x, 242);
-      x += ctx.comps.get(id)?.ancho_mm ?? 0;
-    }
-    exacto('barra_repartidora_12v', x + 5, 242);
+    const els = armarEjemplo(ctx);
     expect(elementosFuera(els, ctx).size).toBe(0);
     expect(calcularTopes(els, ctx)).toHaveLength(4);
     expect(els.filter((e) => e.componenteId === 'canaleta_25')).toHaveLength(3);
+    expect(els.filter((e) => e.componenteId === 'riel_din')).toHaveLength(2);
   });
 });

@@ -18,6 +18,8 @@ export interface CajaResuelta {
   /** Placa interior (metálica/inox) o la caja completa (plástica). */
   area: Rect;
   rielesIncluidos: RielIncluidoMm[];
+  /** Módulos de 18 mm que caben en una fila. */
+  modulosPorFila: number;
   /** Ruta del SVG dentro de la biblioteca; null en medida libre. */
   svg: string | null;
   /** Metálicas e inox: el usuario agrega sus propios rieles. */
@@ -44,6 +46,10 @@ export function resolverCaja(caja: CajaProyecto, gabinetes: Gabinetes): CajaResu
         h: Math.max(0, alto_mm - 2 * margen),
       },
       rielesIncluidos: [],
+      modulosPorFila: Math.max(
+        0,
+        Math.floor((ancho_mm - gabinetes.parametros.margen_placa_mm - gabinetes.parametros.margen_lateral_riel_mm) / gabinetes.parametros.modulo_mm),
+      ),
       svg: null,
       permiteRieles: true,
     };
@@ -60,6 +66,7 @@ export function resolverCaja(caja: CajaProyecto, gabinetes: Gabinetes): CajaResu
     ancho: c.ancho_mm,
     alto: c.alto_mm,
     area,
+    modulosPorFila: c.modulos_por_fila,
     rielesIncluidos: (c.rieles ?? []).map((r) => ({ x: r.x, yCentro: r.y_centro, largo: r.largo })),
     svg: c.svg,
     permiteRieles: c.tipo === 'metalica' || c.tipo === 'inox',

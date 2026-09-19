@@ -13,6 +13,7 @@ import {
 } from '../core/colocacion';
 import type { Cambio, Contexto } from '../core/colocacion';
 import type { Punto } from '../core/geometria';
+import { trasladar } from '../core/sugerencia';
 import { deshacer as deshacerH, historialVacio, rehacer as rehacerH, registrar } from '../core/historial';
 import type { Historial } from '../core/historial';
 import { proyectoNuevo, valoresPorDefecto } from '../core/modelo';
@@ -30,6 +31,7 @@ interface Instantanea {
 export interface Aviso {
   id: number;
   texto: string;
+  tipo: 'error' | 'info';
 }
 
 interface EstadoEditor {
@@ -44,10 +46,12 @@ interface EstadoEditor {
   seleccionar: (uid: string | null) => void;
   setFichaActiva: (id: string | null) => void;
   alternarCuadricula: () => void;
-  avisar: (texto: string) => void;
+  avisar: (texto: string, tipo?: Aviso['tipo']) => void;
   cerrarAviso: () => void;
 
   cambiarCaja: (caja: CajaProyecto) => void;
+  /** Cambia a una caja de la lista y traslada el dibujo a su placa, en un solo paso de historial. */
+  aplicarSugerencia: (cajaId: string, dx: number, dy: number) => void;
   agregar: (componenteId: string, punto: Punto) => boolean;
   mover: (uid: string, punto: Punto, sinSnap?: boolean) => boolean;
   borrar: (uid: string) => void;
@@ -88,7 +92,7 @@ export const useEditor = create<EstadoEditor>((set, get) => {
 
   const instantanea = (): Instantanea => ({ caja: get().proyecto.caja, elementos: get().proyecto.elementos });
 
-  const avisar = (texto: string): void => set({ aviso: { id: ++contadorAvisos, texto } });
+  const avisar = (texto: string, tipo: Aviso['tipo'] = 'error'): void => set({ aviso: { id: ++contadorAvisos, texto, tipo } });
 
   /** Aplica un cambio de elementos al proyecto, registrando el paso en el historial. */
   const aplicar = (c: Cambio, seleccion?: string | null): boolean => {
@@ -142,6 +146,15 @@ export const useEditor = create<EstadoEditor>((set, get) => {
       set({
         historial: registrar(historial, instantanea()),
         proyecto: { ...proyecto, caja, actualizadoEn: new Date().toISOString() },
+      });
+    },
+
+    aplicarSugerencia: (cajaId, dx, dy) => {
+      const { proyecto, historial } = get();
+      edicionActual = null;
+      set({
+        historial: registrar(historial, instantanea()),
+        proyecto: { ...proyecto, caja: { id: cajaId }, elementos: trasladar(proyecto.elementos, dx, dy), actualizadoEn: new Date().toISOString() },
       });
     },
 

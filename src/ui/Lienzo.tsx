@@ -73,6 +73,8 @@ const ElementoKonva = memo(function ElementoKonva({ el, comp, seleccionado, fuer
   const etiqueta = 'etiqueta' in comp ? comp.etiqueta : null;
   const lineas = etiqueta ? lineasEtiqueta(comp, el) : [];
   const elegir = (e: KonvaEventObject<Event>) => {
+    // Con una ficha elegida el toque es para colocarla (el escenario lo maneja), no para seleccionar.
+    if (useEditor.getState().fichaActiva) return;
     e.cancelBubble = true;
     onSeleccionar(el.uid);
   };
@@ -285,8 +287,8 @@ export function Lienzo() {
   };
 
   const alClicVacio = (e: KonvaEventObject<Event>) => {
-    if (e.target !== e.target.getStage()) return;
     const { fichaActiva: ficha, agregar, seleccionar, setFichaActiva } = useEditor.getState();
+    if (!ficha && e.target !== e.target.getStage()) return;
     const pt = puntoEnCaja();
     if (ficha && pt) {
       if (agregar(ficha, pt)) setFichaActiva(null);
@@ -458,7 +460,7 @@ export function Lienzo() {
 
       {fichaActiva && <div className="pista">Toca el tablero para colocar la pieza elegida.</div>}
       {aviso && (
-        <div className="aviso-flotante" role="status" aria-live="polite" key={aviso.id}>
+        <div className={`aviso-flotante ${aviso.tipo}`} role="status" aria-live="polite" key={aviso.id}>
           {aviso.texto}
           <button type="button" onClick={() => useEditor.getState().cerrarAviso()} aria-label="Cerrar aviso">
             ×
