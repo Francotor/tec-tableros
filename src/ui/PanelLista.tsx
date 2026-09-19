@@ -6,8 +6,10 @@ import { formatearMetros, generarLista, lineasTotales, listaACsv, listaATexto } 
 import type { ListaMateriales } from '../core/lista';
 import { sugerirCaja } from '../core/sugerencia';
 import type { Sugerencia } from '../core/sugerencia';
+import { nombreSeguro } from '../core/proyectos';
 import { useBiblioteca } from '../store/biblioteca';
 import { useContexto, useEditor } from '../store/editor';
+import { descargar } from './descarga';
 
 interface Analisis {
   lista: ListaMateriales;
@@ -45,24 +47,6 @@ async function copiarAlPortapapeles(texto: string): Promise<boolean> {
   }
 }
 
-function descargar(nombre: string, contenido: string, tipo: string): void {
-  // El BOM inicial hace que Excel reconozca UTF-8.
-  const blob = new Blob(['﻿', contenido], { type: tipo });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = nombre;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-function nombreArchivo(base: string): string {
-  const limpio = base.trim().replace(/[^\p{L}\p{N}._-]+/gu, '-').replace(/^-+|-+$/g, '');
-  return `lista-materiales-${limpio || 'tablero'}.csv`;
-}
-
 export function PanelLista() {
   const analisis = useAnalisis();
   const proyecto = useEditor((s) => s.proyecto);
@@ -79,7 +63,7 @@ export function PanelLista() {
   };
 
   const bajarCsv = () =>
-    descargar(nombreArchivo(proyecto.numeroCotizacion || proyecto.nombre), listaACsv(lista), 'text/csv;charset=utf-8');
+    descargar(`lista-materiales-${nombreSeguro(proyecto.numeroCotizacion || proyecto.nombre)}.csv`, listaACsv(lista), 'text/csv;charset=utf-8', true);
 
   const placa = sugerencia?.caja.placa;
   return (

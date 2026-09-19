@@ -50,6 +50,10 @@ interface EstadoEditor {
   cerrarAviso: () => void;
 
   cambiarCaja: (caja: CajaProyecto) => void;
+  /** Reemplaza el proyecto abierto (historial y selección se reinician). */
+  cargarProyecto: (p: Proyecto) => void;
+  nuevoProyecto: () => void;
+  setMeta: (meta: Partial<Pick<Proyecto, 'nombre' | 'numeroCotizacion' | 'notas'>>) => void;
   /** Cambia a una caja de la lista y traslada el dibujo a su placa, en un solo paso de historial. */
   aplicarSugerencia: (cajaId: string, dx: number, dy: number) => void;
   agregar: (componenteId: string, punto: Punto) => boolean;
@@ -147,6 +151,21 @@ export const useEditor = create<EstadoEditor>((set, get) => {
         historial: registrar(historial, instantanea()),
         proyecto: { ...proyecto, caja, actualizadoEn: new Date().toISOString() },
       });
+    },
+
+    cargarProyecto: (p) => {
+      edicionActual = null;
+      set({ proyecto: p, historial: historialVacio(), seleccion: null, fichaActiva: null, aviso: null });
+    },
+
+    nuevoProyecto: () => {
+      edicionActual = null;
+      set({ proyecto: proyectoNuevo(CAJA_INICIAL), historial: historialVacio(), seleccion: null, fichaActiva: null, aviso: null });
+    },
+
+    setMeta: (meta) => {
+      const { proyecto } = get();
+      set({ proyecto: { ...proyecto, ...meta, actualizadoEn: new Date().toISOString() } });
     },
 
     aplicarSugerencia: (cajaId, dx, dy) => {

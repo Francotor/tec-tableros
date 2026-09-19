@@ -41,3 +41,15 @@
 - Sugerir caja: solo para cajas metálicas/inox (incluida medida libre); elige, entre las cajas del mismo tipo, la de placa de menor área que contiene la extensión del dibujo (incluye topes). "Usar esta caja" cambia la caja y traslada el dibujo a la esquina superior izquierda de la placa, en un solo paso de deshacer. Con cajas plásticas no se sugiere (sus rieles son fijos).
 - Avisos (pestaña Lista de materiales, con insignia numérica): elementos fuera de la caja; fila que excede los módulos de la caja (suma de anchos / 18 mm contra `modulos_por_fila`; en medida libre se calcula con los parámetros de `gabinetes.json`); topes que no caben en el riel; caja "mucho más grande" = placa de al menos el doble de área que la sugerida.
 - Corrección de UX: con una ficha elegida (modo toque) ya se puede colocar sobre un elemento existente (antes el toque sobre un riel solo lo seleccionaba y no se podían montar aparatos).
+
+## Fase 4
+- Persistencia: un proyecto por clave en IndexedDB (`idb-keyval`, base `tec-tableros`); el id del proyecto abierto va en otra base (`tec-tableros-ajustes`) porque idb-keyval no admite dos almacenes en una base ya creada. Al iniciar se reabre el último proyecto.
+- Autoguardado: 1 s después del último cambio; además se guarda al ocultar la pestaña y en `pagehide`. Un proyecto nuevo y vacío no se guarda hasta que se edita (no quedan proyectos vacíos sueltos). Se pide almacenamiento persistente al navegador (mejor esfuerzo).
+- El historial de deshacer no se guarda: al recargar o abrir otro proyecto se reinicia.
+- Borrar proyecto pide confirmación dentro del diálogo (dos pasos), pensado para uso táctil. Borrar el proyecto abierto deja uno nuevo y vacío.
+- Respaldo: JSON `{formato: "tec-tableros", version: 1, proyectos: [...]}`. Al importar no se pisa nada: idénticos se omiten; mismo id con contenido distinto se guarda como copia "(importado)".
+- PNG: se dibuja el stage a 6 px/mm (máximo 4000 px) sin rejilla ni marcas de selección/fuera de caja; solo el área de la caja.
+- PDF (jsPDF, A4 vertical, una página): logo, nombre, N° de cotización y fecha, imagen del tablero (JPEG sobre fondo blanco, máx. 1800 px, para que pese ~200 KB) y lista de materiales con totales. Si la lista es larga se achica la letra (mínimo 6 pt) y la imagen; una lista de más de ~80 líneas puede no caber. El campo `notas` del proyecto existe en el modelo pero no tiene UI ni sale en el PDF.
+- El logo tiene letras oscuras sobre transparente: en el encabezado va sobre una ficha blanca y los iconos de la PWA usan fondo blanco.
+- PWA: `vite-plugin-pwa` (generateSW, autoUpdate) precachea 79 archivos (código, biblioteca completa, iconos, jsPDF). No se pudo comprobar el registro del service worker en el navegador integrado de la app de escritorio (falla al registrar); la comprobación offline real debe hacerse en Chrome (ver README).
+- Workflow de Pages: corre `npm test` antes de compilar y fija `VITE_BASE` con el nombre del repositorio.

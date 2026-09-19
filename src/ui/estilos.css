@@ -1,8 +1,8 @@
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, "Segoe UI", sans-serif; color: var(--tec-grafito); background: #fff; }
 .app { display: flex; flex-direction: column; height: 100vh; }
-.barra { display: flex; align-items: center; gap: 16px; padding: 8px 16px; background: var(--tec-navy); color: #fff; }
-.barra img { height: 40px; }
+.barra { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: var(--tec-navy); color: #fff; }
+.barra img { height: 44px; padding: 3px 10px; background: #fff; border-radius: 6px; }
 .barra h1 { font-size: 1.1rem; margin: 0; font-weight: 600; }
 .cuerpo { flex: 1; display: flex; min-height: 0; }
 .panel-catalogo { width: 320px; overflow-y: auto; border-right: 1px solid var(--tec-plata); background: var(--tec-plata-clara); padding: 8px; }
@@ -79,3 +79,33 @@ body { overflow: hidden; }
 .tabla-lista tfoot td { font-weight: 600; border-top: 2px solid var(--tec-plata); }
 .acciones-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .aviso-flotante.info { color: var(--tec-navy); border-color: var(--tec-navy); }
+
+.datos-proyecto { display: flex; flex-wrap: wrap; gap: 8px 12px; flex: 1; min-width: 200px; }
+.datos-proyecto label { display: flex; flex-direction: column; gap: 2px; font-size: .72rem; color: var(--tec-plata-clara); }
+.datos-proyecto input { min-height: 36px; min-width: 150px; padding: 0 8px; font: inherit; font-size: .95rem; color: var(--tec-grafito); background: #fff; border: 1px solid var(--tec-gris-metal); border-radius: 4px; }
+.estado-guardado { font-size: .8rem; color: var(--tec-plata-clara); }
+.estado-guardado.error { color: #fff; background: #9b1c1c; padding: 4px 8px; border-radius: 4px; }
+.acciones-barra { display: flex; gap: 8px; }
+.acciones-barra button, .dialogo button { min-height: 40px; min-width: 40px; padding: 0 14px; font: inherit; font-size: .9rem; color: var(--tec-navy); background: #fff; border: 1px solid var(--tec-plata); border-radius: 4px; cursor: pointer; }
+.acciones-barra button:hover:not(:disabled) { background: var(--tec-plata-clara); }
+.acciones-barra button:disabled { opacity: .6; cursor: default; }
+.dialogo { width: min(640px, 94vw); max-height: 88vh; padding: 16px; color: var(--tec-grafito); border: 1px solid var(--tec-gris-metal); border-radius: 8px; }
+.dialogo::backdrop { background: rgba(8, 25, 51, .55); }
+.dialogo-cabecera { display: flex; justify-content: space-between; align-items: center; }
+.dialogo-cabecera h2 { margin: 0; font-size: 1.1rem; color: var(--tec-navy); }
+.dialogo-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.dialogo button { background: var(--tec-navy); color: #fff; border-color: var(--tec-navy-oscuro); }
+.dialogo button:hover { background: var(--tec-azul-acero); }
+.dialogo button.secundario { background: #fff; color: var(--tec-navy); border-color: var(--tec-gris-metal); }
+.dialogo button.peligro { background: #fff; color: #9b1c1c; border-color: #9b1c1c; }
+.dialogo button:focus-visible { outline: 2px solid var(--tec-azul-brillo); outline-offset: 2px; }
+.mensaje { margin: 0 0 12px; padding: 8px 10px; font-size: .88rem; background: var(--tec-plata-clara); border-radius: 4px; }
+.mensaje.error { color: #7a1414; background: #fdf1f1; border: 1px solid #9b1c1c; }
+.lista-proyectos { list-style: none; margin: 0; padding: 0; overflow-y: auto; max-height: 50vh; }
+.lista-proyectos li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 4px; border-bottom: 1px solid var(--tec-plata-clara); }
+.lista-proyectos li.actual { background: var(--tec-plata-clara); }
+.info-proyecto { display: flex; flex-direction: column; min-width: 0; }
+.info-proyecto .detalle { font-size: .8rem; color: var(--tec-gris-texto); }
+.etiqueta-actual { margin-left: 8px; font-size: .72rem; color: var(--tec-navy); font-weight: 600; }
+.botones-proyecto, .confirmar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.confirmar span { font-size: .85rem; }

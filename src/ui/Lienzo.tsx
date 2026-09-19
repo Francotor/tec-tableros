@@ -11,6 +11,7 @@ import { lineasEtiqueta, tamanoAjustado } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Componente } from '../core/tipos';
 import { contextoActual, useContexto, useEditor } from '../store/editor';
+import { registrarGeneradorPng } from './exportacion';
 import { cargarLineales, textoDeBiblioteca, useImagen } from './imagenes';
 
 const ZOOM_MIN = 0.1;
@@ -123,6 +124,7 @@ const ElementoKonva = memo(function ElementoKonva({ el, comp, seleccionado, fuer
         })}
       {(seleccionado || fuera) && (
         <Rect
+          name="marca"
           width={r.w}
           height={r.h}
           stroke={fuera ? ROJO : AZUL}
@@ -152,9 +154,9 @@ function Cuadricula({ ancho, alto, zoom }: { ancho: number; alto: number; zoom: 
   return (
     <>
       {zoom >= 1 && (
-        <Shape sceneFunc={lineas(10)} stroke="rgba(5,33,68,0.10)" strokeWidth={1} strokeScaleEnabled={false} listening={false} />
+        <Shape name="cuadricula" sceneFunc={lineas(10)} stroke="rgba(5,33,68,0.10)" strokeWidth={1} strokeScaleEnabled={false} listening={false} />
       )}
-      <Shape sceneFunc={lineas(50)} stroke="rgba(5,33,68,0.22)" strokeWidth={1} strokeScaleEnabled={false} listening={false} />
+      <Shape name="cuadricula" sceneFunc={lineas(50)} stroke="rgba(5,33,68,0.22)" strokeWidth={1} strokeScaleEnabled={false} listening={false} />
     </>
   );
 }
@@ -326,6 +328,31 @@ export function Lienzo() {
     if (actual) nodo.position({ x: actual.x_mm, y: actual.y_mm });
   }, []);
 
+  // PNG del tablero a escala fija (sin rejilla ni marcas de selección), para exportar.
+  useEffect(() => {
+    if (!ctx) return;
+    registrarGeneradorPng(() => {
+      const stage = stageRef.current;
+      if (!stage) return null;
+      const k = Math.min(6, 4000 / Math.max(ctx.caja.ancho, ctx.caja.alto));
+      const previo = { w: stage.width(), h: stage.height(), s: stage.scaleX(), x: stage.x(), y: stage.y() };
+      const ocultos = stage.find('.marca, .cuadricula');
+      ocultos.forEach((n) => n.visible(false));
+      stage.size({ width: ctx.caja.ancho * k, height: ctx.caja.alto * k });
+      stage.scale({ x: k, y: k });
+      stage.position({ x: 0, y: 0 });
+      stage.draw();
+      const url = stage.toDataURL({ pixelRatio: 1, mimeType: 'image/png' });
+      ocultos.forEach((n) => n.visible(true));
+      stage.size({ width: previo.w, height: previo.h });
+      stage.scale({ x: previo.s, y: previo.s });
+      stage.position({ x: previo.x, y: previo.y });
+      stage.draw();
+      return url;
+    });
+    return () => registrarGeneradorPng(null);
+  }, [ctx]);
+
   // Teclado: flechas, suprimir, deshacer/rehacer, duplicar y girar.
   useEffect(() => {
     const alTeclear = (e: KeyboardEvent) => {
@@ -429,6 +456,7 @@ export function Lienzo() {
             })}
             {fantasma && (
               <Rect
+                name="marca"
                 x={fantasma.rect.x}
                 y={fantasma.rect.y}
                 width={fantasma.rect.w}
