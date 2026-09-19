@@ -1,0 +1,6 @@
+node_modules
+dist
+*.local
+# Originales de entrada (la copia de trabajo vive en public/)
+/biblioteca-tableros/
+/logo_tec.PNG

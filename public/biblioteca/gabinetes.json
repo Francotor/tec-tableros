@@ -1,0 +1,601 @@
+{
+ "version": "1.0",
+ "unidad": "mm",
+ "parametros": {
+  "margen_placa_mm": 50,
+  "margen_lateral_riel_mm": 40,
+  "canaleta_mm": 25,
+  "margen_vertical_mm": 10,
+  "modulo_mm": 18,
+  "alto_modular_mm": 90,
+  "formulas": {
+   "placa": "caja exterior - margen_placa por dimension",
+   "modulos_por_fila": "floor((ancho_placa - margen_lateral_riel) / modulo)",
+   "filas_max_estimado": "floor((alto_placa - canaleta - margen_vertical) / (alto_modular + canaleta))"
+  },
+  "estado": "Supuestos sin validar contra placas reales; corregir con medidas medidas y volver a generar."
+ },
+ "regla_sugerencia": "Elegir la caja mas chica de la lista cuya capacidad (filas y modulos) contenga el dibujo; permitir medida libre.",
+ "cajas": [
+  {
+   "id": "caja_metalica_200x300x150",
+   "nombre": "Caja metalica sobrepuesta 200 x 300 x 150",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 200,
+   "ancho_mm": 300,
+   "fondo_mm": 150,
+   "svg": "gabinetes/caja_metalica_200x300x150.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 250,
+    "alto": 150
+   },
+   "modulos_por_fila": 11,
+   "filas_max_estimado": 1,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_300x300x150",
+   "nombre": "Caja metalica sobrepuesta 300 x 300 x 150",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 300,
+   "ancho_mm": 300,
+   "fondo_mm": 150,
+   "svg": "gabinetes/caja_metalica_300x300x150.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 250,
+    "alto": 250
+   },
+   "modulos_por_fila": 11,
+   "filas_max_estimado": 1,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_300x400x200",
+   "nombre": "Caja metalica sobrepuesta 300 x 400 x 200",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 300,
+   "ancho_mm": 400,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_metalica_300x400x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 350,
+    "alto": 250
+   },
+   "modulos_por_fila": 17,
+   "filas_max_estimado": 1,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_400x400x200",
+   "nombre": "Caja metalica sobrepuesta 400 x 400 x 200",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 400,
+   "ancho_mm": 400,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_metalica_400x400x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 350,
+    "alto": 350
+   },
+   "modulos_por_fila": 17,
+   "filas_max_estimado": 2,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_400x500x200",
+   "nombre": "Caja metalica sobrepuesta 400 x 500 x 200",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 400,
+   "ancho_mm": 500,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_metalica_400x500x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 450,
+    "alto": 350
+   },
+   "modulos_por_fila": 22,
+   "filas_max_estimado": 2,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_400x600x200",
+   "nombre": "Caja metalica sobrepuesta 400 x 600 x 200",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 400,
+   "ancho_mm": 600,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_metalica_400x600x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 550,
+    "alto": 350
+   },
+   "modulos_por_fila": 28,
+   "filas_max_estimado": 2,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_500x500x200",
+   "nombre": "Caja metalica sobrepuesta 500 x 500 x 200",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 500,
+   "ancho_mm": 500,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_metalica_500x500x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 450,
+    "alto": 450
+   },
+   "modulos_por_fila": 22,
+   "filas_max_estimado": 3,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_600x600x250",
+   "nombre": "Caja metalica sobrepuesta 600 x 600 x 250",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 600,
+   "ancho_mm": 600,
+   "fondo_mm": 250,
+   "svg": "gabinetes/caja_metalica_600x600x250.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 550,
+    "alto": 550
+   },
+   "modulos_por_fila": 28,
+   "filas_max_estimado": 4,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_800x600x250",
+   "nombre": "Caja metalica sobrepuesta 800 x 600 x 250",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 800,
+   "ancho_mm": 600,
+   "fondo_mm": 250,
+   "svg": "gabinetes/caja_metalica_800x600x250.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 550,
+    "alto": 750
+   },
+   "modulos_por_fila": 28,
+   "filas_max_estimado": 6,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_800x800x300",
+   "nombre": "Caja metalica sobrepuesta 800 x 800 x 300",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 800,
+   "ancho_mm": 800,
+   "fondo_mm": 300,
+   "svg": "gabinetes/caja_metalica_800x800x300.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 750,
+    "alto": 750
+   },
+   "modulos_por_fila": 39,
+   "filas_max_estimado": 6,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_metalica_1000x600x300",
+   "nombre": "Caja metalica sobrepuesta 1000 x 600 x 300",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 1000,
+   "ancho_mm": 600,
+   "fondo_mm": 300,
+   "svg": "gabinetes/caja_metalica_1000x600x300.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 550,
+    "alto": 950
+   },
+   "modulos_por_fila": 28,
+   "filas_max_estimado": 7,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_200x300x150",
+   "nombre": "Caja de acero inoxidable sobrepuesta 200 x 300 x 150",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 200,
+   "ancho_mm": 300,
+   "fondo_mm": 150,
+   "svg": "gabinetes/caja_inox_200x300x150.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 250,
+    "alto": 150
+   },
+   "modulos_por_fila": 11,
+   "filas_max_estimado": 1,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_300x300x150",
+   "nombre": "Caja de acero inoxidable sobrepuesta 300 x 300 x 150",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 300,
+   "ancho_mm": 300,
+   "fondo_mm": 150,
+   "svg": "gabinetes/caja_inox_300x300x150.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 250,
+    "alto": 250
+   },
+   "modulos_por_fila": 11,
+   "filas_max_estimado": 1,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_300x400x200",
+   "nombre": "Caja de acero inoxidable sobrepuesta 300 x 400 x 200",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 300,
+   "ancho_mm": 400,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_inox_300x400x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 350,
+    "alto": 250
+   },
+   "modulos_por_fila": 17,
+   "filas_max_estimado": 1,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_400x400x200",
+   "nombre": "Caja de acero inoxidable sobrepuesta 400 x 400 x 200",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 400,
+   "ancho_mm": 400,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_inox_400x400x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 350,
+    "alto": 350
+   },
+   "modulos_por_fila": 17,
+   "filas_max_estimado": 2,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_400x500x200",
+   "nombre": "Caja de acero inoxidable sobrepuesta 400 x 500 x 200",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 400,
+   "ancho_mm": 500,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_inox_400x500x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 450,
+    "alto": 350
+   },
+   "modulos_por_fila": 22,
+   "filas_max_estimado": 2,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_400x600x200",
+   "nombre": "Caja de acero inoxidable sobrepuesta 400 x 600 x 200",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 400,
+   "ancho_mm": 600,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_inox_400x600x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 550,
+    "alto": 350
+   },
+   "modulos_por_fila": 28,
+   "filas_max_estimado": 2,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_500x500x200",
+   "nombre": "Caja de acero inoxidable sobrepuesta 500 x 500 x 200",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 500,
+   "ancho_mm": 500,
+   "fondo_mm": 200,
+   "svg": "gabinetes/caja_inox_500x500x200.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 450,
+    "alto": 450
+   },
+   "modulos_por_fila": 22,
+   "filas_max_estimado": 3,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_600x600x250",
+   "nombre": "Caja de acero inoxidable sobrepuesta 600 x 600 x 250",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 600,
+   "ancho_mm": 600,
+   "fondo_mm": 250,
+   "svg": "gabinetes/caja_inox_600x600x250.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 550,
+    "alto": 550
+   },
+   "modulos_por_fila": 28,
+   "filas_max_estimado": 4,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_800x600x250",
+   "nombre": "Caja de acero inoxidable sobrepuesta 800 x 600 x 250",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 800,
+   "ancho_mm": 600,
+   "fondo_mm": 250,
+   "svg": "gabinetes/caja_inox_800x600x250.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 550,
+    "alto": 750
+   },
+   "modulos_por_fila": 28,
+   "filas_max_estimado": 6,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_800x800x300",
+   "nombre": "Caja de acero inoxidable sobrepuesta 800 x 800 x 300",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 800,
+   "ancho_mm": 800,
+   "fondo_mm": 300,
+   "svg": "gabinetes/caja_inox_800x800x300.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 750,
+    "alto": 750
+   },
+   "modulos_por_fila": 39,
+   "filas_max_estimado": 6,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_inox_1000x600x300",
+   "nombre": "Caja de acero inoxidable sobrepuesta 1000 x 600 x 300",
+   "tipo": "inox",
+   "montaje": "sobrepuesta",
+   "alto_mm": 1000,
+   "ancho_mm": 600,
+   "fondo_mm": 300,
+   "svg": "gabinetes/caja_inox_1000x600x300.svg",
+   "placa": {
+    "x": 25.0,
+    "y": 25.0,
+    "ancho": 550,
+    "alto": 950
+   },
+   "modulos_por_fila": 28,
+   "filas_max_estimado": 7,
+   "rieles_incluidos": false
+  },
+  {
+   "id": "caja_plastica_sobrepuesta_1f",
+   "nombre": "Caja plastica sobrepuesta 12 modulos x 1 fila",
+   "tipo": "plastica_sobrepuesta",
+   "montaje": "sobrepuesta",
+   "alto_mm": 185,
+   "ancho_mm": 260,
+   "fondo_mm": 100,
+   "svg": "gabinetes/caja_plastica_sobrepuesta_1f.svg",
+   "placa": null,
+   "modulos_por_fila": 12,
+   "filas_max_estimado": 1,
+   "rieles_incluidos": true,
+   "rieles": [
+    {
+     "x": 22,
+     "y_centro": 92.5,
+     "largo": 216
+    }
+   ],
+   "notas": "Medidas aproximadas [supuesto]; ajustar a la caja real."
+  },
+  {
+   "id": "caja_plastica_sobrepuesta_2f",
+   "nombre": "Caja plastica sobrepuesta 12 modulos x 2 filas",
+   "tipo": "plastica_sobrepuesta",
+   "montaje": "sobrepuesta",
+   "alto_mm": 310,
+   "ancho_mm": 260,
+   "fondo_mm": 100,
+   "svg": "gabinetes/caja_plastica_sobrepuesta_2f.svg",
+   "placa": null,
+   "modulos_por_fila": 12,
+   "filas_max_estimado": 2,
+   "rieles_incluidos": true,
+   "rieles": [
+    {
+     "x": 22,
+     "y_centro": 92.5,
+     "largo": 216
+    },
+    {
+     "x": 22,
+     "y_centro": 217.5,
+     "largo": 216
+    }
+   ],
+   "notas": "Medidas aproximadas [supuesto]; ajustar a la caja real."
+  },
+  {
+   "id": "caja_plastica_sobrepuesta_3f",
+   "nombre": "Caja plastica sobrepuesta 12 modulos x 3 filas",
+   "tipo": "plastica_sobrepuesta",
+   "montaje": "sobrepuesta",
+   "alto_mm": 435,
+   "ancho_mm": 260,
+   "fondo_mm": 100,
+   "svg": "gabinetes/caja_plastica_sobrepuesta_3f.svg",
+   "placa": null,
+   "modulos_por_fila": 12,
+   "filas_max_estimado": 3,
+   "rieles_incluidos": true,
+   "rieles": [
+    {
+     "x": 22,
+     "y_centro": 92.5,
+     "largo": 216
+    },
+    {
+     "x": 22,
+     "y_centro": 217.5,
+     "largo": 216
+    },
+    {
+     "x": 22,
+     "y_centro": 342.5,
+     "largo": 216
+    }
+   ],
+   "notas": "Medidas aproximadas [supuesto]; ajustar a la caja real."
+  },
+  {
+   "id": "caja_plastica_embutida_1f",
+   "nombre": "Caja plastica embutida 12 modulos x 1 fila",
+   "tipo": "plastica_embutida",
+   "montaje": "embutida",
+   "alto_mm": 215,
+   "ancho_mm": 290,
+   "fondo_mm": 100,
+   "svg": "gabinetes/caja_plastica_embutida_1f.svg",
+   "placa": null,
+   "modulos_por_fila": 12,
+   "filas_max_estimado": 1,
+   "rieles_incluidos": true,
+   "rieles": [
+    {
+     "x": 37,
+     "y_centro": 107.5,
+     "largo": 216
+    }
+   ],
+   "notas": "Medidas aproximadas [supuesto]; ajustar a la caja real."
+  },
+  {
+   "id": "caja_plastica_embutida_2f",
+   "nombre": "Caja plastica embutida 12 modulos x 2 filas",
+   "tipo": "plastica_embutida",
+   "montaje": "embutida",
+   "alto_mm": 340,
+   "ancho_mm": 290,
+   "fondo_mm": 100,
+   "svg": "gabinetes/caja_plastica_embutida_2f.svg",
+   "placa": null,
+   "modulos_por_fila": 12,
+   "filas_max_estimado": 2,
+   "rieles_incluidos": true,
+   "rieles": [
+    {
+     "x": 37,
+     "y_centro": 107.5,
+     "largo": 216
+    },
+    {
+     "x": 37,
+     "y_centro": 232.5,
+     "largo": 216
+    }
+   ],
+   "notas": "Medidas aproximadas [supuesto]; ajustar a la caja real."
+  },
+  {
+   "id": "caja_plastica_embutida_3f",
+   "nombre": "Caja plastica embutida 12 modulos x 3 filas",
+   "tipo": "plastica_embutida",
+   "montaje": "embutida",
+   "alto_mm": 465,
+   "ancho_mm": 290,
+   "fondo_mm": 100,
+   "svg": "gabinetes/caja_plastica_embutida_3f.svg",
+   "placa": null,
+   "modulos_por_fila": 12,
+   "filas_max_estimado": 3,
+   "rieles_incluidos": true,
+   "rieles": [
+    {
+     "x": 37,
+     "y_centro": 107.5,
+     "largo": 216
+    },
+    {
+     "x": 37,
+     "y_centro": 232.5,
+     "largo": 216
+    },
+    {
+     "x": 37,
+     "y_centro": 357.5,
+     "largo": 216
+    }
+   ],
+   "notas": "Medidas aproximadas [supuesto]; ajustar a la caja real."
+  }
+ ]
+}

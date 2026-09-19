@@ -1,0 +1,1 @@
+{"root":["./src/main.tsx","./src/theme.ts","./src/core/biblioteca.test.ts","./src/core/biblioteca.ts","./src/core/contraste.ts","./src/core/tipos.ts","./src/store/biblioteca.ts","./src/ui/app.tsx","./src/ui/panelcatalogo.tsx"],"version":"6.0.3"}

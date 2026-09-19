@@ -1,0 +1,1055 @@
+{
+ "version": "1.0",
+ "unidad": "mm",
+ "origen": "arriba-izquierda, eje y hacia abajo",
+ "modulo_din_mm": 18,
+ "alto_modular_mm": 90,
+ "riel_din_ancho_mm": 35,
+ "reglas": {
+  "riel": "El aparato con montaje 'riel' se ubica con su eje y (riel_y_mm) sobre la linea central del riel.",
+  "snap": "modular: paso de 18 mm desde el inicio del riel; libre: paso 1 mm. En ambos, imantar al borde del vecino si esta a menos de 3 mm.",
+  "etiqueta": "El SVG no lleva texto. El editor escribe 'lineas' (plantilla con campos) centradas en la zona 'etiqueta' con 'tamano_mm'.",
+  "bom": "Cada ficha trae una plantilla 'bom'; se completa con campos y atributos y se agrupan lineas iguales."
+ },
+ "componentes": [
+  {
+   "id": "automatico_1p",
+   "nombre": "Interruptor automatico 1P",
+   "categoria": "Protecciones",
+   "svg": "componentes/automatico_1p.svg",
+   "ancho_mm": 18,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 1,
+   "polos": 1,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 13,
+    "h": 17,
+    "lineas": [
+     "{curva}{amperaje}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "curva",
+     "rotulo": "Curva",
+     "tipo": "select",
+     "opciones": [
+      "B",
+      "C",
+      "D"
+     ],
+     "defecto": "C"
+    },
+    {
+     "id": "amperaje",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      6,
+      10,
+      16,
+      20,
+      25,
+      32,
+      40,
+      50,
+      63
+     ],
+     "defecto": 16
+    }
+   ],
+   "atributos": {
+    "polos": 1
+   },
+   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A",
+   "notas": null
+  },
+  {
+   "id": "automatico_2p",
+   "nombre": "Interruptor automatico 2P",
+   "categoria": "Protecciones",
+   "svg": "componentes/automatico_2p.svg",
+   "ancho_mm": 36,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 2,
+   "polos": 2,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 31,
+    "h": 17,
+    "lineas": [
+     "{polos}P",
+     "{curva}{amperaje}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "curva",
+     "rotulo": "Curva",
+     "tipo": "select",
+     "opciones": [
+      "B",
+      "C",
+      "D"
+     ],
+     "defecto": "C"
+    },
+    {
+     "id": "amperaje",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      6,
+      10,
+      16,
+      20,
+      25,
+      32,
+      40,
+      50,
+      63
+     ],
+     "defecto": 40
+    }
+   ],
+   "atributos": {
+    "polos": 2
+   },
+   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A",
+   "notas": null
+  },
+  {
+   "id": "automatico_3p",
+   "nombre": "Interruptor automatico 3P",
+   "categoria": "Protecciones",
+   "svg": "componentes/automatico_3p.svg",
+   "ancho_mm": 54,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 3,
+   "polos": 3,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 49,
+    "h": 17,
+    "lineas": [
+     "{polos}P",
+     "{curva}{amperaje}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "curva",
+     "rotulo": "Curva",
+     "tipo": "select",
+     "opciones": [
+      "B",
+      "C",
+      "D"
+     ],
+     "defecto": "C"
+    },
+    {
+     "id": "amperaje",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      6,
+      10,
+      16,
+      20,
+      25,
+      32,
+      40,
+      50,
+      63
+     ],
+     "defecto": 25
+    }
+   ],
+   "atributos": {
+    "polos": 3
+   },
+   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A",
+   "notas": null
+  },
+  {
+   "id": "automatico_4p",
+   "nombre": "Interruptor automatico 4P",
+   "categoria": "Protecciones",
+   "svg": "componentes/automatico_4p.svg",
+   "ancho_mm": 72,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 4,
+   "polos": 4,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 67,
+    "h": 17,
+    "lineas": [
+     "{polos}P",
+     "{curva}{amperaje}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "curva",
+     "rotulo": "Curva",
+     "tipo": "select",
+     "opciones": [
+      "B",
+      "C",
+      "D"
+     ],
+     "defecto": "C"
+    },
+    {
+     "id": "amperaje",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      6,
+      10,
+      16,
+      20,
+      25,
+      32,
+      40,
+      50,
+      63
+     ],
+     "defecto": 63
+    }
+   ],
+   "atributos": {
+    "polos": 4
+   },
+   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A",
+   "notas": null
+  },
+  {
+   "id": "diferencial_2p",
+   "nombre": "Interruptor diferencial 2P",
+   "categoria": "Protecciones",
+   "svg": "componentes/diferencial_2p.svg",
+   "ancho_mm": 36,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 2,
+   "polos": 2,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 31,
+    "h": 17,
+    "lineas": [
+     "{amperaje}A",
+     "{sensibilidad}"
+    ],
+    "tamano_mm": 4.2
+   },
+   "campos": [
+    {
+     "id": "amperaje",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      25,
+      40,
+      63,
+      80
+     ],
+     "defecto": 40
+    },
+    {
+     "id": "sensibilidad",
+     "rotulo": "Sensibilidad",
+     "tipo": "select",
+     "opciones": [
+      "30 mA",
+      "300 mA"
+     ],
+     "defecto": "30 mA"
+    }
+   ],
+   "atributos": {
+    "polos": 2
+   },
+   "bom": "Interruptor diferencial {polos}P {amperaje} A {sensibilidad}",
+   "notas": null
+  },
+  {
+   "id": "diferencial_4p",
+   "nombre": "Interruptor diferencial 4P",
+   "categoria": "Protecciones",
+   "svg": "componentes/diferencial_4p.svg",
+   "ancho_mm": 72,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 4,
+   "polos": 4,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 67,
+    "h": 17,
+    "lineas": [
+     "{amperaje}A",
+     "{sensibilidad}"
+    ],
+    "tamano_mm": 4.2
+   },
+   "campos": [
+    {
+     "id": "amperaje",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      25,
+      40,
+      63,
+      80
+     ],
+     "defecto": 63
+    },
+    {
+     "id": "sensibilidad",
+     "rotulo": "Sensibilidad",
+     "tipo": "select",
+     "opciones": [
+      "30 mA",
+      "300 mA"
+     ],
+     "defecto": "300 mA"
+    }
+   ],
+   "atributos": {
+    "polos": 4
+   },
+   "bom": "Interruptor diferencial {polos}P {amperaje} A {sensibilidad}",
+   "notas": null
+  },
+  {
+   "id": "contactor_2p_modular",
+   "nombre": "Contactor modular 2P",
+   "categoria": "Comando",
+   "svg": "componentes/contactor_2p_modular.svg",
+   "ancho_mm": 36,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 2,
+   "polos": 2,
+   "etiqueta": {
+    "x": 3,
+    "y": 15,
+    "w": 30,
+    "h": 30,
+    "lineas": [
+     "K{indice}",
+     "{corriente}A"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "indice",
+     "rotulo": "N° de contactor",
+     "tipo": "entero",
+     "defecto": 1
+    },
+    {
+     "id": "corriente",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      20,
+      25,
+      40,
+      63
+     ],
+     "defecto": 25
+    },
+    {
+     "id": "bobina",
+     "rotulo": "Bobina",
+     "tipo": "select",
+     "opciones": [
+      "24 V",
+      "230 V"
+     ],
+     "defecto": "230 V"
+    }
+   ],
+   "atributos": {
+    "polos": 2
+   },
+   "bom": "Contactor modular {polos}P {corriente} A, bobina {bobina}",
+   "notas": null
+  },
+  {
+   "id": "contactor_3p",
+   "nombre": "Contactor 3P (industrial)",
+   "categoria": "Comando",
+   "svg": "componentes/contactor_3p.svg",
+   "ancho_mm": 45,
+   "alto_mm": 85,
+   "montaje": "riel",
+   "riel_y_mm": 42.5,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": 3,
+   "etiqueta": {
+    "x": 3,
+    "y": 24,
+    "w": 39,
+    "h": 26,
+    "lineas": [
+     "K{indice}",
+     "{corriente}A"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "indice",
+     "rotulo": "N° de contactor",
+     "tipo": "entero",
+     "defecto": 1
+    },
+    {
+     "id": "corriente",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      9,
+      12,
+      18,
+      25,
+      32
+     ],
+     "defecto": 25
+    },
+    {
+     "id": "bobina",
+     "rotulo": "Bobina",
+     "tipo": "select",
+     "opciones": [
+      "24 V",
+      "230 V"
+     ],
+     "defecto": "230 V"
+    }
+   ],
+   "atributos": {
+    "polos": 3
+   },
+   "bom": "Contactor {polos}P {corriente} A, bobina {bobina}",
+   "notas": "Ancho de 45 mm no es multiplo de 18: se ajusta por borde con los vecinos."
+  },
+  {
+   "id": "reloj_control",
+   "nombre": "Reloj control horario",
+   "categoria": "Control",
+   "svg": "componentes/reloj_control.svg",
+   "ancho_mm": 36,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 2,
+   "polos": 2,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 46,
+    "w": 31,
+    "h": 17,
+    "lineas": [
+     "{etiqueta}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": "RC1"
+    }
+   ],
+   "atributos": {},
+   "bom": "Reloj control horario programable 2 modulos",
+   "notas": "Ancho de 2 modulos [supuesto]: los hay de 1 a 3, medir el que se instala."
+  },
+  {
+   "id": "rele_crepuscular",
+   "nombre": "Rele crepuscular (riel)",
+   "categoria": "Control",
+   "svg": "componentes/rele_crepuscular.svg",
+   "ancho_mm": 36,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 2,
+   "polos": 2,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 56,
+    "w": 31,
+    "h": 17,
+    "lineas": [
+     "{etiqueta}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": "FC1"
+    }
+   ],
+   "atributos": {},
+   "bom": "Rele crepuscular de riel 2 modulos",
+   "notas": null
+  },
+  {
+   "id": "fotocelda",
+   "nombre": "Fotocelda (sensor exterior)",
+   "categoria": "Control",
+   "svg": "componentes/fotocelda.svg",
+   "ancho_mm": 40,
+   "alto_mm": 40,
+   "montaje": "libre",
+   "riel_y_mm": null,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {},
+   "bom": "Fotocelda (sensor crepuscular exterior)",
+   "notas": "No va sobre riel: se fija a la caja o a la placa."
+  },
+  {
+   "id": "barra_repartidora_6v",
+   "nombre": "Barra repartidora 6 vias",
+   "categoria": "Distribucion",
+   "svg": "componentes/barra_repartidora_6v.svg",
+   "ancho_mm": 54,
+   "alto_mm": 60,
+   "montaje": "riel",
+   "riel_y_mm": 30,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 3,
+   "polos": null,
+   "etiqueta": {
+    "x": 2,
+    "y": 3,
+    "w": 50,
+    "h": 10,
+    "lineas": [
+     "{funcion}"
+    ],
+    "tamano_mm": 4
+   },
+   "campos": [
+    {
+     "id": "funcion",
+     "rotulo": "Funcion",
+     "tipo": "select",
+     "opciones": [
+      "N",
+      "T",
+      "F"
+     ],
+     "defecto": "N"
+    }
+   ],
+   "atributos": {
+    "vias": 6
+   },
+   "bom": "Barra repartidora {vias} vias",
+   "notas": "Ancho de 9 mm por via [supuesto]; ajustar al modelo real."
+  },
+  {
+   "id": "barra_repartidora_12v",
+   "nombre": "Barra repartidora 12 vias",
+   "categoria": "Distribucion",
+   "svg": "componentes/barra_repartidora_12v.svg",
+   "ancho_mm": 108,
+   "alto_mm": 60,
+   "montaje": "riel",
+   "riel_y_mm": 30,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 6,
+   "polos": null,
+   "etiqueta": {
+    "x": 2,
+    "y": 3,
+    "w": 104,
+    "h": 10,
+    "lineas": [
+     "{funcion}"
+    ],
+    "tamano_mm": 4
+   },
+   "campos": [
+    {
+     "id": "funcion",
+     "rotulo": "Funcion",
+     "tipo": "select",
+     "opciones": [
+      "N",
+      "T",
+      "F"
+     ],
+     "defecto": "N"
+    }
+   ],
+   "atributos": {
+    "vias": 12
+   },
+   "bom": "Barra repartidora {vias} vias",
+   "notas": "Ancho de 9 mm por via [supuesto]; ajustar al modelo real."
+  },
+  {
+   "id": "borne_4_gris",
+   "nombre": "Borne de paso 4 mm2 gris",
+   "categoria": "Distribucion",
+   "svg": "componentes/borne_4_gris.svg",
+   "ancho_mm": 6,
+   "alto_mm": 45,
+   "montaje": "riel",
+   "riel_y_mm": 22.5,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "seccion_mm2": 4,
+    "color": "gris",
+    "funcion": "Fase (gris)"
+   },
+   "bom": "Borne de paso {seccion_mm2} mm2 {color}",
+   "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "borne_4_azul",
+   "nombre": "Borne de paso 4 mm2 azul",
+   "categoria": "Distribucion",
+   "svg": "componentes/borne_4_azul.svg",
+   "ancho_mm": 6,
+   "alto_mm": 45,
+   "montaje": "riel",
+   "riel_y_mm": 22.5,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "seccion_mm2": 4,
+    "color": "azul",
+    "funcion": "Neutro (azul)"
+   },
+   "bom": "Borne de paso {seccion_mm2} mm2 {color}",
+   "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "borne_4_tierra",
+   "nombre": "Borne de paso 4 mm2 tierra",
+   "categoria": "Distribucion",
+   "svg": "componentes/borne_4_tierra.svg",
+   "ancho_mm": 6,
+   "alto_mm": 45,
+   "montaje": "riel",
+   "riel_y_mm": 22.5,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "seccion_mm2": 4,
+    "color": "tierra",
+    "funcion": "Tierra (verde-amarillo)"
+   },
+   "bom": "Borne de paso {seccion_mm2} mm2 {color}",
+   "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "borne_16_gris",
+   "nombre": "Borne de paso 16 mm2 gris",
+   "categoria": "Distribucion",
+   "svg": "componentes/borne_16_gris.svg",
+   "ancho_mm": 12,
+   "alto_mm": 50,
+   "montaje": "riel",
+   "riel_y_mm": 25.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "seccion_mm2": 16,
+    "color": "gris",
+    "funcion": "Fase (gris)"
+   },
+   "bom": "Borne de paso {seccion_mm2} mm2 {color}",
+   "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "borne_16_azul",
+   "nombre": "Borne de paso 16 mm2 azul",
+   "categoria": "Distribucion",
+   "svg": "componentes/borne_16_azul.svg",
+   "ancho_mm": 12,
+   "alto_mm": 50,
+   "montaje": "riel",
+   "riel_y_mm": 25.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "seccion_mm2": 16,
+    "color": "azul",
+    "funcion": "Neutro (azul)"
+   },
+   "bom": "Borne de paso {seccion_mm2} mm2 {color}",
+   "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "borne_16_tierra",
+   "nombre": "Borne de paso 16 mm2 tierra",
+   "categoria": "Distribucion",
+   "svg": "componentes/borne_16_tierra.svg",
+   "ancho_mm": 12,
+   "alto_mm": 50,
+   "montaje": "riel",
+   "riel_y_mm": 25.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "seccion_mm2": 16,
+    "color": "tierra",
+    "funcion": "Tierra (verde-amarillo)"
+   },
+   "bom": "Borne de paso {seccion_mm2} mm2 {color}",
+   "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "borne_35_gris",
+   "nombre": "Borne de paso 35 mm2 gris",
+   "categoria": "Distribucion",
+   "svg": "componentes/borne_35_gris.svg",
+   "ancho_mm": 16,
+   "alto_mm": 55,
+   "montaje": "riel",
+   "riel_y_mm": 27.5,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "seccion_mm2": 35,
+    "color": "gris",
+    "funcion": "Fase (gris)"
+   },
+   "bom": "Borne de paso {seccion_mm2} mm2 {color}",
+   "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "borne_35_azul",
+   "nombre": "Borne de paso 35 mm2 azul",
+   "categoria": "Distribucion",
+   "svg": "componentes/borne_35_azul.svg",
+   "ancho_mm": 16,
+   "alto_mm": 55,
+   "montaje": "riel",
+   "riel_y_mm": 27.5,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "seccion_mm2": 35,
+    "color": "azul",
+    "funcion": "Neutro (azul)"
+   },
+   "bom": "Borne de paso {seccion_mm2} mm2 {color}",
+   "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "borne_35_tierra",
+   "nombre": "Borne de paso 35 mm2 tierra",
+   "categoria": "Distribucion",
+   "svg": "componentes/borne_35_tierra.svg",
+   "ancho_mm": 16,
+   "alto_mm": 55,
+   "montaje": "riel",
+   "riel_y_mm": 27.5,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "seccion_mm2": 35,
+    "color": "tierra",
+    "funcion": "Tierra (verde-amarillo)"
+   },
+   "bom": "Borne de paso {seccion_mm2} mm2 {color}",
+   "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "tope_riel",
+   "nombre": "Tope de riel DIN",
+   "categoria": "Montaje",
+   "svg": "componentes/tope_riel.svg",
+   "ancho_mm": 8,
+   "alto_mm": 45,
+   "montaje": "riel",
+   "riel_y_mm": 22.5,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {},
+   "bom": "Tope de riel DIN",
+   "notas": "Van 2 por riel, uno a cada extremo del grupo de aparatos."
+  },
+  {
+   "id": "riel_din",
+   "nombre": "Riel DIN 35 x 7,5",
+   "categoria": "Montaje",
+   "svg": "lineales/riel_din_muestra_180mm.svg",
+   "generador": "lineales.js -> rielSVG(largo_mm)",
+   "ancho_mm": null,
+   "alto_mm": 35,
+   "montaje": "lineal",
+   "eje": "x",
+   "largo_min_mm": 50,
+   "largo_max_mm": 2000,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "campos": [
+    {
+     "id": "largo",
+     "rotulo": "Largo (mm)",
+     "tipo": "entero",
+     "defecto": 400
+    }
+   ],
+   "accesorios_auto": [
+    {
+     "id": "tope_riel",
+     "cantidad": 2
+    }
+   ],
+   "bom": "Riel DIN 35 mm, corte de {largo} mm",
+   "notas": "Largo comercial habitual: 2 m."
+  },
+  {
+   "id": "canaleta_25",
+   "nombre": "Canaleta ranurada 25 x 25",
+   "categoria": "Montaje",
+   "svg": "lineales/canaleta_25_muestra_180mm.svg",
+   "generador": "lineales.js -> canaletaSVG(largo_mm, 25)",
+   "ancho_mm": null,
+   "alto_mm": 25,
+   "montaje": "lineal",
+   "eje": "x",
+   "largo_min_mm": 50,
+   "largo_max_mm": 2000,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "campos": [
+    {
+     "id": "largo",
+     "rotulo": "Largo (mm)",
+     "tipo": "entero",
+     "defecto": 400
+    }
+   ],
+   "atributos": {
+    "ancho": 25,
+    "profundidad": 25
+   },
+   "bom": "Canaleta ranurada 25 x 25 mm, corte de {largo} mm",
+   "notas": "Se ve de frente: alto en pantalla = ancho de la canaleta. Ranuras cada 9 mm."
+  },
+  {
+   "id": "canaleta_40",
+   "nombre": "Canaleta ranurada 40 x 40",
+   "categoria": "Montaje",
+   "svg": "lineales/canaleta_40_muestra_180mm.svg",
+   "generador": "lineales.js -> canaletaSVG(largo_mm, 40)",
+   "ancho_mm": null,
+   "alto_mm": 40,
+   "montaje": "lineal",
+   "eje": "x",
+   "largo_min_mm": 50,
+   "largo_max_mm": 2000,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "campos": [
+    {
+     "id": "largo",
+     "rotulo": "Largo (mm)",
+     "tipo": "entero",
+     "defecto": 400
+    }
+   ],
+   "atributos": {
+    "ancho": 40,
+    "profundidad": 40
+   },
+   "bom": "Canaleta ranurada 40 x 40 mm, corte de {largo} mm",
+   "notas": "Se ve de frente: alto en pantalla = ancho de la canaleta. Ranuras cada 9 mm."
+  },
+  {
+   "id": "canaleta_60",
+   "nombre": "Canaleta ranurada 60 x 40",
+   "categoria": "Montaje",
+   "svg": "lineales/canaleta_60_muestra_180mm.svg",
+   "generador": "lineales.js -> canaletaSVG(largo_mm, 60)",
+   "ancho_mm": null,
+   "alto_mm": 60,
+   "montaje": "lineal",
+   "eje": "x",
+   "largo_min_mm": 50,
+   "largo_max_mm": 2000,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "campos": [
+    {
+     "id": "largo",
+     "rotulo": "Largo (mm)",
+     "tipo": "entero",
+     "defecto": 400
+    }
+   ],
+   "atributos": {
+    "ancho": 60,
+    "profundidad": 40
+   },
+   "bom": "Canaleta ranurada 60 x 40 mm, corte de {largo} mm",
+   "notas": "Se ve de frente: alto en pantalla = ancho de la canaleta. Ranuras cada 9 mm."
+  }
+ ]
+}
