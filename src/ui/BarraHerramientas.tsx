@@ -1,30 +1,45 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ANCHO_MAX_LIBRE_MM, ANCHO_MIN_LIBRE_MM } from '../core/caja';
 import { SECCIONES_CANALETA } from '../core/capacidad';
 import type { Modo } from '../core/capacidad';
 import { esCanaleta, huella } from '../core/colocacion';
-import { formatearMm } from '../core/biblioteca';
+import { agruparCajasSelector, buscarCaja, formatearMm } from '../core/biblioteca';
 import { margenBordePorDefecto } from '../core/margenes';
-import type { Caja, TipoCaja } from '../core/tipos';
+import type { Caja, Gabinetes } from '../core/tipos';
 import { useBiblioteca } from '../store/biblioteca';
 import { useContexto, useEditor } from '../store/editor';
 
 const LIBRE = '__libre__';
-const GRUPOS: { tipo: TipoCaja; rotulo: string }[] = [
-  { tipo: 'metalica', rotulo: 'Metálicas' },
-  { tipo: 'inox', rotulo: 'Inox' },
-  { tipo: 'plastica_sobrepuesta', rotulo: 'Plásticas sobrepuestas' },
-  { tipo: 'plastica_embutida', rotulo: 'Plásticas embutidas' },
-];
 
-function SelectorCaja({ cajas }: { cajas: Caja[] }) {
+/** Datos de fábrica de la caja elegida: referencia, puerta transparente y doble puerta. */
+function DatosFabricante({ caja }: { caja: Caja }) {
+  if (!caja.ref_fabricante && !caja.puertas) return null;
+  return (
+    <span className="hint datos-fabricante">
+      {caja.ref_fabricante && <>Ref. {caja.ref_fabricante}</>}
+      {caja.ref_puerta_transparente && <> · puerta transparente {caja.ref_puerta_transparente}</>}
+      {caja.puertas === 2 && <span className="etiqueta-doble-puerta">Doble puerta</span>}
+    </span>
+  );
+}
+
+function SelectorCaja({ gabinetes }: { gabinetes: Gabinetes }) {
   const caja = useEditor((s) => s.proyecto.caja);
   const cambiarCaja = useEditor((s) => s.cambiarCaja);
   const avisar = useEditor((s) => s.avisar);
   const libre = 'libre' in caja ? caja.libre : null;
+  const cajaActual = 'id' in caja ? buscarCaja(gabinetes, caja.id) : null;
   const [ancho, setAncho] = useState(String(libre?.ancho_mm ?? 600));
   const [alto, setAlto] = useState(String(libre?.alto_mm ?? 500));
   const [tipo, setTipo] = useState<'metalica' | 'inox'>(libre?.tipo ?? 'metalica');
+  const [verGenericas, setVerGenericas] = useState(false);
+  const [oferta, setOferta] = useState<{ referencialId: string; reemplazo: Caja } | null>(null);
+
+  // La caja actual, si es referencial, se muestra igual aunque el toggle esté apagado.
+  const grupos = useMemo(
+    () => agruparCajasSelector(gabinetes.cajas, verGenericas || cajaActual?.referencial === true),
+    [gabinetes, verGenericas, cajaActual],
+  );
 
   const aplicarLibre = (a: string, h: string, t: 'metalica' | 'inox') => {
     const [an, al] = [Number(a), Number(h)];
@@ -33,31 +48,59 @@ function SelectorCaja({ cajas }: { cajas: Caja[] }) {
       avisar(`Ancho y alto deben ser números enteros entre ${ANCHO_MIN_LIBRE_MM} y ${ANCHO_MAX_LIBRE_MM} mm.`);
       return;
     }
+    setOferta(null);
     cambiarCaja({ libre: { ancho_mm: an, alto_mm: al, tipo: t } });
   };
 
+  const elegir = (id: string) => {
+    cambiarCaja({ id });
+    const c = buscarCaja(gabinetes, id);
+    const reemplazo = c?.referencial && c.reemplazo_sugerido ? buscarCaja(gabinetes, c.reemplazo_sugerido) : undefined;
+    setOferta(reemplazo ? { referencialId: id, reemplazo } : null);
+  };
+
   return (
-    <div className="grupo-barra">
+    <div className="grupo-barra selector-caja">
       <label>
         Caja
-        <select
-          value={'libre' in caja ? LIBRE : caja.id}
-          onChange={(e) => (e.target.value === LIBRE ? aplicarLibre(ancho, alto, tipo) : cambiarCaja({ id: e.target.value }))}
-        >
-          {GRUPOS.map((g) => (
-            <optgroup key={g.tipo} label={g.rotulo}>
-              {cajas
-                .filter((c) => c.tipo === g.tipo)
-                .map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nombre}
-                  </option>
-                ))}
+        <select value={'libre' in caja ? LIBRE : caja.id} onChange={(e) => (e.target.value === LIBRE ? aplicarLibre(ancho, alto, tipo) : elegir(e.target.value))}>
+          {grupos.map((g) => (
+            <optgroup key={g.etiqueta} label={g.etiqueta}>
+              {g.cajas.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                  {c.referencial ? ' (medida genérica)' : ''}
+                </option>
+              ))}
             </optgroup>
           ))}
           <option value={LIBRE}>Medida libre…</option>
         </select>
       </label>
+      <label className="ver-genericas">
+        <input
+          type="checkbox"
+          checked={verGenericas}
+          onChange={(e) => setVerGenericas(e.target.checked)}
+          disabled={cajaActual?.referencial === true}
+        />
+        Ver medidas genéricas
+      </label>
+      {cajaActual && <DatosFabricante caja={cajaActual} />}
+      {oferta && 'id' in caja && caja.id === oferta.referencialId && (
+        <div className="oferta-reemplazo" role="status">
+          <span>
+            Es una medida referencial. En el catálogo hay una caja real: <strong>{oferta.reemplazo.nombre}</strong>
+            {oferta.reemplazo.ref_fabricante && ` (ref. ${oferta.reemplazo.ref_fabricante})`}.
+          </span>
+          <button type="button" onClick={() => elegir(oferta.reemplazo.id)}>
+            Usar la real
+          </button>
+          <button type="button" className="secundario" onClick={() => setOferta(null)}>
+            Mantener esta medida
+          </button>
+        </div>
+      )}
       {libre && (
         <>
           <label>
@@ -193,7 +236,7 @@ export function BarraHerramientas() {
   return (
     <div className="barra-herramientas">
       <div className="fila-barra">
-        {gabinetes && <SelectorCaja cajas={gabinetes.cajas} />}
+        {gabinetes && <SelectorCaja gabinetes={gabinetes} />}
         <AjustesCapacidad />
         <div className="grupo-barra">
           <button type="button" onClick={deshacer} disabled={!puedeDeshacer} title="Deshacer (Ctrl+Z)">
