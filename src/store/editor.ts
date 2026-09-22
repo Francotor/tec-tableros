@@ -8,12 +8,15 @@ import {
   agregarElemento,
   borrarElemento,
   cambiarLargo as cambiarLargoCore,
+  cambiarLargoDesdeExtremo,
   crearContexto,
   duplicarElemento,
+  extenderAAreaUtil,
   moverElemento,
+  moverX as moverXCore,
   rotarElemento,
 } from '../core/colocacion';
-import type { Cambio, Contexto } from '../core/colocacion';
+import type { Cambio, Contexto, Extremo } from '../core/colocacion';
 import type { Punto } from '../core/geometria';
 import { margenesEfectivos } from '../core/margenes';
 import { trasladar } from '../core/sugerencia';
@@ -72,6 +75,12 @@ interface EstadoEditor {
   duplicar: (uid: string) => void;
   rotar: (uid: string) => void;
   cambiarLargo: (uid: string, largo: number) => boolean;
+  /** Cambia el largo moviendo un solo extremo del lineal; el otro queda fijo. */
+  cambiarLargoDesdeExtremo: (uid: string, extremo: Extremo, coordenada: number) => boolean;
+  /** Extiende un lineal hasta el obstáculo más cercano a cada lado (borde de la placa con margen, o canaleta perpendicular). */
+  extender: (uid: string) => boolean;
+  /** Mueve un lineal a una nueva X, conservando su Y. */
+  moverX: (uid: string, nuevoX: number) => boolean;
   cambiarValor: (uid: string, campoId: string, valor: ValorCampo) => void;
   deshacer: () => void;
   rehacer: () => void;
@@ -257,6 +266,21 @@ export const useEditor = create<EstadoEditor>((set, get) => {
     cambiarLargo: (uid, largo) => {
       const ctx = contexto();
       return ctx ? aplicar(cambiarLargoCore(get().proyecto.elementos, ctx, uid, largo)) : false;
+    },
+
+    cambiarLargoDesdeExtremo: (uid, extremo, coordenada) => {
+      const ctx = contexto();
+      return ctx ? aplicar(cambiarLargoDesdeExtremo(get().proyecto.elementos, ctx, uid, extremo, coordenada)) : false;
+    },
+
+    extender: (uid) => {
+      const ctx = contexto();
+      return ctx ? aplicar(extenderAAreaUtil(get().proyecto.elementos, ctx, uid)) : false;
+    },
+
+    moverX: (uid, nuevoX) => {
+      const ctx = contexto();
+      return ctx ? aplicar(moverXCore(get().proyecto.elementos, ctx, uid, nuevoX)) : false;
     },
 
     cambiarValor: (uid, campoId, valor) => {

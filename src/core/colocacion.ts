@@ -30,6 +30,7 @@ export interface Contexto {
   margenes: Margenes;
   modo: Modo;
   seccionCanaleta: SeccionCanaleta;
+  moduloMm: number;
   /** Capacidad de riel con el margen/modo/sección actuales; null en cajas plásticas (rieles fijos). */
   capacidad: Capacidad | null;
   /** Placa reducida por el margen de borde: referencia para largos por defecto, no un límite duro. */
@@ -57,6 +58,7 @@ export function crearContexto(catalogo: Catalogo, caja: CajaResuelta, ajustes: A
     margenes: ajustes.margenes,
     modo: ajustes.modo,
     seccionCanaleta: ajustes.seccionCanaleta,
+    moduloMm: ajustes.moduloMm,
     capacidad,
     areaUtil: calcularAreaUtil(caja.area, ajustes.margenes),
   };
@@ -289,8 +291,14 @@ export function resolverColocacion(elementos: readonly Elemento[], ctx: Contexto
   if (esR && !ctx.caja.permiteRieles) return fallo(MOTIVOS.cajaConRieles);
   const rotacion: 0 | 90 = esR ? 0 : (s.rotacion ?? s.actual?.rotacion ?? 0);
   const disponible = rotacion === 90 ? area.h : area.w;
+  // Riel: la cantidad de módulos completos que caben en la caja actual. Canaleta: el ancho o alto
+  // útil de la placa (según quede horizontal o vertical). Se acorta si no cabe en la placa física.
+  const utilDisponible = rotacion === 90 ? ctx.areaUtil.h : ctx.areaUtil.w;
+  const defecto = esR ? (ctx.capacidad ? ctx.capacidad.modulosPorFila * ctx.moduloMm : largoPorDefecto(comp)) : utilDisponible;
   const largo =
-    s.largo_mm ?? s.actual?.largo_mm ?? Math.min(largoPorDefecto(comp), Math.max(comp.largo_min_mm, Math.floor(disponible)));
+    s.largo_mm ??
+    s.actual?.largo_mm ??
+    Math.max(comp.largo_min_mm, Math.min(comp.largo_max_mm, Math.floor(defecto), Math.floor(disponible)));
   const errorLargo = validarLargo(comp, largo);
   if (errorLargo) return fallo(errorLargo);
   const w = rotacion === 90 ? comp.alto_mm : largo;
@@ -403,6 +411,135 @@ export function cambiarLargo(elementos: readonly Elemento[], ctx: Contexto, uid:
   });
   if (!r.ok) return r;
   return { ok: true, elementos: elementos.map((e) => (e.uid === uid ? aElemento(e, r, comp) : e)), uid };
+}
+
+export type Extremo = 'inicio' | 'fin';
+
+/**
+ * Cambia el largo de un lineal moviendo un solo extremo ('inicio': su esquina superior/izquierda;
+ * 'fin': la opuesta); el otro extremo queda fijo. `coordenada` es la nueva posición de ese extremo
+ * en el eje del lineal (x si está horizontal, y si está vertical), en mm.
+ */
+export function cambiarLargoDesdeExtremo(
+  elementos: readonly Elemento[],
+  ctx: Contexto,
+  uid: string,
+  extremo: Extremo,
+  coordenada: number,
+): Cambio {
+  const el = elementos.find((e) => e.uid === uid);
+  const comp = el && ctx.comps.get(el.componenteId);
+  if (!el || !comp || comp.montaje !== 'lineal') return fallo('Solo los rieles y canaletas tienen largo.');
+  const r0 = huella(el, comp);
+  const rotacion = el.rotacion ?? 0;
+  const inicioActual = rotacion === 90 ? r0.y : r0.x;
+  const finActual = inicioActual + (rotacion === 90 ? r0.h : r0.w);
+  const nuevoInicio = Math.round(extremo === 'inicio' ? coordenada : inicioActual);
+  const nuevoFin = Math.round(extremo === 'fin' ? coordenada : finActual);
+  const largo = nuevoFin - nuevoInicio;
+  const invalido = validarLargo(comp, largo);
+  if (invalido) return fallo(invalido);
+  if (esRiel(comp)) {
+    const hijos = hijosDeRiel(elementos, ctx, uid);
+    const fueraDeRango = (h: Elemento): boolean => {
+      const ancho = (ctx.comps.get(h.componenteId) as ComponenteRiel).ancho_mm;
+      return h.x_mm < nuevoInicio - 0.01 || h.x_mm + ancho > nuevoFin + 0.01;
+    };
+    if (hijos.some(fueraDeRango)) return fallo('Hay aparatos que quedarían fuera del riel con ese largo.');
+  }
+  const w = rotacion === 90 ? comp.alto_mm : largo;
+  const h = rotacion === 90 ? largo : comp.alto_mm;
+  const x = rotacion === 90 ? el.x_mm : nuevoInicio;
+  const y = rotacion === 90 ? nuevoInicio : el.y_mm;
+  const r = resolverColocacion(elementos, ctx, {
+    comp,
+    punto: { x: x + w / 2, y: y + h / 2 },
+    actual: el,
+    largo_mm: largo,
+    rotacion,
+    sinSnap: true,
+  });
+  if (!r.ok) return r;
+  return { ok: true, elementos: elementos.map((e) => (e.uid === uid ? aElemento(e, r, comp) : e)), uid };
+}
+
+/**
+ * Extiende un lineal hasta el obstáculo más cercano a cada lado: el borde de la placa con el
+ * margen de borde, o una canaleta perpendicular (vertical si el lineal es horizontal, y viceversa).
+ * Nunca mueve ni recorta otra cosa: si el resultado choca con algo no considerado aquí (un aparato,
+ * una canaleta paralela, una fijación), se rechaza igual que cualquier otra colocación.
+ */
+export function extenderAAreaUtil(elementos: readonly Elemento[], ctx: Contexto, uid: string): Cambio {
+  const el = elementos.find((e) => e.uid === uid);
+  const comp = el && ctx.comps.get(el.componenteId);
+  if (!el || !comp || comp.montaje !== 'lineal') return fallo('Solo los rieles y canaletas se pueden extender.');
+  const r0 = huella(el, comp);
+  const rotacion = el.rotacion ?? 0;
+  const horizontal = rotacion !== 90;
+
+  // Obstáculos: solo las canaletas perpendiculares cuya banda se cruza con la del elemento.
+  const bandaSolapa = (o: Rect): boolean =>
+    horizontal ? o.y < r0.y + r0.h - 0.01 && r0.y < o.y + o.h - 0.01 : o.x < r0.x + r0.w - 0.01 && r0.x < o.x + o.w - 0.01;
+  const obstaculos = elementos.flatMap((otro) => {
+    if (otro.uid === uid) return [];
+    const c = ctx.comps.get(otro.componenteId);
+    if (!c || !esCanaleta(c)) return [];
+    const otroHorizontal = (otro.rotacion ?? 0) !== 90;
+    if (otroHorizontal === horizontal) return [];
+    const rect = huella(otro, c);
+    return bandaSolapa(rect) ? [rect] : [];
+  });
+
+  const inicioActual = horizontal ? r0.x : r0.y;
+  const finActual = inicioActual + (horizontal ? r0.w : r0.h);
+  const bordeInicio = horizontal ? ctx.areaUtil.x : ctx.areaUtil.y;
+  const bordeFin = bordeInicio + (horizontal ? ctx.areaUtil.w : ctx.areaUtil.h);
+
+  let nuevoInicio = bordeInicio;
+  let nuevoFin = bordeFin;
+  for (const o of obstaculos) {
+    const oInicio = horizontal ? o.x : o.y;
+    const oFin = oInicio + (horizontal ? o.w : o.h);
+    if (oFin <= inicioActual + 0.01) nuevoInicio = Math.max(nuevoInicio, oFin);
+    if (oInicio >= finActual - 0.01) nuevoFin = Math.min(nuevoFin, oInicio);
+  }
+  nuevoInicio = Math.round(nuevoInicio);
+  nuevoFin = Math.round(nuevoFin);
+  const largo = nuevoFin - nuevoInicio;
+  if (largo <= 0) return fallo('No hay espacio para extender.');
+  const invalido = validarLargo(comp, largo);
+  if (invalido) return fallo(invalido);
+  if (esRiel(comp)) {
+    const hijos = hijosDeRiel(elementos, ctx, uid);
+    const fueraDeRango = (h: Elemento): boolean => {
+      const ancho = (ctx.comps.get(h.componenteId) as ComponenteRiel).ancho_mm;
+      return h.x_mm < nuevoInicio - 0.01 || h.x_mm + ancho > nuevoFin + 0.01;
+    };
+    if (hijos.some(fueraDeRango)) return fallo('Hay aparatos que quedarían fuera del riel con ese largo.');
+  }
+  const w = horizontal ? largo : comp.alto_mm;
+  const h = horizontal ? comp.alto_mm : largo;
+  const x = horizontal ? nuevoInicio : el.x_mm;
+  const y = horizontal ? el.y_mm : nuevoInicio;
+  const r = resolverColocacion(elementos, ctx, {
+    comp,
+    punto: { x: x + w / 2, y: y + h / 2 },
+    actual: el,
+    largo_mm: largo,
+    rotacion,
+    sinSnap: true,
+  });
+  if (!r.ok) return r;
+  return { ok: true, elementos: elementos.map((e) => (e.uid === uid ? aElemento(e, r, comp) : e)), uid };
+}
+
+/** Mueve un lineal a una nueva posición X, conservando su Y. Un riel arrastra a sus aparatos, como al arrastrarlo con el mouse. */
+export function moverX(elementos: readonly Elemento[], ctx: Contexto, uid: string, nuevoX: number): Cambio {
+  const el = elementos.find((e) => e.uid === uid);
+  const comp = el && ctx.comps.get(el.componenteId);
+  if (!el || !comp || comp.montaje !== 'lineal') return fallo('Solo los rieles y canaletas tienen esta posición editable.');
+  const r0 = huella(el, comp);
+  return moverElemento(elementos, ctx, uid, { x: Math.round(nuevoX) + r0.w / 2, y: r0.y + r0.h / 2 }, { sinSnap: true });
 }
 
 /** Gira una canaleta 0° ↔ 90° alrededor de su centro. */

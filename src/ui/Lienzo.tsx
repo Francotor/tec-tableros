@@ -4,7 +4,8 @@ import type { Vector2d } from 'konva/lib/types';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DragEvent as ReactDragEvent } from 'react';
 import { Circle, Group, Image as KImage, Layer, Rect, Shape, Stage, Text } from 'react-konva';
-import { calcularTopes, elementosFuera, esRiel, huella, listarRieles, moverElemento, TOPE_ID } from '../core/colocacion';
+import { calcularTopes, elementosFuera, esRiel, huella, IMAN_MM, listarRieles, moverElemento, TOPE_ID } from '../core/colocacion';
+import type { Extremo } from '../core/colocacion';
 import type { Contexto } from '../core/colocacion';
 import type { Rect as Rectangulo } from '../core/geometria';
 import { lineasEtiqueta, tamanoAjustado } from '../core/etiquetas';
@@ -137,6 +138,69 @@ const ElementoKonva = memo(function ElementoKonva({ el, comp, seleccionado, fuer
     </Group>
   );
 });
+
+interface ExtremoHandleProps {
+  el: Elemento;
+  comp: Componente;
+  extremo: Extremo;
+  areaUtil: Rectangulo;
+  zoom: number;
+}
+
+/** Tira de un extremo de un riel o canaleta seleccionado para cambiar su largo (ajuste de 1 mm, imán a los bordes de la placa con margen). */
+function ExtremoHandle({ el, comp, extremo, areaUtil, zoom }: ExtremoHandleProps) {
+  const r = huella(el, comp);
+  const horizontal = (el.rotacion ?? 0) !== 90;
+  const coordExtremo = horizontal ? (extremo === 'inicio' ? r.x : r.x + r.w) : extremo === 'inicio' ? r.y : r.y + r.h;
+  const coordFija = horizontal ? r.y + r.h / 2 : r.x + r.w / 2;
+  const posX = horizontal ? coordExtremo : coordFija;
+  const posY = horizontal ? coordFija : coordExtremo;
+  // Tamaño en mm que da un objetivo táctil de ~40 px en pantalla, sin importar el zoom.
+  const tam = Math.max(6, 40 / zoom);
+
+  const magnetizar = (v: number): number => {
+    const redondeado = Math.round(v);
+    const bordeInicio = horizontal ? areaUtil.x : areaUtil.y;
+    const bordeFin = bordeInicio + (horizontal ? areaUtil.w : areaUtil.h);
+    if (Math.abs(redondeado - bordeInicio) <= IMAN_MM) return bordeInicio;
+    if (Math.abs(redondeado - bordeFin) <= IMAN_MM) return bordeFin;
+    return redondeado;
+  };
+
+  return (
+    <Rect
+      name="marca"
+      x={posX - tam / 2}
+      y={posY - tam / 2}
+      width={tam}
+      height={tam}
+      cornerRadius={Math.min(2, tam / 4)}
+      fill="rgba(41,96,153,0.85)"
+      stroke="#fff"
+      strokeWidth={Math.max(1, tam / 10)}
+      strokeScaleEnabled={false}
+      draggable
+      onMouseDown={(e) => {
+        e.cancelBubble = true;
+      }}
+      onDragStart={(e) => {
+        e.cancelBubble = true;
+      }}
+      onDragMove={(e) => {
+        e.cancelBubble = true;
+        // Solo se arrastra en el eje del lineal; el otro queda fijo.
+        if (horizontal) e.target.y(posY - tam / 2);
+        else e.target.x(posX - tam / 2);
+      }}
+      onDragEnd={(e) => {
+        e.cancelBubble = true;
+        const centro = horizontal ? e.target.x() + tam / 2 : e.target.y() + tam / 2;
+        useEditor.getState().cambiarLargoDesdeExtremo(el.uid, extremo, magnetizar(centro));
+        e.target.position({ x: posX - tam / 2, y: posY - tam / 2 });
+      }}
+    />
+  );
+}
 
 function Cuadricula({ ancho, alto, zoom }: { ancho: number; alto: number; zoom: number }) {
   const lineas = (paso: number) => (c: Konva.Context, forma: Konva.Shape) => {
@@ -415,6 +479,14 @@ export function Lienzo() {
     return [...elementos].sort((a, b) => peso(a) - peso(b));
   }, [ctx, elementos]);
 
+  // El riel o la canaleta seleccionados muestran tiradores en sus extremos para cambiar el largo.
+  const seleccionLineal = useMemo(() => {
+    if (!ctx) return null;
+    const el = elementos.find((e) => e.uid === seleccion);
+    const comp = el && ctx.comps.get(el.componenteId);
+    return el && comp && comp.montaje === 'lineal' ? { el, comp } : null;
+  }, [ctx, elementos, seleccion]);
+
   const seleccionar = useCallback((uid: string) => useEditor.getState().seleccionar(uid), []);
 
   return (
@@ -471,6 +543,12 @@ export function Lienzo() {
                 dash={[6, 4]}
                 listening={false}
               />
+            )}
+            {ctx && seleccionLineal && (
+              <>
+                <ExtremoHandle el={seleccionLineal.el} comp={seleccionLineal.comp} extremo="inicio" areaUtil={ctx.areaUtil} zoom={zoom} />
+                <ExtremoHandle el={seleccionLineal.el} comp={seleccionLineal.comp} extremo="fin" areaUtil={ctx.areaUtil} zoom={zoom} />
+              </>
             )}
           </Layer>
         </Stage>

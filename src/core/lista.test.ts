@@ -2,23 +2,29 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { calcularAvisos } from './avisos';
-import { agregarElemento } from './colocacion';
+import { agregarElemento, resolverColocacion } from './colocacion';
 import type { Contexto } from './colocacion';
 import { armarEjemplo, cargarBiblioteca, crearContextoDe, RAIZ_BIBLIOTECA } from './ejemplo.testutil';
 import { formatearMetros, generarLista, listaACsv, listaATexto } from './lista';
-import { valoresPorDefecto } from './modelo';
+import { nuevoUid, valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
 import { extensionDelDibujo, sugerirCaja, trasladar } from './sugerencia';
 
 const bib = cargarBiblioteca();
 const ctxDe = (caja: CajaProyecto = { id: 'caja_metalica_400x500x200' }): Contexto => crearContextoDe(bib, caja);
 
+/** Agrega en (x, y); con `largo` (lineales), fija ese largo desde el principio en vez del por defecto. */
 const poner = (els: Elemento[], ctx: Contexto, id: string, x: number, y: number, largo?: number): Elemento[] => {
   const comp = ctx.comps.get(id);
   if (!comp) throw new Error(`falta ${id}`);
+  if (largo !== undefined) {
+    const r = resolverColocacion(els, ctx, { comp, punto: { x, y }, largo_mm: largo, sinSnap: true });
+    if (!r.ok) throw new Error(r.motivo);
+    return [...els, { uid: nuevoUid(), componenteId: id, x_mm: r.x_mm, y_mm: r.y_mm, largo_mm: r.largo_mm, valores: valoresPorDefecto(comp) }];
+  }
   const r = agregarElemento(els, ctx, id, { x, y }, valoresPorDefecto(comp));
   if (!r.ok) throw new Error(r.motivo);
-  return largo === undefined ? r.elementos : r.elementos.map((e) => (e.uid === r.uid ? { ...e, largo_mm: largo } : e));
+  return r.elementos;
 };
 
 const normalizar = (s: string): string[] => s.replace(/\r\n/g, '\n').trim().split('\n');
@@ -50,6 +56,29 @@ describe('lista de materiales: referencia ejemplo_lista_materiales.csv', () => {
     expect(csv.slice(-2)).toEqual(['Total riel DIN,0.792,m', 'Total canaleta,1.188,m']);
     expect(listaATexto(lista)).toContain('Total riel DIN: 0,792 m');
     expect(listaATexto(lista)).toContain('2 x Riel DIN 35 mm, corte de 396 mm');
+  });
+});
+
+describe('lista de materiales: un corte por pieza, con su largo real', () => {
+  it('dos rieles de largo distinto salen como dos líneas separadas, cada una con su largo', () => {
+    const ctx = ctxDe();
+    let els = poner([], ctx, 'riel_din', 250, 100.5, 200);
+    els = poner(els, ctx, 'riel_din', 250, 250.5, 300);
+    const l = generarLista(els, ctx);
+    const corte200 = l.lineas.find((x) => x.descripcion.includes('200 mm'));
+    const corte300 = l.lineas.find((x) => x.descripcion.includes('300 mm'));
+    expect(corte200).toMatchObject({ descripcion: 'Riel DIN 35 mm, corte de 200 mm', cantidad: 1 });
+    expect(corte300).toMatchObject({ descripcion: 'Riel DIN 35 mm, corte de 300 mm', cantidad: 1 });
+    expect(l.metrosRiel).toBeCloseTo(0.5);
+  });
+
+  it('dos cortes del mismo largo sí se agrupan en una sola línea', () => {
+    const ctx = ctxDe();
+    let els = poner([], ctx, 'riel_din', 250, 100.5, 200);
+    els = poner(els, ctx, 'riel_din', 250, 250.5, 200);
+    const l = generarLista(els, ctx);
+    expect(l.lineas.filter((x) => x.descripcion.includes('corte de 200 mm'))).toHaveLength(1);
+    expect(l.lineas.find((x) => x.descripcion.includes('corte de 200 mm'))?.cantidad).toBe(2);
   });
 });
 
@@ -136,7 +165,7 @@ describe('sugerir caja', () => {
 
   it('medida libre inox sugiere una caja inox', () => {
     const ctx = ctxDe({ libre: { ancho_mm: 900, alto_mm: 700, tipo: 'inox' } });
-    const els = poner([], ctx, 'riel_din', 450, 100.5);
+    const els = poner([], ctx, 'riel_din', 450, 100.5, 300);
     expect(sugerirCaja(els, ctx, bib.gabinetes)?.caja.tipo).toBe('inox');
   });
 });
@@ -188,7 +217,7 @@ describe('avisos', () => {
 
   it('avisa si un extremo del riel no deja espacio para el tope', () => {
     const ctx = ctxDe();
-    let els = poner([], ctx, 'riel_din', 250, 100.5);
+    let els = poner([], ctx, 'riel_din', 250, 100.5, 400); // riel de 400 mm: x 50..450
     els = poner(els, ctx, 'automatico_1p', 60, 100); // pegado al inicio del riel: el tope queda fuera
     expect(calcularAvisos(els, ctx, null).some((a) => a.id === 'topes')).toBe(true);
   });

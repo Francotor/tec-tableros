@@ -59,6 +59,8 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .campo input[aria-invalid=true] { border-color: #9b1c1c; }
 .campo .error-campo { color: #9b1c1c; font-size: .8rem; }
 .campo .ayuda { font-size: .75rem; }
+.panel-props button { min-height: 40px; padding: 0 12px; margin-bottom: 12px; font: inherit; font-size: .85rem; color: var(--tec-navy); background: #fff; border: 1px solid var(--tec-gris-metal); border-radius: 4px; cursor: pointer; }
+.panel-props button:hover { background: var(--tec-plata-clara); }
 @media (max-width: 900px) { .area { flex-direction: column; } .panel-props { width: auto; max-height: 190px; border-left: 0; border-top: 1px solid var(--tec-plata); } .panel-catalogo { width: 240px; } }
 body { overflow: hidden; }
 .lienzo { min-height: 200px; }

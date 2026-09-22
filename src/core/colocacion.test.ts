@@ -8,12 +8,15 @@ import {
   borrarElemento,
   calcularTopes,
   cambiarLargo,
+  cambiarLargoDesdeExtremo,
   colisionaConFijaciones,
   duplicarElemento,
   elementosFuera,
+  extenderAAreaUtil,
   listarPiezas,
   listarRieles,
   moverElemento,
+  moverX,
   MOTIVOS,
   resolverColocacion,
   rielMasCercano,
@@ -22,7 +25,7 @@ import {
 import type { Contexto } from './colocacion';
 import { deshacer, historialVacio, LIMITE_HISTORIAL, rehacer, registrar } from './historial';
 import { armarEjemplo, crearContextoDe } from './ejemplo.testutil';
-import { valoresPorDefecto } from './modelo';
+import { nuevoUid, valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
 
 const RAIZ = join(process.cwd(), 'public', 'biblioteca');
@@ -51,7 +54,33 @@ const soltar = (els: Elemento[], ctx: Contexto, id: string, x: number, y: number
 const uidDe = (els: Elemento[], i: number): string => els[i]?.uid ?? '';
 
 // Caja 400x500: placa x 25..475, y 25..375. Riel de 400 mm centrado en (250; 100,5) -> x 50..450.
-const conRiel = (ctx = contexto()) => poner([], ctx, 'riel_din', 250, 100.5);
+// Se fija el largo a 400 mm explícitamente (en vez de dejar el largo por defecto, que ahora depende
+// de la capacidad de la caja) para que estos números no cambien si cambia esa fórmula.
+function conRielEn(ctx: Contexto, yCentro: number): Elemento[] {
+  const comp = ctx.comps.get('riel_din');
+  if (!comp) throw new Error('falta riel_din');
+  const r = resolverColocacion([], ctx, { comp, punto: { x: 250, y: yCentro }, largo_mm: 400, sinSnap: true });
+  if (!r.ok) throw new Error(r.motivo);
+  return [{ uid: nuevoUid(), componenteId: 'riel_din', x_mm: r.x_mm, y_mm: r.y_mm, largo_mm: r.largo_mm, valores: {} }];
+}
+const conRiel = (ctx: Contexto = contexto()): Elemento[] => conRielEn(ctx, 100.5);
+
+/** Agrega un lineal (riel o canaleta) con un largo y una rotación explícitos, sin depender del largo por defecto. */
+function ponerLineal(
+  els: Elemento[],
+  ctx: Contexto,
+  id: string,
+  x: number,
+  y: number,
+  largo: number,
+  rotacion: 0 | 90 = 0,
+): Elemento[] {
+  const comp = ctx.comps.get(id);
+  if (!comp) throw new Error(`falta ${id}`);
+  const r = resolverColocacion(els, ctx, { comp, punto: { x, y }, largo_mm: largo, rotacion, sinSnap: true });
+  if (!r.ok) throw new Error(`${id} en (${x},${y}): ${r.motivo}`);
+  return [...els, { uid: nuevoUid(), componenteId: id, x_mm: r.x_mm, y_mm: r.y_mm, largo_mm: r.largo_mm, rotacion: r.rotacion, valores: {} }];
+}
 
 describe('selección de riel', () => {
   it('sin rieles rechaza el aparato con un aviso', () => {
@@ -156,16 +185,18 @@ describe('límites', () => {
 
   it('rechaza lo que queda fuera de la placa', () => {
     const ctx = contexto();
-    const els = poner([], ctx, 'riel_din', 250, 60.5); // riel y 43..78, dentro
+    const els = conRielEn(ctx, 60.5); // riel de 400 mm, y 43..78, dentro
     // el aparato (90 mm) sube hasta y = 15,5: fuera de la placa (y >= 25)
     expect(soltar(els, ctx, 'automatico_1p', 60, 60)).toEqual({ ok: false, motivo: MOTIVOS.fueraArea });
     expect(soltar([], ctx, 'riel_din', 250, 10).ok).toBe(false);
     expect(soltar([], ctx, 'fotocelda', 5, 5).ok).toBe(false);
   });
 
-  it('el riel por defecto se acorta para caber en la placa', () => {
+  it('el riel por defecto tiene el largo de sus módulos completos (modulosPorFila x 18 mm)', () => {
     const ctx = contexto({ id: 'caja_metalica_200x300x150' }); // placa de 250 mm de ancho
-    expect(soltar([], ctx, 'riel_din', 150, 100)).toMatchObject({ ok: true, largo_mm: 250 });
+    const modulos = ctx.capacidad?.modulosPorFila ?? 0;
+    expect(modulos).toBeGreaterThan(0);
+    expect(soltar([], ctx, 'riel_din', 150, 100)).toMatchObject({ ok: true, largo_mm: modulos * 18 });
   });
 
   it('valida el largo entre largo_min_mm y largo_max_mm', () => {
@@ -380,5 +411,137 @@ describe('fijaciones (pernos de cajas de fabricante)', () => {
   it('cajas sin fijaciones (la mayoría) nunca rechazan por este motivo', () => {
     const ctx = contexto();
     expect(ctx.caja.fijaciones).toEqual([]);
+  });
+});
+
+describe('largo desde un extremo (arrastrar un extremo) y posición X', () => {
+  it('extremo "fin" cambia el largo igual que cambiarLargo (conserva el inicio)', () => {
+    const ctx = contexto();
+    const els = conRiel(ctx); // 50..450
+    const uid = uidDe(els, 0);
+    const r = cambiarLargoDesdeExtremo(els, ctx, uid, 'fin', 300);
+    if (!r.ok) throw new Error(r.motivo);
+    expect(r.elementos[0]).toMatchObject({ x_mm: 50, largo_mm: 250 });
+  });
+
+  it('extremo "inicio" conserva el fin y mueve el borde inicial', () => {
+    const ctx = contexto();
+    const els = conRiel(ctx); // 50..450
+    const uid = uidDe(els, 0);
+    const r = cambiarLargoDesdeExtremo(els, ctx, uid, 'inicio', 100);
+    if (!r.ok) throw new Error(r.motivo);
+    expect(r.elementos[0]).toMatchObject({ x_mm: 100, largo_mm: 350 }); // el fin sigue en 450
+  });
+
+  it('funciona igual en el eje Y para una canaleta vertical', () => {
+    const ctx = contexto();
+    const els = ponerLineal([], ctx, 'canaleta_25', 250, 150, 150, 90); // vertical
+    const uid = uidDe(els, 0);
+    const y0 = els[0]?.y_mm ?? 0;
+    const r = cambiarLargoDesdeExtremo(els, ctx, uid, 'fin', y0 + 100);
+    if (!r.ok) throw new Error(r.motivo);
+    expect(r.elementos[0]).toMatchObject({ y_mm: y0, largo_mm: 100 });
+  });
+
+  it('rechaza si deja aparatos montados fuera del nuevo rango', () => {
+    const ctx = contexto();
+    let els = conRiel(ctx); // 50..450
+    els = poner(els, ctx, 'automatico_1p', 400, 100); // aparato cerca del fin (x0=391)
+    const uid = uidDe(els, 0);
+    expect(cambiarLargoDesdeExtremo(els, ctx, uid, 'fin', 380).ok).toBe(false);
+    expect(cambiarLargoDesdeExtremo(els, ctx, uid, 'inicio', 395).ok).toBe(false);
+  });
+
+  it('valida el largo entre largo_min_mm y largo_max_mm en cualquier extremo', () => {
+    const ctx = contexto();
+    const els = conRiel(ctx);
+    const uid = uidDe(els, 0);
+    expect(cambiarLargoDesdeExtremo(els, ctx, uid, 'inicio', 449).ok).toBe(false); // largo 1 mm
+    expect(cambiarLargoDesdeExtremo(els, ctx, uid, 'fin', -2000).ok).toBe(false);
+  });
+
+  it('posición X: mueve el elemento manteniendo su largo y su fila (Y)', () => {
+    const ctx = contexto();
+    const els = conRiel(ctx); // 50..450
+    const uid = uidDe(els, 0);
+    const r = moverX(els, ctx, uid, 60);
+    if (!r.ok) throw new Error(r.motivo);
+    expect(r.elementos[0]).toMatchObject({ x_mm: 60, y_mm: els[0]?.y_mm, largo_mm: 400 });
+  });
+
+  it('posición X: un riel arrastra a sus aparatos', () => {
+    const ctx = contexto();
+    let els = conRiel(ctx);
+    els = poner(els, ctx, 'automatico_1p', 60, 100);
+    const uid = uidDe(els, 0);
+    const xAntes = els[0]?.x_mm ?? 0;
+    const xAparatoAntes = els[1]?.x_mm ?? 0;
+    const r = moverX(els, ctx, uid, xAntes + 10);
+    if (!r.ok) throw new Error(r.motivo);
+    expect(r.elementos[1]?.x_mm).toBe(xAparatoAntes + 10);
+  });
+
+  it('posición X: se rechaza si la nueva posición saca el elemento de la placa', () => {
+    const ctx = contexto();
+    const els = conRiel(ctx); // 400 mm de largo
+    const uid = uidDe(els, 0);
+    expect(moverX(els, ctx, uid, 200).ok).toBe(false); // 200 + 400 = 600 > 475
+  });
+});
+
+describe('extender al área útil', () => {
+  it('sin obstáculos, se extiende hasta los bordes de la placa con margen', () => {
+    const ctx = contexto(); // areaUtil (margen 20): x 45..455
+    const els = ponerLineal([], ctx, 'riel_din', 250, 100.5, 100);
+    const uid = uidDe(els, 0);
+    const r = extenderAAreaUtil(els, ctx, uid);
+    if (!r.ok) throw new Error(r.motivo);
+    expect(r.elementos[0]).toMatchObject({ x_mm: ctx.areaUtil.x, largo_mm: ctx.areaUtil.w });
+  });
+
+  it('se detiene en una canaleta vertical en su banda, no en el borde de la placa', () => {
+    const ctx = contexto();
+    const obstaculo: Elemento = {
+      uid: nuevoUid(),
+      componenteId: 'canaleta_25',
+      x_mm: 300,
+      y_mm: 50,
+      largo_mm: 200,
+      rotacion: 90,
+      valores: {},
+    };
+    const els = [...ponerLineal([], ctx, 'riel_din', 150, 100.5, 100), obstaculo]; // riel 100..200, banda y 83..118
+    const uid = uidDe(els, 0);
+    const r = extenderAAreaUtil(els, ctx, uid);
+    if (!r.ok) throw new Error(r.motivo);
+    expect(r.elementos[0]).toMatchObject({ x_mm: ctx.areaUtil.x, largo_mm: 300 - ctx.areaUtil.x });
+  });
+
+  it('no cuenta una canaleta paralela (misma orientación) como obstáculo', () => {
+    const ctx = contexto();
+    const paralela: Elemento = { uid: nuevoUid(), componenteId: 'canaleta_25', x_mm: 300, y_mm: 90, largo_mm: 50, valores: {} };
+    const els = [...ponerLineal([], ctx, 'riel_din', 150, 100.5, 100), paralela];
+    const uid = uidDe(els, 0);
+    // No se detiene en la canaleta paralela (no cuenta como obstáculo), pero al chocar con ella
+    // en el camino, la colocación final se rechaza igual que cualquier otra colisión.
+    expect(extenderAAreaUtil(els, ctx, uid).ok).toBe(false);
+  });
+
+  it('funciona en vertical: se extiende al alto útil', () => {
+    const ctx = contexto();
+    const els = ponerLineal([], ctx, 'canaleta_25', 250, 150, 50, 90);
+    const uid = uidDe(els, 0);
+    const r = extenderAAreaUtil(els, ctx, uid);
+    if (!r.ok) throw new Error(r.motivo);
+    expect(r.elementos[0]).toMatchObject({ y_mm: ctx.areaUtil.y, largo_mm: ctx.areaUtil.h });
+  });
+
+  it('sin espacio (rodeado de cerca), se rechaza', () => {
+    const ctx = contexto();
+    const izq: Elemento = { uid: nuevoUid(), componenteId: 'canaleta_25', x_mm: 140, y_mm: 50, largo_mm: 200, rotacion: 90, valores: {} };
+    const der: Elemento = { uid: nuevoUid(), componenteId: 'canaleta_25', x_mm: 200, y_mm: 50, largo_mm: 200, rotacion: 90, valores: {} };
+    const corto: Elemento = { uid: nuevoUid(), componenteId: 'riel_din', x_mm: 165, y_mm: 83, largo_mm: 10, valores: {} };
+    const els = [izq, der, corto];
+    expect(extenderAAreaUtil(els, ctx, corto.uid).ok).toBe(false);
   });
 });
