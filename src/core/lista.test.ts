@@ -142,10 +142,21 @@ describe('sugerir caja', () => {
 });
 
 describe('avisos', () => {
-  it('el ejemplo en su caja no genera avisos', () => {
-    const ctx = ctxDe();
+  it('el ejemplo en una caja con capacidad de sobra no genera avisos', () => {
+    // caja_metalica_400x500x200 es una medida referencial y, con el margen de borde de la Fase 5,
+    // su fila más cargada (21 módulos) ya no entra en ningún modo (20 en compacto, 16 con canaleta):
+    // se usa una caja real (Lerkenbox DM) con capacidad de sobra para probar el caso "todo bien".
+    const ctx = ctxDe({ id: 'caja_metalica_dm_600x600x210' });
     const els = armarEjemplo(ctx);
     expect(calcularAvisos(els, ctx, sugerirCaja(els, ctx, bib.gabinetes))).toEqual([]);
+  });
+
+  it('con el margen por defecto, la caja referencial 400x500x200 sí avisa (fila muy justa)', () => {
+    const ctx = ctxDe();
+    const els = armarEjemplo(ctx);
+    const avisos = calcularAvisos(els, ctx, null);
+    expect(avisos).toHaveLength(1);
+    expect(avisos[0]?.texto).toMatch(/La fila 2 ocupa 21 módulos/);
   });
 
   it('avisa de elementos fuera de la caja', () => {

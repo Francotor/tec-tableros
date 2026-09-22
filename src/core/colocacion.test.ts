@@ -2,14 +2,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parsearBiblioteca } from './biblioteca';
-import { resolverCaja } from './caja';
 import {
   agregarElemento,
   ajustarEnRiel,
   borrarElemento,
   calcularTopes,
   cambiarLargo,
-  crearContexto,
+  colisionaConFijaciones,
   duplicarElemento,
   elementosFuera,
   listarPiezas,
@@ -22,18 +21,16 @@ import {
 } from './colocacion';
 import type { Contexto } from './colocacion';
 import { deshacer, historialVacio, LIMITE_HISTORIAL, rehacer, registrar } from './historial';
-import { armarEjemplo } from './ejemplo.testutil';
+import { armarEjemplo, crearContextoDe } from './ejemplo.testutil';
 import { valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
 
 const RAIZ = join(process.cwd(), 'public', 'biblioteca');
 const leer = (f: string): unknown => JSON.parse(readFileSync(join(RAIZ, f), 'utf8'));
-const { catalogo, gabinetes } = parsearBiblioteca(leer('catalogo.json'), leer('gabinetes.json'));
+const bib = parsearBiblioteca(leer('catalogo.json'), leer('gabinetes.json'));
 
 function contexto(caja: CajaProyecto = { id: 'caja_metalica_400x500x200' }): Contexto {
-  const c = resolverCaja(caja, gabinetes);
-  if (!c) throw new Error('caja de prueba inexistente');
-  return crearContexto(catalogo, c);
+  return crearContextoDe(bib, caja);
 }
 
 /** Agrega y falla la prueba si el cambio es rechazado. */
@@ -357,5 +354,31 @@ describe('reconstrucción del tablero de ejemplo (caja 400 x 500, dos filas)', (
     expect(calcularTopes(els, ctx)).toHaveLength(4);
     expect(els.filter((e) => e.componenteId === 'canaleta_25')).toHaveLength(3);
     expect(els.filter((e) => e.componenteId === 'riel_din')).toHaveLength(2);
+  });
+});
+
+describe('fijaciones (pernos de cajas de fabricante)', () => {
+  const CAJA_ASR = 'caja_inox_asr_180x240x150'; // placa 25..215 x 15..165, 4 pernos r=10 mm en las esquinas
+
+  it('colisionaConFijaciones: true solo si el círculo invade el rectángulo', () => {
+    const fijaciones = [{ x: 100, y: 100, r: 10 }];
+    expect(colisionaConFijaciones({ x: 105, y: 95, w: 20, h: 20 }, fijaciones)).toBe(true); // esquina del perno dentro
+    expect(colisionaConFijaciones({ x: 200, y: 200, w: 20, h: 20 }, fijaciones)).toBe(false); // lejos
+    expect(colisionaConFijaciones({ x: 111, y: 100, w: 20, h: 20 }, fijaciones)).toBe(false); // justo fuera del radio
+  });
+
+  it('rechaza soltar un aparato sobre un perno, con aviso', () => {
+    const ctx = contexto({ id: CAJA_ASR });
+    expect(soltar([], ctx, 'fotocelda', 190, 40)).toEqual({ ok: false, motivo: MOTIVOS.fijacion });
+  });
+
+  it('permite soltar lejos de los pernos', () => {
+    const ctx = contexto({ id: CAJA_ASR });
+    expect(soltar([], ctx, 'fotocelda', 120, 90).ok).toBe(true);
+  });
+
+  it('cajas sin fijaciones (la mayoría) nunca rechazan por este motivo', () => {
+    const ctx = contexto();
+    expect(ctx.caja.fijaciones).toEqual([]);
   });
 });

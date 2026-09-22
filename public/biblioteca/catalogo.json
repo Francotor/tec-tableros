@@ -1,5 +1,5 @@
 {
- "version": "1.0",
+ "version": "1.6",
  "unidad": "mm",
  "origen": "arriba-izquierda, eje y hacia abajo",
  "modulo_din_mm": 18,
@@ -903,6 +903,603 @@
    },
    "bom": "Borne de paso {seccion_mm2} mm2 {color}",
    "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
+  },
+  {
+   "id": "portafusible_10x38_1p",
+   "nombre": "Portafusible de riel 10 x 38 1P",
+   "categoria": "Protecciones",
+   "svg": "componentes/portafusible_10x38_1p.svg",
+   "ancho_mm": 18,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 1,
+   "polos": 1,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 13,
+    "h": 14,
+    "lineas": [
+     "{calibre}A"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "tipo",
+     "rotulo": "Tipo de fusible",
+     "tipo": "select",
+     "opciones": [
+      "gG",
+      "aM"
+     ],
+     "defecto": "gG"
+    },
+    {
+     "id": "calibre",
+     "rotulo": "Calibre (A)",
+     "tipo": "select",
+     "opciones": [
+      2,
+      4,
+      6,
+      10,
+      16,
+      20,
+      25,
+      32
+     ],
+     "defecto": 10
+    }
+   ],
+   "atributos": {
+    "polos": 1,
+    "formato": "10x38"
+   },
+   "bom": "Portafusible de riel 10 x 38 mm {polos}P, fusibles {tipo} {calibre} A",
+   "notas": "18 mm por polo [supuesto tipico del formato 10 x 38]. Para 14 x 51 o 22 x 58 se necesitan fichas propias."
+  },
+  {
+   "id": "portafusible_10x38_2p",
+   "nombre": "Portafusible de riel 10 x 38 2P",
+   "categoria": "Protecciones",
+   "svg": "componentes/portafusible_10x38_2p.svg",
+   "ancho_mm": 36,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 2,
+   "polos": 2,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 31,
+    "h": 14,
+    "lineas": [
+     "{calibre}A"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "tipo",
+     "rotulo": "Tipo de fusible",
+     "tipo": "select",
+     "opciones": [
+      "gG",
+      "aM"
+     ],
+     "defecto": "gG"
+    },
+    {
+     "id": "calibre",
+     "rotulo": "Calibre (A)",
+     "tipo": "select",
+     "opciones": [
+      2,
+      4,
+      6,
+      10,
+      16,
+      20,
+      25,
+      32
+     ],
+     "defecto": 10
+    }
+   ],
+   "atributos": {
+    "polos": 2,
+    "formato": "10x38"
+   },
+   "bom": "Portafusible de riel 10 x 38 mm {polos}P, fusibles {tipo} {calibre} A",
+   "notas": "18 mm por polo [supuesto tipico del formato 10 x 38]. Para 14 x 51 o 22 x 58 se necesitan fichas propias."
+  },
+  {
+   "id": "portafusible_10x38_3p",
+   "nombre": "Portafusible de riel 10 x 38 3P",
+   "categoria": "Protecciones",
+   "svg": "componentes/portafusible_10x38_3p.svg",
+   "ancho_mm": 54,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 3,
+   "polos": 3,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 49,
+    "h": 14,
+    "lineas": [
+     "{calibre}A"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "tipo",
+     "rotulo": "Tipo de fusible",
+     "tipo": "select",
+     "opciones": [
+      "gG",
+      "aM"
+     ],
+     "defecto": "gG"
+    },
+    {
+     "id": "calibre",
+     "rotulo": "Calibre (A)",
+     "tipo": "select",
+     "opciones": [
+      2,
+      4,
+      6,
+      10,
+      16,
+      20,
+      25,
+      32
+     ],
+     "defecto": 10
+    }
+   ],
+   "atributos": {
+    "polos": 3,
+    "formato": "10x38"
+   },
+   "bom": "Portafusible de riel 10 x 38 mm {polos}P, fusibles {tipo} {calibre} A",
+   "notas": "18 mm por polo [supuesto tipico del formato 10 x 38]. Para 14 x 51 o 22 x 58 se necesitan fichas propias."
+  },
+  {
+   "id": "portafusible_10x38_4p",
+   "nombre": "Portafusible de riel 10 x 38 4P",
+   "categoria": "Protecciones",
+   "svg": "componentes/portafusible_10x38_4p.svg",
+   "ancho_mm": 72,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 4,
+   "polos": 4,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 67,
+    "h": 14,
+    "lineas": [
+     "{calibre}A"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "tipo",
+     "rotulo": "Tipo de fusible",
+     "tipo": "select",
+     "opciones": [
+      "gG",
+      "aM"
+     ],
+     "defecto": "gG"
+    },
+    {
+     "id": "calibre",
+     "rotulo": "Calibre (A)",
+     "tipo": "select",
+     "opciones": [
+      2,
+      4,
+      6,
+      10,
+      16,
+      20,
+      25,
+      32
+     ],
+     "defecto": 10
+    }
+   ],
+   "atributos": {
+    "polos": 4,
+    "formato": "10x38"
+   },
+   "bom": "Portafusible de riel 10 x 38 mm {polos}P, fusibles {tipo} {calibre} A",
+   "notas": "18 mm por polo [supuesto tipico del formato 10 x 38]. Para 14 x 51 o 22 x 58 se necesitan fichas propias."
+  },
+  {
+   "id": "luz_piloto_rojo",
+   "nombre": "Luz piloto de riel rojo",
+   "categoria": "Control",
+   "svg": "componentes/luz_piloto_rojo.svg",
+   "ancho_mm": 18,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 1,
+   "polos": 1,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 13,
+    "h": 14,
+    "lineas": [
+     "{etiqueta}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": "H1"
+    },
+    {
+     "id": "tension",
+     "rotulo": "Tension",
+     "tipo": "select",
+     "opciones": [
+      "12 V",
+      "24 V",
+      "230 V"
+     ],
+     "defecto": "230 V"
+    }
+   ],
+   "atributos": {
+    "color": "rojo"
+   },
+   "bom": "Luz piloto de riel {color} {tension}",
+   "notas": "El color se elige con la ficha, no con un campo, para que el dibujo cambie."
+  },
+  {
+   "id": "luz_piloto_verde",
+   "nombre": "Luz piloto de riel verde",
+   "categoria": "Control",
+   "svg": "componentes/luz_piloto_verde.svg",
+   "ancho_mm": 18,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 1,
+   "polos": 1,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 13,
+    "h": 14,
+    "lineas": [
+     "{etiqueta}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": "H1"
+    },
+    {
+     "id": "tension",
+     "rotulo": "Tension",
+     "tipo": "select",
+     "opciones": [
+      "12 V",
+      "24 V",
+      "230 V"
+     ],
+     "defecto": "230 V"
+    }
+   ],
+   "atributos": {
+    "color": "verde"
+   },
+   "bom": "Luz piloto de riel {color} {tension}",
+   "notas": "El color se elige con la ficha, no con un campo, para que el dibujo cambie."
+  },
+  {
+   "id": "luz_piloto_ambar",
+   "nombre": "Luz piloto de riel ambar",
+   "categoria": "Control",
+   "svg": "componentes/luz_piloto_ambar.svg",
+   "ancho_mm": 18,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 1,
+   "polos": 1,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 13,
+    "h": 14,
+    "lineas": [
+     "{etiqueta}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": "H1"
+    },
+    {
+     "id": "tension",
+     "rotulo": "Tension",
+     "tipo": "select",
+     "opciones": [
+      "12 V",
+      "24 V",
+      "230 V"
+     ],
+     "defecto": "230 V"
+    }
+   ],
+   "atributos": {
+    "color": "ambar"
+   },
+   "bom": "Luz piloto de riel {color} {tension}",
+   "notas": "El color se elige con la ficha, no con un campo, para que el dibujo cambie."
+  },
+  {
+   "id": "luz_piloto_azul",
+   "nombre": "Luz piloto de riel azul",
+   "categoria": "Control",
+   "svg": "componentes/luz_piloto_azul.svg",
+   "ancho_mm": 18,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 1,
+   "polos": 1,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 13,
+    "h": 14,
+    "lineas": [
+     "{etiqueta}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": "H1"
+    },
+    {
+     "id": "tension",
+     "rotulo": "Tension",
+     "tipo": "select",
+     "opciones": [
+      "12 V",
+      "24 V",
+      "230 V"
+     ],
+     "defecto": "230 V"
+    }
+   ],
+   "atributos": {
+    "color": "azul"
+   },
+   "bom": "Luz piloto de riel {color} {tension}",
+   "notas": "El color se elige con la ficha, no con un campo, para que el dibujo cambie."
+  },
+  {
+   "id": "luz_piloto_blanco",
+   "nombre": "Luz piloto de riel blanco",
+   "categoria": "Control",
+   "svg": "componentes/luz_piloto_blanco.svg",
+   "ancho_mm": 18,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 1,
+   "polos": 1,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 15,
+    "w": 13,
+    "h": 14,
+    "lineas": [
+     "{etiqueta}"
+    ],
+    "tamano_mm": 4.4
+   },
+   "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": "H1"
+    },
+    {
+     "id": "tension",
+     "rotulo": "Tension",
+     "tipo": "select",
+     "opciones": [
+      "12 V",
+      "24 V",
+      "230 V"
+     ],
+     "defecto": "230 V"
+    }
+   ],
+   "atributos": {
+    "color": "blanco"
+   },
+   "bom": "Luz piloto de riel {color} {tension}",
+   "notas": "El color se elige con la ficha, no con un campo, para que el dibujo cambie."
+  },
+  {
+   "id": "barra_tetrapolar_4p",
+   "nombre": "Bloque de distribucion tetrapolar 4P",
+   "categoria": "Distribucion",
+   "svg": "componentes/barra_tetrapolar_4p.svg",
+   "ancho_mm": 72,
+   "alto_mm": 60,
+   "montaje": "riel",
+   "riel_y_mm": 30,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 4,
+   "polos": 4,
+   "etiqueta": null,
+   "campos": [
+    {
+     "id": "corriente",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      63,
+      100,
+      125
+     ],
+     "defecto": 100
+    }
+   ],
+   "atributos": {
+    "polos": 4
+   },
+   "bom": "Bloque de distribucion tetrapolar 4P {corriente} A",
+   "notas": "Ancho de 4 modulos y alto de 60 mm [supuesto]; L1, L2, L3 y N (marron, negro, gris, azul)."
+  },
+  {
+   "id": "contactor_1m",
+   "nombre": "Contactor modular 1 modulo",
+   "categoria": "Comando",
+   "svg": "componentes/contactor_1m.svg",
+   "ancho_mm": 18,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45,
+   "snap": {
+    "tipo": "modular",
+    "paso_mm": 18
+   },
+   "modulos": 1,
+   "polos": 1,
+   "etiqueta": {
+    "x": 2.5,
+    "y": 26,
+    "w": 13,
+    "h": 20,
+    "lineas": [
+     "K{indice}",
+     "{corriente}A"
+    ],
+    "tamano_mm": 4.2
+   },
+   "campos": [
+    {
+     "id": "indice",
+     "rotulo": "N° de contactor",
+     "tipo": "entero",
+     "defecto": 1
+    },
+    {
+     "id": "corriente",
+     "rotulo": "Corriente (A)",
+     "tipo": "select",
+     "opciones": [
+      16,
+      20,
+      25
+     ],
+     "defecto": 20
+    },
+    {
+     "id": "bobina",
+     "rotulo": "Bobina",
+     "tipo": "select",
+     "opciones": [
+      "24 V",
+      "230 V"
+     ],
+     "defecto": "230 V"
+    },
+    {
+     "id": "contactos",
+     "rotulo": "Contactos",
+     "tipo": "select",
+     "opciones": [
+      "1NA",
+      "2NA",
+      "1NA+1NC"
+     ],
+     "defecto": "1NA"
+    }
+   ],
+   "atributos": {
+    "polos": 1
+   },
+   "bom": "Contactor modular 1 modulo {contactos} {corriente} A, bobina {bobina}",
+   "notas": "Dibujo con 2 bornes de potencia por lado y bornes de bobina A1/A2, como los modulares de 1 modulo. Ancho de un automatico 1P."
   },
   {
    "id": "tope_riel",

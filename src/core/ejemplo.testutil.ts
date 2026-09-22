@@ -2,8 +2,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parsearBiblioteca } from './biblioteca';
 import { resolverCaja } from './caja';
+import type { Margenes, Modo, SeccionCanaleta } from './capacidad';
 import { crearContexto, resolverColocacion } from './colocacion';
-import type { Contexto } from './colocacion';
+import type { AjustesCapacidad, Contexto } from './colocacion';
+import { margenesEfectivos } from './margenes';
 import { valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
 import type { Biblioteca } from './tipos';
@@ -16,10 +18,22 @@ export function cargarBiblioteca(): Biblioteca {
   return parsearBiblioteca(leer('catalogo.json'), leer('gabinetes.json'));
 }
 
-export function crearContextoDe(bib: Biblioteca, caja: CajaProyecto): Contexto {
+/**
+ * Contexto con los ajustes de capacidad por defecto (margen de la caja, modo 'compacto',
+ * sección de canaleta 40 mm), salvo que se pasen `ajustes` explícitos.
+ */
+export function crearContextoDe(bib: Biblioteca, caja: CajaProyecto, ajustes?: Partial<AjustesCapacidad>): Contexto {
   const c = resolverCaja(caja, bib.gabinetes);
   if (!c) throw new Error('caja inexistente');
-  return crearContexto(bib.catalogo, c);
+  const margenes: Margenes = ajustes?.margenes ?? margenesEfectivos({ margenBordeManual: false, margenBorde_mm: null }, caja, bib.gabinetes);
+  return crearContexto(bib.catalogo, c, {
+    margenes,
+    modo: ajustes?.modo ?? ('compacto' as Modo),
+    seccionCanaleta: ajustes?.seccionCanaleta ?? (bib.gabinetes.parametros.layout.canaleta_defecto_mm as SeccionCanaleta),
+    parametrosLayout: bib.gabinetes.parametros.layout,
+    moduloMm: bib.gabinetes.parametros.modulo_mm,
+    altoModularMm: bib.gabinetes.parametros.alto_modular_mm,
+  });
 }
 
 /**

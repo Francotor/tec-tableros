@@ -1,0 +1,246 @@
+{
+ "fabricante": "Eldon",
+ "serie": "ASR",
+ "descripcion": "Armarios de acero inoxidable de una sola puerta (AISI 304L; 316L bajo pedido con sufijo -316 en la referencia)",
+ "fuente": "Catalogo del fabricante entregado por el usuario (fichas 'ASR', tabla 'Con placa de montaje' y plano de la placa)",
+ "unidad": "mm",
+ "columnas": [
+  "alto_A",
+  "ancho_An",
+  "fondo_P",
+  "placa_alto_a",
+  "placa_ancho_an",
+  "profundidad_util",
+  "cierres",
+  "ref"
+ ],
+ "reglas_del_catalogo": {
+  "placa_alto": "a = A - 30",
+  "placa_ancho": "an = An - 50",
+  "profundidad_util": "P - 20",
+  "fijaciones": "Pernos M8 soldados al fondo. Segun el plano: distancia entre pernos = an - 50 en horizontal y a - 20 en vertical (25 mm a los lados y 10 mm arriba y abajo del borde de la placa, medidos al centro)",
+  "placa": "Acero galvanizado de 2 mm. Con altura o ancho de armario de 800 mm o mas, la placa va plegada en los cuatro lados"
+ },
+ "filas": [
+  {
+   "alto_A": 180,
+   "ancho_An": 240,
+   "fondo_P": 150,
+   "placa_alto_a": 150,
+   "placa_ancho_an": 190,
+   "profundidad_util": 130,
+   "cierres": "1",
+   "ref": "ASR0182415"
+  },
+  {
+   "alto_A": 240,
+   "ancho_An": 240,
+   "fondo_P": 150,
+   "placa_alto_a": 210,
+   "placa_ancho_an": 190,
+   "profundidad_util": 130,
+   "cierres": "1",
+   "ref": "ASR0242415"
+  },
+  {
+   "alto_A": 240,
+   "ancho_An": 360,
+   "fondo_P": 150,
+   "placa_alto_a": 210,
+   "placa_ancho_an": 310,
+   "profundidad_util": 130,
+   "cierres": "1",
+   "ref": "ASR0243615"
+  },
+  {
+   "alto_A": 300,
+   "ancho_An": 200,
+   "fondo_P": 150,
+   "placa_alto_a": 270,
+   "placa_ancho_an": 150,
+   "profundidad_util": 130,
+   "cierres": "1",
+   "ref": "ASR0302015"
+  },
+  {
+   "alto_A": 360,
+   "ancho_An": 240,
+   "fondo_P": 150,
+   "placa_alto_a": 330,
+   "placa_ancho_an": 190,
+   "profundidad_util": 130,
+   "cierres": "1",
+   "ref": "ASR0362415"
+  },
+  {
+   "alto_A": 400,
+   "ancho_An": 300,
+   "fondo_P": 150,
+   "placa_alto_a": 370,
+   "placa_ancho_an": 250,
+   "profundidad_util": 130,
+   "cierres": "1",
+   "ref": "ASR0403015"
+  },
+  {
+   "alto_A": 400,
+   "ancho_An": 300,
+   "fondo_P": 210,
+   "placa_alto_a": 370,
+   "placa_ancho_an": 250,
+   "profundidad_util": 190,
+   "cierres": "1",
+   "ref": "ASR0403021"
+  },
+  {
+   "alto_A": 400,
+   "ancho_An": 400,
+   "fondo_P": 210,
+   "placa_alto_a": 370,
+   "placa_ancho_an": 350,
+   "profundidad_util": 190,
+   "cierres": "1",
+   "ref": "ASR0404021"
+  },
+  {
+   "alto_A": 400,
+   "ancho_An": 600,
+   "fondo_P": 210,
+   "placa_alto_a": 370,
+   "placa_ancho_an": 550,
+   "profundidad_util": 190,
+   "cierres": "1",
+   "ref": "ASR0406021"
+  },
+  {
+   "alto_A": 500,
+   "ancho_An": 400,
+   "fondo_P": 210,
+   "placa_alto_a": 470,
+   "placa_ancho_an": 350,
+   "profundidad_util": 190,
+   "cierres": "1",
+   "ref": "ASR0504021"
+  },
+  {
+   "alto_A": 500,
+   "ancho_An": 500,
+   "fondo_P": 210,
+   "placa_alto_a": 470,
+   "placa_ancho_an": 450,
+   "profundidad_util": 190,
+   "cierres": "1",
+   "ref": "ASR0505021"
+  },
+  {
+   "alto_A": 600,
+   "ancho_An": 400,
+   "fondo_P": 210,
+   "placa_alto_a": 570,
+   "placa_ancho_an": 350,
+   "profundidad_util": 190,
+   "cierres": "2",
+   "ref": "ASR0604021"
+  },
+  {
+   "alto_A": 600,
+   "ancho_An": 600,
+   "fondo_P": 210,
+   "placa_alto_a": 570,
+   "placa_ancho_an": 550,
+   "profundidad_util": 190,
+   "cierres": "2",
+   "ref": "ASR0606021"
+  },
+  {
+   "alto_A": 600,
+   "ancho_An": 600,
+   "fondo_P": 300,
+   "placa_alto_a": 570,
+   "placa_ancho_an": 550,
+   "profundidad_util": 280,
+   "cierres": "2",
+   "ref": "ASR0606030"
+  },
+  {
+   "alto_A": 600,
+   "ancho_An": 800,
+   "fondo_P": 300,
+   "placa_alto_a": 570,
+   "placa_ancho_an": 750,
+   "profundidad_util": 280,
+   "cierres": "2",
+   "ref": "ASR0608030"
+  },
+  {
+   "alto_A": 800,
+   "ancho_An": 600,
+   "fondo_P": 210,
+   "placa_alto_a": 770,
+   "placa_ancho_an": 550,
+   "profundidad_util": 190,
+   "cierres": "2",
+   "ref": "ASR0806021"
+  },
+  {
+   "alto_A": 800,
+   "ancho_An": 600,
+   "fondo_P": 300,
+   "placa_alto_a": 770,
+   "placa_ancho_an": 550,
+   "profundidad_util": 280,
+   "cierres": "2",
+   "ref": "ASR0806030"
+  },
+  {
+   "alto_A": 800,
+   "ancho_An": 800,
+   "fondo_P": 300,
+   "placa_alto_a": 770,
+   "placa_ancho_an": 750,
+   "profundidad_util": 280,
+   "cierres": "2",
+   "ref": "ASR0808030"
+  },
+  {
+   "alto_A": 1000,
+   "ancho_An": 800,
+   "fondo_P": 300,
+   "placa_alto_a": 970,
+   "placa_ancho_an": 750,
+   "profundidad_util": 280,
+   "cierres": "1*",
+   "ref": "ASR1008030"
+  },
+  {
+   "alto_A": 1200,
+   "ancho_An": 800,
+   "fondo_P": 300,
+   "placa_alto_a": 1170,
+   "placa_ancho_an": 750,
+   "profundidad_util": 280,
+   "cierres": "1*",
+   "ref": "ASR1208030"
+  },
+  {
+   "alto_A": 1200,
+   "ancho_An": 800,
+   "fondo_P": 400,
+   "placa_alto_a": 1170,
+   "placa_ancho_an": 750,
+   "profundidad_util": 380,
+   "cierres": "1*",
+   "ref": "ASR1208040"
+  },
+  {
+   "alto_A": 1400,
+   "ancho_An": 800,
+   "fondo_P": 400,
+   "placa_alto_a": 1370,
+   "placa_ancho_an": 750,
+   "profundidad_util": 380,
+   "cierres": "1*",
+   "ref": "ASR1408040"
+  }
+ ]
+}

@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 import { resolverCaja } from '../core/caja';
 import type { CajaResuelta } from '../core/caja';
+import type { Modo, SeccionCanaleta } from '../core/capacidad';
 import {
   agregarElemento,
   borrarElemento,
@@ -13,6 +15,7 @@ import {
 } from '../core/colocacion';
 import type { Cambio, Contexto } from '../core/colocacion';
 import type { Punto } from '../core/geometria';
+import { margenesEfectivos } from '../core/margenes';
 import { trasladar } from '../core/sugerencia';
 import { deshacer as deshacerH, historialVacio, rehacer as rehacerH, registrar } from '../core/historial';
 import type { Historial } from '../core/historial';
@@ -20,6 +23,9 @@ import { proyectoNuevo, valoresPorDefecto } from '../core/modelo';
 import type { CajaProyecto, Elemento, Proyecto } from '../core/modelo';
 import type { Biblioteca, ValorCampo } from '../core/tipos';
 import { useBiblioteca } from './biblioteca';
+
+/** Subconjunto del proyecto del que depende el contexto de reglas (caja, margen, modo, sección de canaleta). */
+type AjustesProyecto = Pick<Proyecto, 'caja' | 'margenBordeManual' | 'margenBorde_mm' | 'modo' | 'seccionCanaleta_mm'>;
 
 const CAJA_INICIAL = 'caja_metalica_400x500x200';
 
@@ -54,6 +60,10 @@ interface EstadoEditor {
   cargarProyecto: (p: Proyecto) => void;
   nuevoProyecto: () => void;
   setMeta: (meta: Partial<Pick<Proyecto, 'nombre' | 'numeroCotizacion' | 'notas'>>) => void;
+  /** Fija el margen de borde a mano; deja de seguir al de la caja hasta que se cambie de caja. */
+  setMargenBorde: (mm: number) => void;
+  setModo: (modo: Modo) => void;
+  setSeccionCanaleta: (mm: SeccionCanaleta) => void;
   /** Cambia a una caja de la lista y traslada el dibujo a su placa, en un solo paso de historial. */
   aplicarSugerencia: (cajaId: string, dx: number, dy: number) => void;
   agregar: (componenteId: string, punto: Punto) => boolean;
@@ -68,23 +78,40 @@ interface EstadoEditor {
 }
 
 /** Contexto de reglas para el proyecto actual; null si la biblioteca aún no carga. */
-export function contextoDe(biblioteca: Biblioteca | null, caja: CajaProyecto): Contexto | null {
+export function contextoDe(biblioteca: Biblioteca | null, ajustes: AjustesProyecto): Contexto | null {
   if (!biblioteca) return null;
   const resuelta: CajaResuelta | null =
-    resolverCaja(caja, biblioteca.gabinetes) ??
+    resolverCaja(ajustes.caja, biblioteca.gabinetes) ??
     (biblioteca.gabinetes.cajas[0] ? resolverCaja({ id: biblioteca.gabinetes.cajas[0].id }, biblioteca.gabinetes) : null);
-  return resuelta ? crearContexto(biblioteca.catalogo, resuelta) : null;
+  if (!resuelta) return null;
+  const { parametros } = biblioteca.gabinetes;
+  return crearContexto(biblioteca.catalogo, resuelta, {
+    margenes: margenesEfectivos(ajustes, ajustes.caja, biblioteca.gabinetes),
+    modo: ajustes.modo,
+    seccionCanaleta: ajustes.seccionCanaleta_mm,
+    parametrosLayout: parametros.layout,
+    moduloMm: parametros.modulo_mm,
+    altoModularMm: parametros.alto_modular_mm,
+  });
 }
 
 /** Contexto del proyecto actual, leído fuera de React (manejadores de eventos). */
 export function contextoActual(): Contexto | null {
-  return contextoDe(useBiblioteca.getState().biblioteca, useEditor.getState().proyecto.caja);
+  return contextoDe(useBiblioteca.getState().biblioteca, useEditor.getState().proyecto);
 }
 
 export function useContexto(): Contexto | null {
   const biblioteca = useBiblioteca((s) => s.biblioteca);
-  const caja = useEditor((s) => s.proyecto.caja);
-  return useMemo(() => contextoDe(biblioteca, caja), [biblioteca, caja]);
+  const ajustes = useEditor(
+    useShallow((s): AjustesProyecto => ({
+      caja: s.proyecto.caja,
+      margenBordeManual: s.proyecto.margenBordeManual,
+      margenBorde_mm: s.proyecto.margenBorde_mm,
+      modo: s.proyecto.modo,
+      seccionCanaleta_mm: s.proyecto.seccionCanaleta_mm,
+    })),
+  );
+  return useMemo(() => contextoDe(biblioteca, ajustes), [biblioteca, ajustes]);
 }
 
 let contadorAvisos = 0;
@@ -92,7 +119,7 @@ let contadorAvisos = 0;
 let edicionActual: string | null = null;
 
 export const useEditor = create<EstadoEditor>((set, get) => {
-  const contexto = (): Contexto | null => contextoDe(useBiblioteca.getState().biblioteca, get().proyecto.caja);
+  const contexto = (): Contexto | null => contextoDe(useBiblioteca.getState().biblioteca, get().proyecto);
 
   const instantanea = (): Instantanea => ({ caja: get().proyecto.caja, elementos: get().proyecto.elementos });
 
@@ -166,6 +193,26 @@ export const useEditor = create<EstadoEditor>((set, get) => {
     setMeta: (meta) => {
       const { proyecto } = get();
       set({ proyecto: { ...proyecto, ...meta, actualizadoEn: new Date().toISOString() } });
+    },
+
+    // El margen, el modo y la sección de canaleta son ajustes del proyecto, no pasos del dibujo:
+    // igual que setMeta, no entran en el historial de deshacer/rehacer.
+    setMargenBorde: (mm) => {
+      const { proyecto } = get();
+      if (proyecto.margenBordeManual && proyecto.margenBorde_mm === mm) return;
+      set({ proyecto: { ...proyecto, margenBordeManual: true, margenBorde_mm: mm, actualizadoEn: new Date().toISOString() } });
+    },
+
+    setModo: (modo) => {
+      const { proyecto } = get();
+      if (proyecto.modo === modo) return;
+      set({ proyecto: { ...proyecto, modo, actualizadoEn: new Date().toISOString() } });
+    },
+
+    setSeccionCanaleta: (mm) => {
+      const { proyecto } = get();
+      if (proyecto.seccionCanaleta_mm === mm) return;
+      set({ proyecto: { ...proyecto, seccionCanaleta_mm: mm, actualizadoEn: new Date().toISOString() } });
     },
 
     aplicarSugerencia: (cajaId, dx, dy) => {

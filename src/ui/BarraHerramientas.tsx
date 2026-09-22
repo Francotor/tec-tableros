@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { ANCHO_MAX_LIBRE_MM, ANCHO_MIN_LIBRE_MM } from '../core/caja';
+import { SECCIONES_CANALETA } from '../core/capacidad';
+import type { Modo } from '../core/capacidad';
 import { esCanaleta, huella } from '../core/colocacion';
 import { formatearMm } from '../core/biblioteca';
+import { margenBordePorDefecto } from '../core/margenes';
 import type { Caja, TipoCaja } from '../core/tipos';
 import { useBiblioteca } from '../store/biblioteca';
 import { useContexto, useEditor } from '../store/editor';
@@ -81,6 +84,73 @@ function SelectorCaja({ cajas }: { cajas: Caja[] }) {
   );
 }
 
+/** Margen de borde, modo y sección de canaleta: solo aplican a cajas metálicas o inox (con rieles propios). */
+function AjustesCapacidad() {
+  const ctx = useContexto();
+  const biblioteca = useBiblioteca((s) => s.biblioteca);
+  const proyecto = useEditor((s) => s.proyecto);
+  const { setMargenBorde, setModo, setSeccionCanaleta, avisar } = useEditor.getState();
+
+  if (!ctx || !biblioteca || !ctx.caja.permiteRieles) return null;
+
+  const margenMostrado =
+    proyecto.margenBordeManual && proyecto.margenBorde_mm !== null
+      ? proyecto.margenBorde_mm
+      : margenBordePorDefecto(proyecto.caja, biblioteca.gabinetes);
+
+  const confirmarMargen = (v: string, input: HTMLInputElement) => {
+    const n = Number(v);
+    if (!Number.isInteger(n) || n < 0 || n > 100) {
+      avisar('El margen de borde debe ser un número entero entre 0 y 100 mm.');
+      input.value = String(margenMostrado);
+      return;
+    }
+    if (n !== margenMostrado) setMargenBorde(n);
+  };
+
+  return (
+    <div className="grupo-barra">
+      <label>
+        Margen de borde (mm)
+        <input
+          key={margenMostrado}
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={100}
+          defaultValue={margenMostrado}
+          onBlur={(e) => confirmarMargen(e.target.value, e.target)}
+          onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+        />
+      </label>
+      <label>
+        Distribución
+        <select value={proyecto.modo} onChange={(e) => setModo(e.target.value as Modo)}>
+          <option value="compacto">Compacta (sin canaleta)</option>
+          <option value="con_canaleta">Con canaleta</option>
+        </select>
+      </label>
+      {proyecto.modo === 'con_canaleta' && (
+        <label>
+          Sección canaleta (mm)
+          <select value={proyecto.seccionCanaleta_mm} onChange={(e) => setSeccionCanaleta(Number(e.target.value) as (typeof SECCIONES_CANALETA)[number])}>
+            {SECCIONES_CANALETA.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      {ctx.capacidad && (
+        <span className="hint">
+          {ctx.capacidad.modulosPorFila} módulos/fila · {ctx.capacidad.filas} fila(s)
+        </span>
+      )}
+    </div>
+  );
+}
+
 function Seleccion() {
   const ctx = useContexto();
   const uid = useEditor((s) => s.seleccion);
@@ -124,6 +194,7 @@ export function BarraHerramientas() {
     <div className="barra-herramientas">
       <div className="fila-barra">
         {gabinetes && <SelectorCaja cajas={gabinetes.cajas} />}
+        <AjustesCapacidad />
         <div className="grupo-barra">
           <button type="button" onClick={deshacer} disabled={!puedeDeshacer} title="Deshacer (Ctrl+Z)">
             Deshacer

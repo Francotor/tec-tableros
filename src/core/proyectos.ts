@@ -1,3 +1,4 @@
+import { SECCIONES_CANALETA } from './capacidad';
 import { nuevoUid } from './modelo';
 import type { CajaProyecto, Elemento, Proyecto } from './modelo';
 
@@ -60,6 +61,8 @@ export function validarProyecto(p: unknown): Proyecto {
   exigir(esObjeto(p), 'Proyecto inválido.');
   exigir(typeof p.id === 'string' && p.id !== '', 'Proyecto inválido: falta el identificador.');
   exigir(Array.isArray(p.elementos), 'Proyecto inválido: faltan los elementos.');
+  // margenBorde_mm/modo/seccionCanaleta_mm no existían antes de esta versión: un proyecto guardado
+  // antes se abre igual, con el margen automático de su caja (compacto, canaleta de 40 mm).
   return {
     id: p.id,
     nombre: typeof p.nombre === 'string' ? p.nombre : 'Proyecto sin nombre',
@@ -67,6 +70,10 @@ export function validarProyecto(p: unknown): Proyecto {
     notas: typeof p.notas === 'string' ? p.notas : '',
     actualizadoEn: typeof p.actualizadoEn === 'string' ? p.actualizadoEn : new Date().toISOString(),
     caja: validarCaja(p.caja),
+    margenBordeManual: p.margenBordeManual === true,
+    margenBorde_mm: typeof p.margenBorde_mm === 'number' ? p.margenBorde_mm : null,
+    modo: p.modo === 'con_canaleta' ? 'con_canaleta' : 'compacto',
+    seccionCanaleta_mm: SECCIONES_CANALETA.includes(p.seccionCanaleta_mm as 25 | 40 | 60) ? (p.seccionCanaleta_mm as 25 | 40 | 60) : 40,
     elementos: p.elementos.map(validarElemento),
   };
 }

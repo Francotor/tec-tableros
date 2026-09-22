@@ -101,6 +101,41 @@ export interface RielIncluido {
   largo: number;
 }
 
+/** Filas/módulos que caben con las fórmulas de capacidad, para un modo (o una sección de canaleta) dados. */
+export interface CapacidadModo {
+  paso_filas_mm: number;
+  largo_riel_mm: number;
+  filas: number;
+  modulos_por_fila: number;
+  modulos_total: number;
+  modulos_max_con_reserva: number;
+}
+
+/** Cajas metálicas e inox: capacidad precalculada por la biblioteca (vector de prueba; el editor la recalcula). */
+export interface CapacidadCaja {
+  compacto: CapacidadModo;
+  con_canaleta: CapacidadModo;
+  por_canaleta: Record<'25' | '40' | '60', CapacidadModo>;
+}
+
+/** Cajas plásticas: riel incluido de largo fijo. */
+export interface CapacidadCajaPlastica {
+  riel_incluido: CapacidadModo;
+}
+
+/** Márgenes propios de una caja de fabricante (reemplazan al margen de borde general). */
+export interface LayoutCaja {
+  margen_lateral_mm: number;
+  margen_vertical_mm: number;
+}
+
+/** Fijación (perno) de una caja de fabricante: círculo que ningún elemento puede invadir. */
+export interface Fijacion {
+  x: number;
+  y: number;
+  r_libre_mm: number;
+}
+
 export interface Caja {
   id: string;
   nombre: string;
@@ -113,9 +148,39 @@ export interface Caja {
   placa: Placa | null;
   modulos_por_fila: number;
   filas_max_estimado: number;
+  capacidad?: CapacidadCaja | CapacidadCajaPlastica;
+  layout?: LayoutCaja;
+  fijaciones?: Fijacion[];
   rieles_incluidos: boolean;
   rieles?: RielIncluido[];
+  /** Caja de fabricante (Eldon, Lerkenbox…). */
+  fabricante?: string;
+  serie?: string;
+  ref_fabricante?: string;
+  ref_puerta_transparente?: string;
+  /** Medida genérica sin verificar contra un catálogo de fabricante. */
+  referencial?: boolean;
+  reemplazo_sugerido?: string | null;
+  puertas?: number;
+  cierres?: string | number;
+  bisagras?: number;
+  version?: number;
+  profundidad_util_mm?: number;
   notas?: string;
+}
+
+export interface ParametrosLayout {
+  margen_borde_mm: number;
+  holgura_mm: number;
+  tope_riel_mm: number;
+  paso_compacto_mm: number;
+  paso_minimo_con_canaleta_mm: number;
+  canaleta_defecto_mm: number;
+  canaletas_mm: number[];
+  reserva: number;
+  reemplazo_max_dif_fondo_mm?: number;
+  reemplazo_excluye_series?: string[];
+  fijacion_keepout_mm?: number;
 }
 
 export interface Gabinetes {
@@ -123,11 +188,10 @@ export interface Gabinetes {
   unidad: 'mm';
   parametros: {
     margen_placa_mm: number;
-    margen_lateral_riel_mm: number;
-    canaleta_mm: number;
-    margen_vertical_mm: number;
     modulo_mm: number;
     alto_modular_mm: number;
+    layout: ParametrosLayout;
+    modos: Record<string, string>;
   };
   cajas: Caja[];
 }

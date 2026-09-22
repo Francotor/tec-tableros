@@ -1,3 +1,4 @@
+import { calcularAreaUtil } from './capacidad';
 import { calcularTopes, huella } from './colocacion';
 import type { Contexto } from './colocacion';
 import type { Rect } from './geometria';
@@ -31,14 +32,21 @@ export interface Sugerencia {
 /**
  * La caja de la lista, del mismo tipo (metálica o inox), con la placa más chica que contiene todo el dibujo.
  * Solo aplica a cajas metálicas e inox: las plásticas traen sus rieles fijos.
+ * La elegibilidad usa el mismo margen de borde que el proyecto (ctx.margenes) en cada candidata,
+ * para que la sugerencia sea consistente con los avisos de "fila excede módulos".
  */
 export function sugerirCaja(elementos: readonly Elemento[], ctx: Contexto, gabinetes: Gabinetes): Sugerencia | null {
   const tipo = ctx.caja.tipo;
   if (tipo !== 'metalica' && tipo !== 'inox') return null;
   const ext = extensionDelDibujo(elementos, ctx);
   if (!ext) return null;
+  const cabe = (c: Caja): boolean => {
+    if (!c.placa) return false;
+    const util = calcularAreaUtil({ x: c.placa.x, y: c.placa.y, w: c.placa.ancho, h: c.placa.alto }, ctx.margenes);
+    return util.w >= ext.w - 0.01 && util.h >= ext.h - 0.01;
+  };
   const candidatas = gabinetes.cajas
-    .filter((c) => c.tipo === tipo && c.placa && c.placa.ancho >= ext.w - 0.01 && c.placa.alto >= ext.h - 0.01)
+    .filter((c) => c.tipo === tipo && cabe(c))
     .sort((a, b) => (a.placa?.ancho ?? 0) * (a.placa?.alto ?? 0) - (b.placa?.ancho ?? 0) * (b.placa?.alto ?? 0) || a.ancho_mm - b.ancho_mm);
   const mejor = candidatas[0];
   if (!mejor?.placa) return null;

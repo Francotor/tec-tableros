@@ -23,17 +23,19 @@ export function calcularAvisos(elementos: readonly Elemento[], ctx: Contexto, su
     });
   }
 
-  // Fila que excede los módulos de la caja.
+  // Fila que excede los módulos de la caja: metálicas/inox usan la capacidad dinámica
+  // (margen, modo y sección de canaleta del proyecto); las plásticas, su valor fijo.
   const modulo = ctx.comps.get('automatico_1p')?.ancho_mm ?? 18;
+  const limiteModulos = ctx.capacidad ? ctx.capacidad.modulosPorFila : ctx.caja.modulosPorFila;
   const piezas = listarPiezas(elementos, ctx).filter((p) => p.clase === 'aparato');
   const rieles = listarRieles(elementos, ctx);
   rieles.forEach((r, i) => {
     const mm = piezas.filter((p) => p.rielUid === r.uid).reduce((s, p) => s + p.rect.w, 0);
     const modulos = mm / modulo;
-    if (modulos > ctx.caja.modulosPorFila + 1e-9) {
+    if (modulos > limiteModulos + 1e-9) {
       avisos.push({
         id: `fila:${r.uid}`,
-        texto: `La fila ${i + 1} ocupa ${Math.ceil(modulos)} módulos y la caja admite ${ctx.caja.modulosPorFila} por fila.`,
+        texto: `La fila ${i + 1} ocupa ${Math.ceil(modulos)} módulos y la caja admite ${limiteModulos} por fila.`,
       });
     }
   });

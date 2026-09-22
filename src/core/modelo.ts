@@ -1,3 +1,4 @@
+import type { Modo, SeccionCanaleta } from './capacidad';
 import type { Componente, ValorCampo } from './tipos';
 
 export type CajaProyecto =
@@ -24,6 +25,12 @@ export interface Proyecto {
   notas: string;
   actualizadoEn: string;
   caja: CajaProyecto;
+  /** true si el margen de borde fue editado a mano para este proyecto (si no, sigue al de la caja actual). */
+  margenBordeManual: boolean;
+  /** Solo tiene valor mientras margenBordeManual es true. */
+  margenBorde_mm: number | null;
+  modo: Modo;
+  seccionCanaleta_mm: SeccionCanaleta;
   elementos: Elemento[];
 }
 
@@ -54,6 +61,11 @@ export function proyectoNuevo(cajaId: string): Proyecto {
     notas: '',
     actualizadoEn: new Date().toISOString(),
     caja: { id: cajaId },
+    margenBordeManual: false,
+    margenBorde_mm: null,
+    modo: 'compacto',
+    // Coincide con parametros.layout.canaleta_defecto_mm de la biblioteca actual (40 mm).
+    seccionCanaleta_mm: 40,
     elementos: [],
   };
 }

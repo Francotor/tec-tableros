@@ -28,9 +28,25 @@ for d in DIRS.values():
 MOD = 18            # ancho de un modulo DIN (mm)
 H_MOD = 90          # alto frontal de un aparato modular (mm)
 MARGEN_PLACA = 50   # caja exterior - placa interior, por dimension (mm)  [supuesto]
-MARGEN_RIEL = 40    # margen lateral no usable en la placa (mm)          [supuesto]
-CANALETA = 25       # canaleta usada para estimar filas (mm)              [supuesto]
-MARGEN_VERT = 10    # margen vertical libre (mm)                          [supuesto]
+CANALETA = 25       # canaleta del ejemplo armado (mm)
+
+# Regla de armado v1.2 (ver README). Valores propios derivados del RIC N°02 y de practica de fabricantes.
+L_MARGEN = 20           # placa -> canaleta o riel (mm). Depende de la placa: las tuercas de fijacion de las esquinas ocupan el borde [supuesto]
+L_HOLGURA = 10          # aparato/riel -> canaleta (mm), minimo             [supuesto]
+L_TOPE = 8              # ancho de un tope de riel (mm)
+L_PASO_COMPACTO = 125   # entre ejes de riel, sin canaletas (mm)            [practica de fabricantes]
+L_PASO_MIN = 150        # entre ejes de riel, con canaletas (mm)            [practica de fabricantes]
+RESERVA = 0.25          # ampliacion exigida por RIC N°02, 6.1.16.3
+CANALETA_DEFECTO = 40   # la seccion mas usada en cajas metalicas segun el usuario
+CANALETAS = (25, 40, 60)
+# Cajas de fabricante (Eldon ASR): datos en datos_fabricantes/eldon_asr.json
+ASR_FIJ_LATERAL = 25    # centro del perno M8 al borde lateral de la placa (plano del catalogo)
+ASR_FIJ_VERTICAL = 10   # centro del perno M8 al borde superior o inferior de la placa
+ASR_R_LIBRE = 10        # radio libre alrededor de cada perno (tuerca M8 de 13 mm mas holgura) [supuesto]
+ASR_MARGEN_LATERAL = 10  # placa -> canaleta lateral en cajas ASR                                [supuesto]
+REEMPLAZO_EXCLUYE_SERIES = ("KT",)  # cajas de terminales: el material de la caja no figura en el catalogo entregado
+REEMPLAZO_MAX_DIF_FONDO = 30  # una caja real reemplaza a una generica solo si el fondo difiere hasta esto (mm) [supuesto]
+EJEMPLO_MODULOS = 22    # el ejemplo armado conserva su medida historica para no romper la prueba de referencia
 
 C = dict(
     body="#F1F2F4", body_s="#B5BBC4", term="#9BA2AD", screw="#6B727D",
@@ -253,6 +269,79 @@ for mm2, W, H in ((4, 6, 45), (16, 12, 50), (35, 16, 55)):
             "Borne de paso {seccion_mm2} mm2 {color}",
             notas="Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada.")
 
+# ---------------------------------------------------------------- ampliacion v1.1
+# Portafusibles de riel 10 x 38 (18 mm por polo)
+for p in (1, 2, 3, 4):
+    W = MOD * p
+    tapas = ""
+    for i in range(p):
+        x0 = MOD * i
+        tapas += rect(x0 + 3, 33, MOD - 6, 31, "#E6E8EC", C["body_s"], 0.4, 1.5)
+        tapas += line(x0 + 3, 37, x0 + MOD - 3, 37, C["body_s"], 0.5)
+        tapas += "".join(line(x0 + 5, y, x0 + MOD - 5, y, C["body_s"], 0.5) for y in (56, 59, 62))
+    inner = cuerpo(W, H_MOD, p) + placa_etiqueta(2.5, 15, W - 5, 14) + tapas
+    reg(f"portafusible_10x38_{p}p", f"Portafusible de riel 10 x 38 {p}P", "Protecciones", W, H_MOD, inner,
+        "riel", 45, SNAP_MOD,
+        {"x": 2.5, "y": 15, "w": W - 5, "h": 14, "lineas": ["{calibre}A"], "tamano_mm": 4.4},
+        [campo_select("tipo", ["gG", "aM"], "gG", "Tipo de fusible"),
+         campo_select("calibre", [2, 4, 6, 10, 16, 20, 25, 32], 10, "Calibre (A)")],
+        {"polos": p, "formato": "10x38"},
+        "Portafusible de riel 10 x 38 mm {polos}P, fusibles {tipo} {calibre} A", modulos=p, polos=p,
+        notas="18 mm por polo [supuesto tipico del formato 10 x 38]. Para 14 x 51 o 22 x 58 se necesitan fichas propias.")
+
+# Luces piloto de riel (1 modulo), una ficha por color
+LUCES = {
+    "rojo": ("#D64545", "#9E2A2A"), "verde": ("#3FA34D", "#2A7535"), "ambar": ("#F2A900", "#B57C00"),
+    "azul": ("#2F6FD0", "#1F4E99"), "blanco": ("#F5F5F5", "#B5BBC4"),
+}
+for color, (fill, st) in LUCES.items():
+    inner = (cuerpo(MOD, H_MOD, 1) + placa_etiqueta(2.5, 15, MOD - 5, 14)
+             + circ(9, 48, 8, "#DDE1E6", "#9BA2AD", 0.5) + circ(9, 48, 6.3, fill, st, 0.5)
+             + '<circle cx="7" cy="45.5" r="1.8" fill="#FFFFFF" fill-opacity="0.55"/>')
+    reg(f"luz_piloto_{color}", f"Luz piloto de riel {color}", "Control", MOD, H_MOD, inner,
+        "riel", 45, SNAP_MOD,
+        {"x": 2.5, "y": 15, "w": MOD - 5, "h": 14, "lineas": ["{etiqueta}"], "tamano_mm": 4.4},
+        [{"id": "etiqueta", "rotulo": "Rotulo", "tipo": "texto", "defecto": "H1"},
+         campo_select("tension", ["12 V", "24 V", "230 V"], "230 V", "Tension")],
+        {"color": color}, "Luz piloto de riel {color} {tension}", modulos=1, polos=1,
+        notas="El color se elige con la ficha, no con un campo, para que el dibujo cambie.")
+
+# Bloque de distribucion tetrapolar (4 modulos)
+W, H = 4 * MOD, 60
+inner = rect(0.25, 0.25, W - 0.5, H - 0.5, "#F4F4F2", C["body_s"], 0.5, 1.5)
+for i, cap in enumerate(("#7A4A2E", "#23272E", "#8C8C8C", "#2F6FD0")):
+    x0 = MOD * i
+    inner += rect(x0 + 3, 4, 12, 8, cap, None, rx=1)
+    inner += rect(x0 + 3, 15, 12, 38, C["copper"], "#9E5A25", 0.5, 1)
+    inner += "".join(tornillo(x0 + 9, y) for y in (23, 34, 45))
+    if i:
+        inner += line(x0, 3, x0, H - 3, C["body_s"], 0.5)
+reg("barra_tetrapolar_4p", "Bloque de distribucion tetrapolar 4P", "Distribucion", W, H, inner,
+    "riel", 30, SNAP_MOD, None,
+    [campo_select("corriente", [63, 100, 125], 100, "Corriente (A)")],
+    {"polos": 4}, "Bloque de distribucion tetrapolar 4P {corriente} A", modulos=4, polos=4,
+    notas="Ancho de 4 modulos y alto de 60 mm [supuesto]; L1, L2, L3 y N (marron, negro, gris, azul).")
+
+# Contactor modular de 1 modulo (mismo ancho que un automatico 1P)
+W = MOD
+inner = rect(0.25, 0.25, W - 0.5, H_MOD - 0.5, C["body"], C["body_s"], 0.5, 1.5)
+inner += (rect(1.5, 2, 15, 9, C["term"]) + rect(1.5, 12.5, 15, 8, C["term"])
+          + rect(1.5, 69.5, 15, 8, C["term"]) + rect(1.5, 79, 15, 9, C["term"]))
+inner += rect(1, 23, 16, 45, "#F8F9FA", "#D0D4DA", 0.4, 1.5) + placa_etiqueta(2.5, 26, 13, 20)
+inner += rect(6.5, 50, 5, 8, "#4A3B3B", C["dark_s"], 0.4, 1)
+inner += "".join(circ(cx, cy, 2.2, C["screw"]) + line(cx - 1.4, cy, cx + 1.4, cy, "#D9DCE1", 0.6)
+                 for cx, cy in ((4.5, 6.5), (13.5, 6.5), (9, 16.5), (9, 73.5), (4.5, 83.5), (13.5, 83.5)))
+reg("contactor_1m", "Contactor modular 1 modulo", "Comando", W, H_MOD, inner, "riel", 45, SNAP_MOD,
+    {"x": 2.5, "y": 26, "w": 13, "h": 20, "lineas": ["K{indice}", "{corriente}A"], "tamano_mm": 4.2},
+    [{"id": "indice", "rotulo": "N° de contactor", "tipo": "entero", "defecto": 1},
+     campo_select("corriente", [16, 20, 25], 20, "Corriente (A)"),
+     campo_select("bobina", ["24 V", "230 V"], "230 V", "Bobina"),
+     campo_select("contactos", ["1NA", "2NA", "1NA+1NC"], "1NA", "Contactos")],
+    {"polos": 1}, "Contactor modular 1 modulo {contactos} {corriente} A, bobina {bobina}",
+    modulos=1, polos=1,
+    notas="Dibujo con 2 bornes de potencia por lado y bornes de bobina A1/A2, como los modulares de 1 modulo. Ancho de un automatico 1P.")
+
+
 # ---------------------------------------------------------------- montaje
 inner = rect(0.25, 0.25, 7.5, 44.5, "#3A3F47", "#23272E", 0.5, 1) + circ(4, 12, 2.2, C["term"]) + circ(4, 33, 2.2, C["term"])
 reg("tope_riel", "Tope de riel DIN", "Montaje", 8, 45, inner, "riel", 22.5,
@@ -323,17 +412,22 @@ for anc in (25, 40, 60):
 
 
 # ---------------------------------------------------------------- gabinetes
-def caja_metal(alto, ancho, inox):
+def caja_metal(alto, ancho, inox, mx=None, my=None, fijaciones=None):
     if inox:
         marco, marco_s, cav, plc, plc_s = "#C6CCD4", "#9AA2AD", "#8A929C", "#E9ECEF", "#B9BFC8"
     else:
         marco, marco_s, cav, plc, plc_s = "#8C95A2", "#6E7784", "#5F6875", "#DDE1E6", "#B9BFC8"
     s = rect(0.25, 0.25, ancho - 0.5, alto - 0.5, marco, marco_s, 0.5, 3)
     s += rect(8, 8, ancho - 16, alto - 16, cav, None, rx=1.5)
-    m = MARGEN_PLACA / 2
-    s += rect(m, m, ancho - MARGEN_PLACA, alto - MARGEN_PLACA, plc, plc_s, 0.5)
-    for cx, cy in ((m + 7, m + 7), (ancho - m - 7, m + 7), (m + 7, alto - m - 7), (ancho - m - 7, alto - m - 7)):
-        s += circ(cx, cy, 3, "#A7ADB6", "#8B929C", 0.5)
+    mx = MARGEN_PLACA / 2 if mx is None else mx
+    my = MARGEN_PLACA / 2 if my is None else my
+    s += rect(mx, my, ancho - 2 * mx, alto - 2 * my, plc, plc_s, 0.5)
+    if fijaciones:
+        for cx, cy in fijaciones:
+            s += circ(cx, cy, 6.5, "#A7ADB6", "#8B929C", 0.5) + circ(cx, cy, 3.2, "#8B929C")
+    else:
+        for cx, cy in ((mx + 7, my + 7), (ancho - mx - 7, my + 7), (mx + 7, alto - my - 7), (ancho - mx - 7, alto - my - 7)):
+            s += circ(cx, cy, 3, "#A7ADB6", "#8B929C", 0.5)
     return s
 
 
@@ -358,6 +452,24 @@ def caja_plastica(filas, embutida, mod=12):
     return marco + f'<g transform="translate({off} {off})">{s}</g>', W + 2 * off, H + 2 * off, rieles, off
 
 
+def capacidad(placa_alto, placa_ancho, modo, canaleta=CANALETA_DEFECTO, m_lat=L_MARGEN, m_vert=L_MARGEN):
+    """Filas y modulos por fila de una placa, segun el modo de armado y los margenes lateral y vertical."""
+    if modo == "compacto":
+        largo = placa_ancho - 2 * (m_lat + L_HOLGURA)
+        paso = L_PASO_COMPACTO
+        filas = floor((placa_alto - 2 * m_vert + (paso - H_MOD)) / paso) if placa_alto >= 2 * m_vert + H_MOD else 0
+    else:
+        largo = placa_ancho - 2 * (m_lat + canaleta + L_HOLGURA)
+        paso = max(L_PASO_MIN, H_MOD + canaleta + 2 * L_HOLGURA)
+        bloque = m_vert + canaleta + (paso - H_MOD - canaleta) / 2
+        altura_1 = 2 * bloque + H_MOD
+        filas = floor((placa_alto - altura_1) / paso) + 1 if placa_alto >= altura_1 else 0
+    modulos = max(0, floor((largo - 2 * L_TOPE) / MOD))
+    total = filas * modulos
+    return {"paso_filas_mm": paso, "largo_riel_mm": largo, "filas": filas, "modulos_por_fila": modulos,
+            "modulos_total": total, "modulos_max_con_reserva": floor(total / (1 + RESERVA))}
+
+
 CAJAS = []
 METAL = [(200, 300, 150), (300, 300, 150), (300, 400, 200), (400, 400, 200), (400, 500, 200),
          (400, 600, 200), (500, 500, 200), (600, 600, 250), (800, 600, 250), (800, 800, 300),
@@ -374,9 +486,17 @@ for inox in (False, True):
             "id": cid, "nombre": nombre, "tipo": tag, "montaje": "sobrepuesta",
             "alto_mm": alto, "ancho_mm": ancho, "fondo_mm": fondo, "svg": f"gabinetes/{cid}.svg",
             "placa": {"x": MARGEN_PLACA / 2, "y": MARGEN_PLACA / 2, "ancho": pw, "alto": pa},
-            "modulos_por_fila": floor((pw - MARGEN_RIEL) / MOD),
-            "filas_max_estimado": max(0, floor((pa - CANALETA - MARGEN_VERT) / (H_MOD + CANALETA))),
+            "modulos_por_fila": capacidad(pa, pw, "con_canaleta")["modulos_por_fila"],
+            "filas_max_estimado": capacidad(pa, pw, "con_canaleta")["filas"],
+            "capacidad": {
+                "con_canaleta": capacidad(pa, pw, "con_canaleta"),
+                "compacto": capacidad(pa, pw, "compacto"),
+                "por_canaleta": {str(d): capacidad(pa, pw, "con_canaleta", d) for d in CANALETAS},
+            },
             "rieles_incluidos": False,
+            "referencial": True,
+            "reemplazo_sugerido": None,
+            "notas": "Medida referencial: no verificada con un catalogo de fabricante.",
         })
 for emb in (False, True):
     for filas in (1, 2, 3):
@@ -389,16 +509,105 @@ for emb in (False, True):
             "id": cid, "nombre": nombre, "tipo": f"plastica_{tag}", "montaje": tag,
             "alto_mm": H, "ancho_mm": W, "fondo_mm": 100, "svg": f"gabinetes/{cid}.svg",
             "placa": None, "modulos_por_fila": 12, "filas_max_estimado": filas,
+            "capacidad": {"riel_incluido": {"filas": filas, "modulos_por_fila": 12, "modulos_total": 12 * filas,
+                                            "modulos_max_con_reserva": floor(12 * filas / (1 + RESERVA))}},
             "rieles_incluidos": True,
             "rieles": [{"x": r["x"] + off, "y_centro": r["y_centro"] + off, "largo": r["largo"]} for r in rieles],
             "notas": "Medidas aproximadas [supuesto]; ajustar a la caja real.",
         })
 
 
+# ---------------------------------------------------------------- cajas de fabricante: Eldon ASR (inox)
+with open(os.path.join(BASE, "datos_fabricantes", "eldon_asr.json"), encoding="utf-8") as fh:
+    ASR = json.load(fh)
+M_VERT_ASR = ASR_FIJ_VERTICAL + ASR_R_LIBRE
+for fila in ASR["filas"]:
+    A, An, P = fila["alto_A"], fila["ancho_An"], fila["fondo_P"]
+    pa, pw = fila["placa_alto_a"], fila["placa_ancho_an"]
+    mx, my = (An - pw) / 2, (A - pa) / 2
+    fij = [(mx + ASR_FIJ_LATERAL, my + ASR_FIJ_VERTICAL), (An - mx - ASR_FIJ_LATERAL, my + ASR_FIJ_VERTICAL),
+           (mx + ASR_FIJ_LATERAL, A - my - ASR_FIJ_VERTICAL), (An - mx - ASR_FIJ_LATERAL, A - my - ASR_FIJ_VERTICAL)]
+    cid = f"caja_inox_asr_{A}x{An}x{P}"
+    nombre = f"Armario inox Eldon ASR {A} x {An} x {P}"
+    escribir(os.path.join(DIRS["gabinetes"], f"{cid}.svg"),
+             envolver(An, A, caja_metal(A, An, True, mx, my, fij), nombre, "Vista frontal sin puerta, con placa de montaje y pernos M8"))
+    cap = lambda modo, d=CANALETA_DEFECTO: capacidad(pa, pw, modo, d, ASR_MARGEN_LATERAL, M_VERT_ASR)
+    notas = "Datos del catalogo del fabricante. Tambien disponible en 316L (sufijo -316 en la referencia)."
+    if A >= 800 or An >= 800:
+        notas += " Con altura o ancho de 800 mm o mas la placa va plegada en los cuatro lados: el area util real puede ser menor que la indicada [sin dato de pliegue]."
+    CAJAS.append({
+        "id": cid, "nombre": nombre, "tipo": "inox", "montaje": "sobrepuesta",
+        "fabricante": ASR["fabricante"], "serie": ASR["serie"], "ref_fabricante": fila["ref"],
+        "alto_mm": A, "ancho_mm": An, "fondo_mm": P, "profundidad_util_mm": fila["profundidad_util"],
+        "cierres": fila["cierres"], "svg": f"gabinetes/{cid}.svg",
+        "placa": {"x": mx, "y": my, "ancho": pw, "alto": pa},
+        "fijaciones": [{"x": x, "y": y, "r_libre_mm": ASR_R_LIBRE} for x, y in fij],
+        "layout": {"margen_lateral_mm": ASR_MARGEN_LATERAL, "margen_vertical_mm": M_VERT_ASR},
+        "modulos_por_fila": cap("con_canaleta")["modulos_por_fila"],
+        "filas_max_estimado": cap("con_canaleta")["filas"],
+        "capacidad": {
+            "con_canaleta": cap("con_canaleta"), "compacto": cap("compacto"),
+            "por_canaleta": {str(d): cap("con_canaleta", d) for d in CANALETAS},
+        },
+        "rieles_incluidos": False, "referencial": False, "reemplazo_sugerido": None, "notas": notas,
+    })
+
+# ---------------------------------------------------------------- cajas de fabricante: Lerkenbox (acero pintado)
+with open(os.path.join(BASE, "datos_fabricantes", "lerkenbox.json"), encoding="utf-8") as fh:
+    LERK = json.load(fh)
+for serie, sd in LERK["series"].items():
+    for f in sd["cajas"]:
+        A, An, P = f["alto"], f["ancho"], f["fondo"]
+        pa, pw = f["placa_alto"], f["placa_ancho"]
+        mx, my = (An - pw) / 2, (A - pa) / 2
+        cid = f"caja_metalica_{serie.lower()}_{A}x{An}x{P}"
+        nombre = f"Caja metalica Lerkenbox {serie} {A} x {An} x {P}"
+        escribir(os.path.join(DIRS["gabinetes"], f"{cid}.svg"),
+                 envolver(An, A, caja_metal(A, An, False, mx, my), nombre, "Vista frontal sin puerta, con placa de montaje"))
+        cap = lambda modo, d=CANALETA_DEFECTO: capacidad(pa, pw, modo, d)
+        caja = {
+            "id": cid, "nombre": nombre, "tipo": "metalica", "montaje": "sobrepuesta",
+            "fabricante": LERK["fabricante"], "serie": serie, "ref_fabricante": f["ref"],
+            "alto_mm": A, "ancho_mm": An, "fondo_mm": P, "svg": f"gabinetes/{cid}.svg",
+            "placa": {"x": mx, "y": my, "ancho": pw, "alto": pa},
+            "modulos_por_fila": cap("con_canaleta")["modulos_por_fila"],
+            "filas_max_estimado": cap("con_canaleta")["filas"],
+            "capacidad": {
+                "con_canaleta": cap("con_canaleta"), "compacto": cap("compacto"),
+                "por_canaleta": {str(d): cap("con_canaleta", d) for d in CANALETAS},
+            },
+            "rieles_incluidos": False, "referencial": False, "reemplazo_sugerido": None,
+            "notas": "Datos del catalogo del fabricante. Se asume la placa centrada en la caja y sin datos de pernos: margenes por defecto.",
+        }
+        for k_json, k_caja in (("placa_ref", "placa_ref_fabricante"), ("ref_puerta_transparente", "ref_puerta_transparente"),
+                               ("version", "version"), ("cierres", "cierres"), ("bisagras", "bisagras"), ("puertas", "puertas")):
+            if k_json in f:
+                caja[k_caja] = f[k_json]
+        CAJAS.append(caja)
+
+# las cajas genericas apuntan a la real del catalogo con el mismo tipo, alto y ancho y un fondo parecido, si existe
+for c in CAJAS:
+    if c.get("referencial") and c["tipo"] in ("inox", "metalica"):
+        mismas = [r for r in CAJAS if r.get("fabricante") and r["tipo"] == c["tipo"] and r["serie"] not in REEMPLAZO_EXCLUYE_SERIES
+                  and r["alto_mm"] == c["alto_mm"] and r["ancho_mm"] == c["ancho_mm"]]
+        candidatas = [r for r in mismas if abs(r["fondo_mm"] - c["fondo_mm"]) <= REEMPLAZO_MAX_DIF_FONDO]
+        if candidatas:
+            orden = {"ASR": 0, "ARES": 1, "DM": 2, "KT": 3}
+            mejor = min(candidatas, key=lambda r: (abs(r["fondo_mm"] - c["fondo_mm"]), orden.get(r["serie"], 9)))
+            c["reemplazo_sugerido"] = mejor["id"]
+            c["notas"] = (f"Medida referencial. En el catalogo {mejor['fabricante']} {mejor['serie']} existe "
+                          f"{mejor['alto_mm']} x {mejor['ancho_mm']} x {mejor['fondo_mm']} ({mejor['ref_fabricante']}).")
+        elif mismas:
+            fondos = sorted({r["fondo_mm"] for r in mismas})
+            c["notas"] = f"Medida referencial: el catalogo trae {c['alto_mm']} x {c['ancho_mm']} pero con fondos de {', '.join(map(str, fondos))} mm."
+        else:
+            c["notas"] = "Medida referencial: no figura en los catalogos de fabricante cargados."
+
+
 # ---------------------------------------------------------------- catalogo.json / gabinetes.json
 def guardar_json():
     catalogo = {
-        "version": "1.0", "unidad": "mm", "origen": "arriba-izquierda, eje y hacia abajo",
+        "version": "1.6", "unidad": "mm", "origen": "arriba-izquierda, eje y hacia abajo",
         "modulo_din_mm": MOD, "alto_modular_mm": H_MOD, "riel_din_ancho_mm": 35,
         "reglas": {
             "riel": "El aparato con montaje 'riel' se ubica con su eje y (riel_y_mm) sobre la linea central del riel.",
@@ -410,18 +619,43 @@ def guardar_json():
     }
     escribir(os.path.join(BASE, "catalogo.json"), json.dumps(catalogo, ensure_ascii=False, indent=1))
     gab = {
-        "version": "1.0", "unidad": "mm",
+        "version": "1.6", "unidad": "mm",
         "parametros": {
-            "margen_placa_mm": MARGEN_PLACA, "margen_lateral_riel_mm": MARGEN_RIEL, "canaleta_mm": CANALETA,
-            "margen_vertical_mm": MARGEN_VERT, "modulo_mm": MOD, "alto_modular_mm": H_MOD,
+            "margen_placa_mm": MARGEN_PLACA, "modulo_mm": MOD, "alto_modular_mm": H_MOD,
+            "layout": {
+                "margen_borde_mm": L_MARGEN, "holgura_mm": L_HOLGURA, "tope_riel_mm": L_TOPE,
+                "paso_compacto_mm": L_PASO_COMPACTO, "paso_minimo_con_canaleta_mm": L_PASO_MIN,
+                "canaleta_defecto_mm": CANALETA_DEFECTO, "canaletas_mm": list(CANALETAS), "reserva": RESERVA,
+                "reemplazo_max_dif_fondo_mm": REEMPLAZO_MAX_DIF_FONDO, "reemplazo_excluye_series": list(REEMPLAZO_EXCLUYE_SERIES),
+                "fijacion_keepout_mm": ASR_R_LIBRE,
+            },
+            "modos": {
+                "compacto": "Menos de 8 circuitos: sin canaletas (excepcion del RIC N°02, 6.1.16.1). Paso entre filas de 125 mm.",
+                "con_canaleta": "8 circuitos o mas: canaletas no metalicas en ambos costados y sobre y bajo cada fila. Seccion por defecto 40 mm; capacidad.por_canaleta trae 25, 40 y 60.",
+            },
             "formulas": {
                 "placa": "caja exterior - margen_placa por dimension",
-                "modulos_por_fila": "floor((ancho_placa - margen_lateral_riel) / modulo)",
-                "filas_max_estimado": "floor((alto_placa - canaleta - margen_vertical) / (alto_modular + canaleta))",
+                "compacto": {
+                    "largo_riel": "ancho_placa - 2 * (margen_lateral + holgura)",
+                    "filas": "floor((alto_placa - 2 * margen_vertical + (paso_compacto - alto_modular)) / paso_compacto)",
+                },
+                "con_canaleta": {
+                    "largo_riel": "ancho_placa - 2 * (margen_lateral + canaleta + holgura)",
+                    "paso": "max(paso_minimo_con_canaleta, alto_modular + canaleta + 2 * holgura)",
+                    "filas": "floor((alto_placa - altura_1) / paso) + 1, con altura_1 = 2 * (margen_vertical + canaleta + (paso - alto_modular - canaleta) / 2) + alto_modular",
+                },
+                "modulos_por_fila": "floor((largo_riel - 2 * tope_riel) / modulo)",
+                "modulos_max_con_reserva": "floor(filas * modulos_por_fila / (1 + reserva))",
+                "margenes": "margen_lateral y margen_vertical valen margen_borde_mm salvo que la caja traiga layout (cajas de fabricante): entonces se usa caja.layout",
             },
-            "estado": "Supuestos sin validar contra placas reales; corregir con medidas medidas y volver a generar.",
+            "fuentes": [
+                "RIC N°02 (SEC), 6.1.16.1: cableado interno por bandejas no metalicas, maximo 50 % de ocupacion, salvo tableros de menos de 8 circuitos",
+                "RIC N°02 (SEC), 6.1.16.3: prever ampliacion del 25 % por tipo de servicio, con espacio en riel y barras",
+                "Paso entre filas de riel: 125 mm (modulos residenciales) y 150 mm (cuatro filas) en fabricantes de cuadros modulares",
+            ],
+            "estado": "Cajas con fabricante (Eldon ASR, Lerkenbox KT, DM y ARES): la placa sale del catalogo; los pernos solo en ASR. Cajas con referencial=true: medidas genericas sin verificar; margen, holgura y paso son propios. Los margenes dependen de la placa: el editor debe permitir cambiarlos por proyecto. Los valores por defecto sirven de referencia y de vectores de prueba.",
         },
-        "regla_sugerencia": "Elegir la caja mas chica de la lista cuya capacidad (filas y modulos) contenga el dibujo; permitir medida libre.",
+        "regla_sugerencia": "Elegir la caja mas chica cuya capacidad del modo elegido (modulos_max_con_reserva) contenga el dibujo, prefiriendo las de fabricante (referencial=false); permitir medida libre.",
         "cajas": CAJAS,
     }
     escribir(os.path.join(BASE, "gabinetes.json"), json.dumps(gab, ensure_ascii=False, indent=1))
@@ -459,8 +693,8 @@ def armar_ejemplo():
     caja = next(c for c in CAJAS if c["id"] == "caja_metalica_400x500x200")
     W, H = caja["ancho_mm"], caja["alto_mm"]
     pl = caja["placa"]
-    capacidad = caja["modulos_por_fila"] * MOD
-    x_riel = pl["x"] + (pl["ancho"] - capacidad) / 2
+    capacidad_riel = EJEMPLO_MODULOS * MOD
+    x_riel = pl["x"] + (pl["ancho"] - capacidad_riel) / 2
     partes = [interior(envolver(W, H, caja_metal(H, W, False), "", ""))]
     bom = {}
 
@@ -483,7 +717,7 @@ def armar_ejemplo():
     ]
     y_centros = [pl["y"] + 8 + CANALETA + 8 + 45]
     y_centros.append(y_centros[0] + 45 + 8 + CANALETA + 8 + 45)
-    l_riel = capacidad
+    l_riel = capacidad_riel
     # canaletas
     y_ducto = [y_centros[0] - 45 - 8 - CANALETA, y_centros[0] + 45 + 8, y_centros[1] + 45 + 8]
     for y in y_ducto:
@@ -563,8 +797,17 @@ def escribir_preview(svg_ej, W, H, filas_bom):
     h.append("<h2>Cajas (escala 0,5 px por mm)</h2><div class='grid'>")
     for c in CAJAS:
         svg = leer(c["svg"])
-        cap = f"{c['modulos_por_fila']} mod/fila, hasta {c['filas_max_estimado']} fila(s)"
-        h.append(f"<div class='c'><div class='svg'>{escalar(svg, 0.5)}</div><b>{c['nombre']}</b><span>{c['id']}<br>{cap}</span></div>")
+        k = c["capacidad"]
+        if "con_canaleta" in k:
+            cap = (f"con canaleta: {k['con_canaleta']['filas']} f x {k['con_canaleta']['modulos_por_fila']} mod "
+                   f"({k['con_canaleta']['modulos_max_con_reserva']} con reserva)<br>"
+                   f"compacto: {k['compacto']['filas']} f x {k['compacto']['modulos_por_fila']} mod "
+                   f"({k['compacto']['modulos_max_con_reserva']} con reserva)")
+        else:
+            r = k["riel_incluido"]
+            cap = f"{r['filas']} f x {r['modulos_por_fila']} mod ({r['modulos_max_con_reserva']} con reserva)"
+        extra = (f"<br>{c['ref_fabricante']}" if c.get("ref_fabricante") else "") + ("<br><i>referencial</i>" if c.get("referencial") else "")
+        h.append(f"<div class='c'><div class='svg'>{escalar(svg, 0.5)}</div><b>{c['nombre']}</b><span>{c['id']}<br>{cap}{extra}</span></div>")
     h.append("</div></body></html>")
     escribir(os.path.join(BASE, "preview.html"), "".join(h))
 

@@ -1,25 +1,65 @@
-import type { CajaResuelta } from './caja';
+import type { CajaResuelta, FijacionMm } from './caja';
+import { calcularAreaUtil, calcularCapacidad } from './capacidad';
+import type { Capacidad, Margenes, Modo, SeccionCanaleta } from './capacidad';
 import { contiene, distanciaARect, redondear, solapan } from './geometria';
 import type { Punto, Rect } from './geometria';
 import { largoPorDefecto, nuevoUid } from './modelo';
 import type { Elemento } from './modelo';
-import type { Catalogo, Componente, ComponenteRiel } from './tipos';
+import type { Catalogo, Componente, ComponenteRiel, ParametrosLayout } from './tipos';
 
 export const RIEL_DIN_ID = 'riel_din';
 export const TOPE_ID = 'tope_riel';
 /** Distancia máxima a la que un aparato se imanta al borde de su vecino. */
 export const IMAN_MM = 3;
 
+/** Margen, modo y sección de canaleta con los que se calcula la capacidad y el área útil. */
+export interface AjustesCapacidad {
+  margenes: Margenes;
+  modo: Modo;
+  seccionCanaleta: SeccionCanaleta;
+  parametrosLayout: ParametrosLayout;
+  moduloMm: number;
+  altoModularMm: number;
+}
+
 export interface Contexto {
   comps: ReadonlyMap<string, Componente>;
   caja: CajaResuelta;
   /** Alto del riel DIN en pantalla (mm). */
   rielAlto: number;
+  margenes: Margenes;
+  modo: Modo;
+  seccionCanaleta: SeccionCanaleta;
+  /** Capacidad de riel con el margen/modo/sección actuales; null en cajas plásticas (rieles fijos). */
+  capacidad: Capacidad | null;
+  /** Placa reducida por el margen de borde: referencia para largos por defecto, no un límite duro. */
+  areaUtil: Rect;
 }
 
-export function crearContexto(catalogo: Catalogo, caja: CajaResuelta): Contexto {
+export function crearContexto(catalogo: Catalogo, caja: CajaResuelta, ajustes: AjustesCapacidad): Contexto {
   const comps = new Map(catalogo.componentes.map((c) => [c.id, c]));
-  return { comps, caja, rielAlto: comps.get(RIEL_DIN_ID)?.alto_mm ?? catalogo.riel_din_ancho_mm };
+  const capacidad = caja.permiteRieles
+    ? calcularCapacidad(
+        caja.area.w,
+        caja.area.h,
+        ajustes.margenes,
+        ajustes.modo,
+        ajustes.seccionCanaleta,
+        ajustes.parametrosLayout,
+        ajustes.moduloMm,
+        ajustes.altoModularMm,
+      )
+    : null;
+  return {
+    comps,
+    caja,
+    rielAlto: comps.get(RIEL_DIN_ID)?.alto_mm ?? catalogo.riel_din_ancho_mm,
+    margenes: ajustes.margenes,
+    modo: ajustes.modo,
+    seccionCanaleta: ajustes.seccionCanaleta,
+    capacidad,
+    areaUtil: calcularAreaUtil(caja.area, ajustes.margenes),
+  };
 }
 
 export interface RielInfo {
@@ -77,7 +117,13 @@ export const MOTIVOS = {
   fueraArea: 'Queda fuera del área de trabajo de la caja.',
   colision: 'Se superpone con otro elemento.',
   cajaConRieles: 'Esta caja trae sus rieles incluidos: no se pueden agregar ni quitar.',
+  fijacion: 'Se superpone con una fijación de la caja (perno).',
 };
+
+/** true si el rectángulo invade alguna fijación (perno) de la caja. */
+export function colisionaConFijaciones(rect: Rect, fijaciones: readonly FijacionMm[]): boolean {
+  return fijaciones.some((f) => distanciaARect({ x: f.x, y: f.y }, rect) < f.r - 0.01);
+}
 
 // ---------------------------------------------------------------- geometría de elementos
 
@@ -221,6 +267,7 @@ export function resolverColocacion(elementos: readonly Elemento[], ctx: Contexto
     const rect: Rect = { x, y, w: comp.ancho_mm, h: comp.alto_mm };
     if (x < riel.x - 0.01 || x + rect.w > riel.x + riel.largo + 0.01) return fallo(MOTIVOS.fueraRiel);
     if (!contiene(area, rect)) return fallo(MOTIVOS.fueraArea);
+    if (colisionaConFijaciones(rect, ctx.caja.fijaciones)) return fallo(MOTIVOS.fijacion);
     if (buscarColision({ uid: '', clase: 'aparato', rect, rielUid: riel.uid }, piezas, excluir)) {
       return fallo(MOTIVOS.colision);
     }
@@ -232,6 +279,7 @@ export function resolverColocacion(elementos: readonly Elemento[], ctx: Contexto
     const y = s.sinSnap ? s.punto.y - comp.alto_mm / 2 : Math.round(s.punto.y - comp.alto_mm / 2);
     const rect: Rect = { x: redondear(x), y: redondear(y), w: comp.ancho_mm, h: comp.alto_mm };
     if (!contiene(area, rect)) return fallo(MOTIVOS.fueraArea);
+    if (colisionaConFijaciones(rect, ctx.caja.fijaciones)) return fallo(MOTIVOS.fijacion);
     if (buscarColision({ uid: '', clase: 'libre', rect }, piezas, excluir)) return fallo(MOTIVOS.colision);
     return { ok: true, x_mm: rect.x, y_mm: rect.y };
   }
@@ -251,6 +299,7 @@ export function resolverColocacion(elementos: readonly Elemento[], ctx: Contexto
   const y = s.sinSnap ? s.punto.y - h / 2 : Math.round(s.punto.y - h / 2);
   const rect: Rect = { x: redondear(x), y: redondear(y), w, h };
   if (!contiene(area, rect)) return fallo(MOTIVOS.fueraArea);
+  if (colisionaConFijaciones(rect, ctx.caja.fijaciones)) return fallo(MOTIVOS.fijacion);
   if (buscarColision({ uid: s.actual?.uid ?? '', clase: esR ? 'riel' : 'canaleta', rect }, piezas, excluir)) {
     return fallo(MOTIVOS.colision);
   }
@@ -320,6 +369,7 @@ export function moverElemento(
       const nh = { ...h, x_mm: redondear(h.x_mm + dx), y_mm: redondear(h.y_mm + dy) };
       const rect = huella(nh, hc);
       if (!contiene(ctx.caja.area, rect)) return fallo(MOTIVOS.fueraArea);
+      if (colisionaConFijaciones(rect, ctx.caja.fijaciones)) return fallo(MOTIVOS.fijacion);
       if (buscarColision({ uid: h.uid, clase: 'libre', rect }, otras, grupo)) return fallo(MOTIVOS.colision);
       reemplazos.set(h.uid, nh);
     }

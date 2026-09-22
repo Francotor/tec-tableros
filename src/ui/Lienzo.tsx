@@ -3,7 +3,7 @@ import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Vector2d } from 'konva/lib/types';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DragEvent as ReactDragEvent } from 'react';
-import { Group, Image as KImage, Layer, Rect, Shape, Stage, Text } from 'react-konva';
+import { Circle, Group, Image as KImage, Layer, Rect, Shape, Stage, Text } from 'react-konva';
 import { calcularTopes, elementosFuera, esRiel, huella, listarRieles, moverElemento, TOPE_ID } from '../core/colocacion';
 import type { Contexto } from '../core/colocacion';
 import type { Rect as Rectangulo } from '../core/geometria';
@@ -188,6 +188,9 @@ function CapaCaja({ ctx, cuadricula, zoom, elementos }: { ctx: Contexto; cuadric
             <Imagen clave={tope.svg} obtener={() => textoDeBiblioteca(tope.svg)} w={t.rect.w} h={t.rect.h} />
           </Group>
         ))}
+      {caja.fijaciones.map((f, i) => (
+        <Circle key={i} x={f.x} y={f.y} radius={f.r} fill="rgba(42,42,42,0.35)" stroke="#7a1414" strokeWidth={0.5} dash={[2, 1.5]} />
+      ))}
     </Layer>
   );
 }

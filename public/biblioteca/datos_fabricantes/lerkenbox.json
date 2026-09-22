@@ -1,0 +1,864 @@
+{
+ "fabricante": "Lerkenbox",
+ "fuente": "Catalogo del fabricante (paginas 9, 11, 14, 15 y 24 a 27) entregado por el usuario",
+ "unidad": "mm",
+ "series": {
+  "KT": {
+   "descripcion": "Cajas de terminales murales con placa de montaje (chapa de acero galvanizado de 2 mm). El material de la caja no figura en las paginas entregadas",
+   "regla_placa": {
+    "alto": -35,
+    "ancho": -20
+   },
+   "cajas": [
+    {
+     "alto": 150,
+     "ancho": 150,
+     "fondo": 80,
+     "ref": "311.108",
+     "placa_ref": "942.111",
+     "placa_alto": 115,
+     "placa_ancho": 130
+    },
+    {
+     "alto": 200,
+     "ancho": 200,
+     "fondo": 80,
+     "ref": "312.208",
+     "placa_ref": "942.122",
+     "placa_alto": 165,
+     "placa_ancho": 180
+    },
+    {
+     "alto": 200,
+     "ancho": 300,
+     "fondo": 80,
+     "ref": "313.208",
+     "placa_ref": "942.132",
+     "placa_alto": 165,
+     "placa_ancho": 280
+    },
+    {
+     "alto": 200,
+     "ancho": 200,
+     "fondo": 120,
+     "ref": "312.212",
+     "placa_ref": "942.122",
+     "placa_alto": 165,
+     "placa_ancho": 180
+    },
+    {
+     "alto": 200,
+     "ancho": 300,
+     "fondo": 120,
+     "ref": "313.212",
+     "placa_ref": "942.132",
+     "placa_alto": 165,
+     "placa_ancho": 280
+    },
+    {
+     "alto": 200,
+     "ancho": 400,
+     "fondo": 80,
+     "ref": "314.208",
+     "placa_ref": "942.142",
+     "placa_alto": 165,
+     "placa_ancho": 380
+    },
+    {
+     "alto": 200,
+     "ancho": 400,
+     "fondo": 120,
+     "ref": "314.212",
+     "placa_ref": "942.142",
+     "placa_alto": 165,
+     "placa_ancho": 380
+    },
+    {
+     "alto": 200,
+     "ancho": 500,
+     "fondo": 80,
+     "ref": "315.208",
+     "placa_ref": "942.152",
+     "placa_alto": 165,
+     "placa_ancho": 480
+    },
+    {
+     "alto": 200,
+     "ancho": 500,
+     "fondo": 120,
+     "ref": "315.212",
+     "placa_ref": "942.152",
+     "placa_alto": 165,
+     "placa_ancho": 480
+    },
+    {
+     "alto": 200,
+     "ancho": 600,
+     "fondo": 80,
+     "ref": "316.208",
+     "placa_ref": "942.162",
+     "placa_alto": 165,
+     "placa_ancho": 580
+    },
+    {
+     "alto": 200,
+     "ancho": 600,
+     "fondo": 120,
+     "ref": "316.212",
+     "placa_ref": "942.162",
+     "placa_alto": 165,
+     "placa_ancho": 580
+    },
+    {
+     "alto": 300,
+     "ancho": 300,
+     "fondo": 120,
+     "ref": "313.312",
+     "placa_ref": "942.133",
+     "placa_alto": 265,
+     "placa_ancho": 280
+    },
+    {
+     "alto": 300,
+     "ancho": 400,
+     "fondo": 120,
+     "ref": "314.312",
+     "placa_ref": "942.143",
+     "placa_alto": 265,
+     "placa_ancho": 380
+    },
+    {
+     "alto": 300,
+     "ancho": 500,
+     "fondo": 120,
+     "ref": "315.312",
+     "placa_ref": "942.153",
+     "placa_alto": 265,
+     "placa_ancho": 480
+    },
+    {
+     "alto": 300,
+     "ancho": 600,
+     "fondo": 120,
+     "ref": "316.312",
+     "placa_ref": "942.163",
+     "placa_alto": 265,
+     "placa_ancho": 580
+    },
+    {
+     "alto": 400,
+     "ancho": 400,
+     "fondo": 120,
+     "ref": "314.412",
+     "placa_ref": "942.144",
+     "placa_alto": 365,
+     "placa_ancho": 380
+    },
+    {
+     "alto": 400,
+     "ancho": 600,
+     "fondo": 120,
+     "ref": "316.412",
+     "placa_ref": "942.164",
+     "placa_alto": 365,
+     "placa_ancho": 580
+    }
+   ]
+  },
+  "DM": {
+   "descripcion": "Cajas murales de acero. Versiones: 1 cierre estandar, 2 cierre con maneta oscilante, 3 doble puerta con cierre estandar, 4 doble puerta con maneta oscilante",
+   "regla_placa": {
+    "alto": -60,
+    "ancho": -50
+   },
+   "cajas": [
+    {
+     "alto": 300,
+     "ancho": 250,
+     "fondo": 155,
+     "ref": "222.315",
+     "placa_alto": 240,
+     "placa_ancho": 200,
+     "version": 1,
+     "cierres": "1",
+     "puertas": 1
+    },
+    {
+     "alto": 300,
+     "ancho": 300,
+     "fondo": 210,
+     "ref": "223.321",
+     "placa_alto": 240,
+     "placa_ancho": 250,
+     "version": 1,
+     "cierres": "1",
+     "puertas": 1
+    },
+    {
+     "alto": 400,
+     "ancho": 300,
+     "fondo": 155,
+     "ref": "223.415",
+     "placa_alto": 340,
+     "placa_ancho": 250,
+     "version": 1,
+     "cierres": "1",
+     "puertas": 1
+    },
+    {
+     "alto": 400,
+     "ancho": 300,
+     "fondo": 210,
+     "ref": "223.421",
+     "placa_alto": 340,
+     "placa_ancho": 250,
+     "version": 1,
+     "cierres": "1",
+     "puertas": 1
+    },
+    {
+     "alto": 400,
+     "ancho": 400,
+     "fondo": 210,
+     "ref": "224.421",
+     "placa_alto": 340,
+     "placa_ancho": 350,
+     "version": 1,
+     "cierres": "1",
+     "puertas": 1
+    },
+    {
+     "alto": 400,
+     "ancho": 600,
+     "fondo": 210,
+     "ref": "226.421",
+     "placa_alto": 340,
+     "placa_ancho": 550,
+     "version": 1,
+     "cierres": "1",
+     "puertas": 1
+    },
+    {
+     "alto": 500,
+     "ancho": 400,
+     "fondo": 210,
+     "ref": "224.521",
+     "placa_alto": 440,
+     "placa_ancho": 350,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 500,
+     "ancho": 500,
+     "fondo": 210,
+     "ref": "225.521",
+     "placa_alto": 440,
+     "placa_ancho": 450,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 500,
+     "ancho": 500,
+     "fondo": 300,
+     "ref": "225.530",
+     "placa_alto": 440,
+     "placa_ancho": 450,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 600,
+     "ancho": 400,
+     "fondo": 210,
+     "ref": "224.621",
+     "placa_alto": 540,
+     "placa_ancho": 350,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 600,
+     "ancho": 400,
+     "fondo": 300,
+     "ref": "224.630",
+     "placa_alto": 540,
+     "placa_ancho": 350,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 600,
+     "ancho": 500,
+     "fondo": 210,
+     "ref": "225.621",
+     "placa_alto": 540,
+     "placa_ancho": 450,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 600,
+     "ancho": 600,
+     "fondo": 210,
+     "ref": "226.621",
+     "placa_alto": 540,
+     "placa_ancho": 550,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 600,
+     "ancho": 600,
+     "fondo": 300,
+     "ref": "226.630",
+     "placa_alto": 540,
+     "placa_ancho": 550,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 600,
+     "ancho": 800,
+     "fondo": 300,
+     "ref": "228.630",
+     "placa_alto": 540,
+     "placa_ancho": 750,
+     "version": 3,
+     "cierres": "2",
+     "puertas": 2
+    },
+    {
+     "alto": 700,
+     "ancho": 500,
+     "fondo": 210,
+     "ref": "225.721",
+     "placa_alto": 640,
+     "placa_ancho": 450,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 700,
+     "ancho": 500,
+     "fondo": 260,
+     "ref": "225.726",
+     "placa_alto": 640,
+     "placa_ancho": 450,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 800,
+     "ancho": 600,
+     "fondo": 210,
+     "ref": "226.821",
+     "placa_alto": 740,
+     "placa_ancho": 550,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 800,
+     "ancho": 600,
+     "fondo": 300,
+     "ref": "226.830",
+     "placa_alto": 740,
+     "placa_ancho": 550,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 800,
+     "ancho": 800,
+     "fondo": 300,
+     "ref": "228.830",
+     "placa_alto": 740,
+     "placa_ancho": 750,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 1000,
+     "ancho": 600,
+     "fondo": 300,
+     "ref": "226.030",
+     "placa_alto": 940,
+     "placa_ancho": 550,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 1000,
+     "ancho": 800,
+     "fondo": 300,
+     "ref": "228.030",
+     "placa_alto": 940,
+     "placa_ancho": 750,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 1000,
+     "ancho": 800,
+     "fondo": 400,
+     "ref": "228.040",
+     "placa_alto": 940,
+     "placa_ancho": 750,
+     "version": 1,
+     "cierres": "2",
+     "puertas": 1
+    },
+    {
+     "alto": 1000,
+     "ancho": 1000,
+     "fondo": 300,
+     "ref": "220.030",
+     "placa_alto": 940,
+     "placa_ancho": 950,
+     "version": 3,
+     "cierres": "2",
+     "puertas": 2
+    },
+    {
+     "alto": 1200,
+     "ancho": 600,
+     "fondo": 300,
+     "ref": "226.230",
+     "placa_alto": 1140,
+     "placa_ancho": 550,
+     "version": 2,
+     "cierres": "M.O.",
+     "puertas": 1
+    },
+    {
+     "alto": 1200,
+     "ancho": 800,
+     "fondo": 300,
+     "ref": "228.230",
+     "placa_alto": 1140,
+     "placa_ancho": 750,
+     "version": 2,
+     "cierres": "M.O.",
+     "puertas": 1
+    },
+    {
+     "alto": 1200,
+     "ancho": 800,
+     "fondo": 400,
+     "ref": "228.240",
+     "placa_alto": 1140,
+     "placa_ancho": 750,
+     "version": 2,
+     "cierres": "M.O.",
+     "puertas": 1
+    },
+    {
+     "alto": 1200,
+     "ancho": 1000,
+     "fondo": 300,
+     "ref": "220.230",
+     "placa_alto": 1140,
+     "placa_ancho": 950,
+     "version": 4,
+     "cierres": "M.O.",
+     "puertas": 2
+    },
+    {
+     "alto": 1200,
+     "ancho": 1200,
+     "fondo": 400,
+     "ref": "222.240",
+     "placa_alto": 1140,
+     "placa_ancho": 1150,
+     "version": 4,
+     "cierres": "M.O.",
+     "puertas": 2
+    },
+    {
+     "alto": 1400,
+     "ancho": 1000,
+     "fondo": 300,
+     "ref": "220.430",
+     "placa_alto": 1340,
+     "placa_ancho": 950,
+     "version": 4,
+     "cierres": "M.O.",
+     "puertas": 2
+    }
+   ]
+  },
+  "ARES": {
+   "descripcion": "Puerta ciega ARES con placa de montaje: caja y puerta de acero templado de 1 a 1,5 mm, RAL 7035; placa de acero galvanizado de 1,5 a 2 mm. Con puerta transparente comparte medidas de placa (ref_puerta_transparente)",
+   "regla_placa": {
+    "alto": -66,
+    "ancho": -51
+   },
+   "cajas": [
+    {
+     "alto": 400,
+     "ancho": 300,
+     "fondo": 150,
+     "ref": "101.250",
+     "placa_alto": 334,
+     "placa_ancho": 249,
+     "cierres": 1,
+     "bisagras": 2
+    },
+    {
+     "alto": 400,
+     "ancho": 300,
+     "fondo": 200,
+     "ref": "101.251",
+     "placa_alto": 334,
+     "placa_ancho": 249,
+     "cierres": 1,
+     "bisagras": 2
+    },
+    {
+     "alto": 400,
+     "ancho": 400,
+     "fondo": 200,
+     "ref": "101.252",
+     "placa_alto": 334,
+     "placa_ancho": 349,
+     "cierres": 1,
+     "bisagras": 2
+    },
+    {
+     "alto": 500,
+     "ancho": 400,
+     "fondo": 200,
+     "ref": "101.253",
+     "placa_alto": 434,
+     "placa_ancho": 349,
+     "cierres": 1,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.453"
+    },
+    {
+     "alto": 500,
+     "ancho": 500,
+     "fondo": 200,
+     "ref": "101.265",
+     "placa_alto": 434,
+     "placa_ancho": 449,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.465"
+    },
+    {
+     "alto": 500,
+     "ancho": 500,
+     "fondo": 280,
+     "ref": "101.266",
+     "placa_alto": 434,
+     "placa_ancho": 449,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.466"
+    },
+    {
+     "alto": 600,
+     "ancho": 400,
+     "fondo": 200,
+     "ref": "101.254",
+     "placa_alto": 534,
+     "placa_ancho": 349,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.454"
+    },
+    {
+     "alto": 600,
+     "ancho": 400,
+     "fondo": 280,
+     "ref": "101.255",
+     "placa_alto": 534,
+     "placa_ancho": 349,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.455"
+    },
+    {
+     "alto": 600,
+     "ancho": 500,
+     "fondo": 200,
+     "ref": "101.256",
+     "placa_alto": 534,
+     "placa_ancho": 449,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.456"
+    },
+    {
+     "alto": 700,
+     "ancho": 500,
+     "fondo": 200,
+     "ref": "101.257",
+     "placa_alto": 634,
+     "placa_ancho": 449,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.457"
+    },
+    {
+     "alto": 700,
+     "ancho": 500,
+     "fondo": 280,
+     "ref": "101.258",
+     "placa_alto": 634,
+     "placa_ancho": 449,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.458"
+    },
+    {
+     "alto": 800,
+     "ancho": 600,
+     "fondo": 200,
+     "ref": "101.259",
+     "placa_alto": 734,
+     "placa_ancho": 549,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.459"
+    },
+    {
+     "alto": 800,
+     "ancho": 600,
+     "fondo": 280,
+     "ref": "101.260",
+     "placa_alto": 734,
+     "placa_ancho": 549,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.460"
+    },
+    {
+     "alto": 800,
+     "ancho": 800,
+     "fondo": 200,
+     "ref": "101.267",
+     "placa_alto": 734,
+     "placa_ancho": 749,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.467"
+    },
+    {
+     "alto": 800,
+     "ancho": 800,
+     "fondo": 280,
+     "ref": "101.268",
+     "placa_alto": 734,
+     "placa_ancho": 749,
+     "cierres": 2,
+     "bisagras": 2,
+     "ref_puerta_transparente": "101.468"
+    },
+    {
+     "alto": 1000,
+     "ancho": 600,
+     "fondo": 280,
+     "ref": "101.261",
+     "placa_alto": 934,
+     "placa_ancho": 549,
+     "cierres": 2,
+     "bisagras": 3,
+     "ref_puerta_transparente": "101.461"
+    },
+    {
+     "alto": 1000,
+     "ancho": 800,
+     "fondo": 280,
+     "ref": "101.263",
+     "placa_alto": 934,
+     "placa_ancho": 749,
+     "cierres": 2,
+     "bisagras": 3,
+     "ref_puerta_transparente": "101.463"
+    },
+    {
+     "alto": 1150,
+     "ancho": 600,
+     "fondo": 280,
+     "ref": "101.262",
+     "placa_alto": 1084,
+     "placa_ancho": 549,
+     "cierres": 3,
+     "bisagras": 3,
+     "ref_puerta_transparente": "101.462"
+    },
+    {
+     "alto": 1150,
+     "ancho": 800,
+     "fondo": 280,
+     "ref": "101.264",
+     "placa_alto": 1084,
+     "placa_ancho": 749,
+     "cierres": 3,
+     "bisagras": 3,
+     "ref_puerta_transparente": "101.464"
+    }
+   ]
+  }
+ },
+ "sin_modelar": {
+  "motivo": "Cajas plasticas ABS: las de puerta ciega y transparente no traen medidas de placa (solo 'acero galvanizado de 1 mm'); las de chasis traen rieles pero no su posicion. Hacen falta los planos tecnicos para modelarlas.",
+  "ABS_puerta_ciega": [
+   [
+    300,
+    200,
+    130,
+    "PP3001"
+   ],
+   [
+    400,
+    300,
+    170,
+    "PP3004"
+   ],
+   [
+    500,
+    400,
+    175,
+    "PP3003"
+   ],
+   [
+    600,
+    400,
+    200,
+    "PP3008"
+   ],
+   [
+    700,
+    500,
+    250,
+    "PP3010"
+   ],
+   [
+    800,
+    600,
+    260,
+    "PP3021"
+   ]
+  ],
+  "ABS_puerta_transparente": [
+   [
+    300,
+    200,
+    130,
+    "PP3011"
+   ],
+   [
+    400,
+    300,
+    170,
+    "PP3014"
+   ],
+   [
+    500,
+    400,
+    175,
+    "PP3013"
+   ],
+   [
+    600,
+    400,
+    200,
+    "PP3018"
+   ],
+   [
+    700,
+    500,
+    250,
+    "PP3020"
+   ],
+   [
+    800,
+    600,
+    260,
+    "PP3022"
+   ]
+  ],
+  "ABS_chasis_puerta_ciega": [
+   [
+    350,
+    250,
+    150,
+    "PP3102",
+    "18 (19x2) segun catalogo"
+   ],
+   [
+    400,
+    300,
+    170,
+    "PP3104",
+    "24 (12x2)"
+   ],
+   [
+    500,
+    350,
+    190,
+    "PP3106",
+    "45 (15x3)"
+   ],
+   [
+    600,
+    400,
+    200,
+    "PP3108",
+    "60 (15x4)"
+   ]
+  ],
+  "ABS_chasis_puerta_transparente": [
+   [
+    350,
+    250,
+    150,
+    "PP3112",
+    "18 (19x2) segun catalogo"
+   ],
+   [
+    400,
+    300,
+    170,
+    "PP3114",
+    "24 (12x2)"
+   ],
+   [
+    500,
+    350,
+    190,
+    "PP3116",
+    "45 (15x3)"
+   ],
+   [
+    600,
+    400,
+    200,
+    "PP3118",
+    "60 (15x4)"
+   ]
+  ],
+  "nota_chasis": "'18 (19x2)' es incoherente (19 x 2 = 38). Por el patron de las demas (margen de unos 40 mm a cada lado del riel) probablemente son 9 modulos por fila x 2 filas."
+ },
+ "planos_pendientes": "ARES remite a 'Planos tecnicos pag. 136' (posicion de pernos y muescas de la placa), que no se entrego."
+}
