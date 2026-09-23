@@ -100,7 +100,12 @@ body { overflow: hidden; }
 .acciones-barra button, .dialogo button { min-height: 40px; min-width: 40px; padding: 0 14px; font: inherit; font-size: .9rem; color: var(--tec-navy); background: #fff; border: 1px solid var(--tec-plata); border-radius: 4px; cursor: pointer; }
 .acciones-barra button:hover:not(:disabled) { background: var(--tec-plata-clara); }
 .acciones-barra button:disabled { opacity: .6; cursor: default; }
-.dialogo { width: min(640px, 94vw); max-height: 88vh; padding: 16px; color: var(--tec-grafito); border: 1px solid var(--tec-gris-metal); border-radius: 8px; }
+.dialogo { width: min(640px, 94vw); max-height: 88vh; overflow-y: auto; padding: 16px; color: var(--tec-grafito); border: 1px solid var(--tec-gris-metal); border-radius: 8px; }
+.dialogo-subseccion { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--tec-plata); }
+.dialogo-subseccion h3 { margin: 0; font-size: .95rem; color: var(--tec-navy); }
+.nombrar-plantilla { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.nombrar-plantilla input { min-height: 40px; padding: 0 8px; font: inherit; font-size: .9rem; border: 1px solid var(--tec-gris-metal); border-radius: 4px; min-width: 180px; }
+.info-proyecto input[type=text] { min-height: 36px; padding: 0 6px; font: inherit; font-size: .95rem; border: 1px solid var(--tec-gris-metal); border-radius: 4px; }
 .dialogo::backdrop { background: rgba(8, 25, 51, .55); }
 .dialogo-cabecera { display: flex; justify-content: space-between; align-items: center; }
 .dialogo-cabecera h2 { margin: 0; font-size: 1.1rem; color: var(--tec-navy); }

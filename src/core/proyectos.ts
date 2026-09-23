@@ -1,15 +1,19 @@
 import { SECCIONES_CANALETA } from './capacidad';
 import { nuevoUid } from './modelo';
 import type { CajaProyecto, Elemento, Proyecto } from './modelo';
+import { validarPlantilla } from './plantillas';
+import type { Plantilla } from './plantillas';
 
 export const FORMATO_RESPALDO = 'tec-tableros';
-export const VERSION_RESPALDO = 1;
+// v2 agrega las plantillas; un respaldo v1 (sin plantillas) se sigue leyendo igual.
+export const VERSION_RESPALDO = 2;
 
 export interface Respaldo {
   formato: typeof FORMATO_RESPALDO;
   version: number;
   exportadoEn: string;
   proyectos: Proyecto[];
+  plantillas: Plantilla[];
 }
 
 function esObjeto(v: unknown): v is Record<string, unknown> {
@@ -78,17 +82,23 @@ export function validarProyecto(p: unknown): Proyecto {
   };
 }
 
-export function crearRespaldo(proyectos: readonly Proyecto[], ahora: Date = new Date()): Respaldo {
+export function crearRespaldo(proyectos: readonly Proyecto[], plantillas: readonly Plantilla[] = [], ahora: Date = new Date()): Respaldo {
   return {
     formato: FORMATO_RESPALDO,
     version: VERSION_RESPALDO,
     exportadoEn: ahora.toISOString(),
     proyectos: [...proyectos],
+    plantillas: [...plantillas],
   };
 }
 
+export interface RespaldoLeido {
+  proyectos: Proyecto[];
+  plantillas: Plantilla[];
+}
+
 /** Lee un archivo de respaldo (texto JSON). Lanza un Error con mensaje en español si no es válido. */
-export function parsearRespaldo(texto: string): Proyecto[] {
+export function parsearRespaldo(texto: string): RespaldoLeido {
   let datos: unknown;
   try {
     datos = JSON.parse(texto);
@@ -98,7 +108,12 @@ export function parsearRespaldo(texto: string): Proyecto[] {
   exigir(esObjeto(datos) && datos.formato === FORMATO_RESPALDO, 'El archivo no es un respaldo de TEC Tableros.');
   exigir(typeof datos.version === 'number' && datos.version <= VERSION_RESPALDO, 'El respaldo es de una versión más nueva de la app.');
   exigir(Array.isArray(datos.proyectos), 'El respaldo no contiene proyectos.');
-  return datos.proyectos.map(validarProyecto);
+  // Un respaldo v1 no trae "plantillas": se importa igual, sin ninguna.
+  exigir(datos.plantillas === undefined || Array.isArray(datos.plantillas), 'El respaldo tiene las plantillas mal formadas.');
+  return {
+    proyectos: datos.proyectos.map(validarProyecto),
+    plantillas: Array.isArray(datos.plantillas) ? datos.plantillas.map(validarPlantilla) : [],
+  };
 }
 
 export function duplicarProyecto(p: Proyecto, ahora: Date = new Date()): Proyecto {

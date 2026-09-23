@@ -1,12 +1,16 @@
 import { create } from 'zustand';
 import { duplicarProyecto } from '../core/proyectos';
 import type { Proyecto } from '../core/modelo';
+import { plantillaDesdeProyecto, proyectoDesdePlantilla, renombrarPlantilla } from '../core/plantillas';
 import { useEditor } from './editor';
 import {
+  borrarPlantilla,
   borrarProyecto,
   fijarIdActual,
+  guardarPlantilla,
   guardarProyecto,
   leerIdActual,
+  leerPlantilla,
   leerProyecto,
   pedirAlmacenamientoPersistente,
 } from './persistencia';
@@ -125,6 +129,43 @@ export async function duplicarProyectoGuardado(id: string): Promise<void> {
   if (!p) return;
   await guardarProyecto(duplicarProyecto(p));
   marcarVersion();
+}
+
+/** "Guardar como plantilla": copia el layout actual (sin N° de cotización ni notas) con un nombre. */
+export async function guardarComoPlantilla(nombre: string): Promise<void> {
+  const plantilla = plantillaDesdeProyecto(useEditor.getState().proyecto, nombre);
+  await guardarPlantilla(plantilla);
+  marcarVersion();
+}
+
+export async function renombrarPlantillaGuardada(id: string, nombre: string): Promise<boolean> {
+  const p = await leerPlantilla(id);
+  if (!p) return false;
+  await guardarPlantilla(renombrarPlantilla(p, nombre));
+  marcarVersion();
+  return true;
+}
+
+export async function eliminarPlantilla(id: string): Promise<void> {
+  await borrarPlantilla(id);
+  marcarVersion();
+}
+
+/** "Nuevo desde plantilla": abre un proyecto nuevo con el layout de la plantilla. */
+export async function crearProyectoDesdePlantilla(plantillaId: string): Promise<boolean> {
+  await guardarAhora();
+  const plantilla = await leerPlantilla(plantillaId);
+  if (!plantilla) return false;
+  const nuevo = proyectoDesdePlantilla(plantilla);
+  // A diferencia de abrirProyecto, este proyecto no existe todavía en IndexedDB: hay que
+  // guardarlo ya (no basta con "marcarlo" como guardado) para no perderlo si no se edita nada.
+  await guardarProyecto(nuevo);
+  await fijarIdActual(nuevo.id);
+  useEditor.getState().cargarProyecto(nuevo);
+  marcar(nuevo);
+  useEstadoGuardado.setState({ estado: 'guardado' });
+  marcarVersion();
+  return true;
 }
 
 export async function eliminarProyecto(id: string): Promise<void> {

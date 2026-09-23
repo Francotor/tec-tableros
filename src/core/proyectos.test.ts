@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Proyecto } from './modelo';
+import { plantillaDesdeProyecto } from './plantillas';
 import {
   combinarProyectos,
   crearRespaldo,
@@ -28,10 +29,22 @@ const proyecto = (id: string, nombre = 'Obra 1'): Proyecto => ({
 });
 
 describe('respaldo', () => {
-  it('exporta e importa sin pérdida', () => {
+  it('exporta e importa proyectos sin pérdida', () => {
     const originales = [proyecto('p1'), { ...proyecto('p2', 'Obra 2'), caja: { libre: { ancho_mm: 600, alto_mm: 500, tipo: 'inox' as const } } }];
     const texto = JSON.stringify(crearRespaldo(originales));
-    expect(parsearRespaldo(texto)).toEqual(originales);
+    expect(parsearRespaldo(texto)).toEqual({ proyectos: originales, plantillas: [] });
+  });
+
+  it('incluye las plantillas en el mismo respaldo', () => {
+    const plantillas = [plantillaDesdeProyecto(proyecto('p1'), 'Domiciliario tipo A')];
+    const texto = JSON.stringify(crearRespaldo([proyecto('p1')], plantillas));
+    expect(parsearRespaldo(texto)).toEqual({ proyectos: [proyecto('p1')], plantillas });
+  });
+
+  it('un respaldo sin "plantillas" (de antes de esta versión) se importa igual, sin ninguna', () => {
+    const { plantillas: _plantillas, ...sinPlantillas } = crearRespaldo([proyecto('p1')]);
+    void _plantillas;
+    expect(parsearRespaldo(JSON.stringify(sinPlantillas))).toEqual({ proyectos: [proyecto('p1')], plantillas: [] });
   });
 
   it('rechaza archivos que no son respaldos, con mensajes claros', () => {
