@@ -15,7 +15,19 @@ export interface Elemento {
   rotacion?: 0 | 90;
   /** Solo lineales. */
   largo_mm?: number;
+  /** uid del elemento que lo alimenta. Ni el padre ni el hijo pueden ser un riel, una canaleta o un tope. */
+  alimentadoPor?: string;
+  /** Circuito al que pertenece (ver Circuito, en este mismo archivo). */
+  circuitoId?: string;
   valores: Record<string, ValorCampo>;
+}
+
+/** Circuito del tablero: agrupa elementos para el rotulado y la lista de materiales. */
+export interface Circuito {
+  id: string;
+  /** Texto libre (p. ej. "C1", "3"), no necesariamente numérico. */
+  numero: string;
+  nombre: string;
 }
 
 export interface Proyecto {
@@ -31,6 +43,7 @@ export interface Proyecto {
   margenBorde_mm: number | null;
   modo: Modo;
   seccionCanaleta_mm: SeccionCanaleta;
+  circuitos: Circuito[];
   elementos: Elemento[];
 }
 
@@ -66,6 +79,7 @@ export function proyectoNuevo(cajaId: string): Proyecto {
     modo: 'compacto',
     // Coincide con parametros.layout.canaleta_defecto_mm de la biblioteca actual (40 mm).
     seccionCanaleta_mm: 40,
+    circuitos: [],
     elementos: [],
   };
 }

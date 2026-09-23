@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { calcularAvisos } from '../core/avisos';
 import type { AvisoLista } from '../core/avisos';
 import { formatearMm } from '../core/biblioteca';
-import { formatearMetros, generarLista, lineasTotales, listaACsv, listaATexto } from '../core/lista';
-import type { ListaMateriales } from '../core/lista';
+import { formatearMetros, generarLista, generarListaPorCircuito, lineasTotales, listaACsv, listaATexto } from '../core/lista';
+import type { GrupoLista, ListaMateriales } from '../core/lista';
 import { sugerirCaja } from '../core/sugerencia';
 import type { Sugerencia } from '../core/sugerencia';
 import { nombreSeguro } from '../core/proyectos';
@@ -47,15 +47,46 @@ async function copiarAlPortapapeles(texto: string): Promise<boolean> {
   }
 }
 
+function TablaLineas({ lineas, titulo }: { lineas: GrupoLista['lineas']; titulo?: string }) {
+  return (
+    <table className="tabla-lista">
+      {titulo && (
+        <caption>
+          <strong>{titulo}</strong>
+        </caption>
+      )}
+      <thead>
+        <tr>
+          <th scope="col">Cant.</th>
+          <th scope="col">Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {lineas.map((l) => (
+          <tr key={l.descripcion}>
+            <td>
+              {l.cantidad} {l.unidad}
+            </td>
+            <td>{l.descripcion}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 export function PanelLista() {
   const analisis = useAnalisis();
   const proyecto = useEditor((s) => s.proyecto);
+  const ctx = useContexto();
   const aplicarSugerencia = useEditor((s) => s.aplicarSugerencia);
   const avisar = useEditor((s) => s.avisar);
+  const [agruparPorCircuito, setAgruparPorCircuito] = useState(false);
 
   if (!analisis) return <p className="vacio">Cargando…</p>;
   const { lista, sugerencia, avisos } = analisis;
   const hayDibujo = proyecto.elementos.length > 0;
+  const grupos = agruparPorCircuito && ctx ? generarListaPorCircuito(proyecto.elementos, ctx, proyecto.circuitos) : null;
 
   const copiar = async () => {
     const ok = await copiarAlPortapapeles(listaATexto(lista));
@@ -97,23 +128,44 @@ export function PanelLista() {
         <p className="ayuda">Sin sugerencia de caja: no hay una caja del mismo tipo que contenga el dibujo (o la caja es plástica).</p>
       )}
 
-      <table className="tabla-lista">
-        <thead>
-          <tr>
-            <th scope="col">Cant.</th>
-            <th scope="col">Descripción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lista.lineas.map((l) => (
-            <tr key={l.descripcion}>
-              <td>
-                {l.cantidad} {l.unidad}
-              </td>
-              <td>{l.descripcion}</td>
-            </tr>
+      {proyecto.circuitos.length > 0 && (
+        <label className="agrupar-circuito">
+          <input type="checkbox" checked={agruparPorCircuito} onChange={(e) => setAgruparPorCircuito(e.target.checked)} />
+          Agrupar por circuito
+        </label>
+      )}
+
+      {grupos ? (
+        <div className="grupos-lista">
+          {grupos.map((g) => (
+            <TablaLineas
+              key={g.circuito?.id ?? 'sin-circuito'}
+              lineas={g.lineas}
+              titulo={g.circuito ? `${g.circuito.numero} · ${g.circuito.nombre}` : 'Sin circuito'}
+            />
           ))}
-        </tbody>
+        </div>
+      ) : (
+        <table className="tabla-lista">
+          <thead>
+            <tr>
+              <th scope="col">Cant.</th>
+              <th scope="col">Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lista.lineas.map((l) => (
+              <tr key={l.descripcion}>
+                <td>
+                  {l.cantidad} {l.unidad}
+                </td>
+                <td>{l.descripcion}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <table className="tabla-lista tabla-totales">
         <tfoot>
           {lineasTotales(lista).map((t) => (
             <tr key={t.descripcion}>

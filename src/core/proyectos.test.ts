@@ -21,6 +21,7 @@ const proyecto = (id: string, nombre = 'Obra 1'): Proyecto => ({
   margenBorde_mm: null,
   modo: 'compacto',
   seccionCanaleta_mm: 40,
+  circuitos: [],
   elementos: [
     { uid: 'a', componenteId: 'riel_din', x_mm: 50, y_mm: 83, largo_mm: 400, valores: {} },
     { uid: 'b', componenteId: 'automatico_1p', x_mm: 50, y_mm: 55.5, valores: { curva: 'C', amperaje: 16 } },

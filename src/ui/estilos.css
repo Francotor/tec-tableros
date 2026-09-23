@@ -88,6 +88,12 @@ body { overflow: hidden; }
 .tabla-lista th, .tabla-lista td { padding: 5px 6px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--tec-plata-clara); }
 .tabla-lista td:first-child, .tabla-lista th:first-child { white-space: nowrap; }
 .tabla-lista tfoot td { font-weight: 600; border-top: 2px solid var(--tec-plata); }
+.tabla-lista caption { text-align: left; padding: 10px 0 4px; color: var(--tec-navy); font-size: .85rem; }
+.tabla-lista.tabla-totales { margin-top: 4px; }
+.agrupar-circuito { display: flex; flex-direction: row; align-items: center; gap: 6px; margin: 4px 0 8px; font-size: .82rem; color: var(--tec-gris-texto); }
+.agrupar-circuito input { min-height: auto; width: 18px; height: 18px; }
+.grupos-lista { display: flex; flex-direction: column; }
+.grupos-lista .tabla-lista:not(:first-child) { margin-top: 4px; }
 .acciones-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .aviso-flotante.info { color: var(--tec-navy); border-color: var(--tec-navy); }
 
@@ -106,6 +112,10 @@ body { overflow: hidden; }
 .dialogo-subseccion h3 { margin: 0; font-size: .95rem; color: var(--tec-navy); }
 .nombrar-plantilla { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .nombrar-plantilla input { min-height: 40px; padding: 0 8px; font: inherit; font-size: .9rem; border: 1px solid var(--tec-gris-metal); border-radius: 4px; min-width: 180px; }
+.editar-circuito { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.editar-circuito input { min-height: 40px; padding: 0 8px; font: inherit; font-size: .9rem; border: 1px solid var(--tec-gris-metal); border-radius: 4px; }
+.editar-circuito input[placeholder^="N"] { width: 90px; }
+.editar-circuito input[placeholder^="Nombre"] { min-width: 160px; flex: 1; }
 .info-proyecto input[type=text] { min-height: 36px; padding: 0 6px; font: inherit; font-size: .95rem; border: 1px solid var(--tec-gris-metal); border-radius: 4px; }
 .dialogo::backdrop { background: rgba(8, 25, 51, .55); }
 .dialogo-cabecera { display: flex; justify-content: space-between; align-items: center; }

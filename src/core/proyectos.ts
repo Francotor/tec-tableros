@@ -1,6 +1,6 @@
 import { SECCIONES_CANALETA } from './capacidad';
 import { nuevoUid } from './modelo';
-import type { CajaProyecto, Elemento, Proyecto } from './modelo';
+import type { CajaProyecto, Circuito, Elemento, Proyecto } from './modelo';
 import { validarPlantilla } from './plantillas';
 import type { Plantilla } from './plantillas';
 
@@ -57,7 +57,14 @@ function validarElemento(e: unknown): Elemento {
   };
   if (e.rotacion === 0 || e.rotacion === 90) el.rotacion = e.rotacion;
   if (typeof e.largo_mm === 'number') el.largo_mm = e.largo_mm;
+  if (typeof e.alimentadoPor === 'string') el.alimentadoPor = e.alimentadoPor;
+  if (typeof e.circuitoId === 'string') el.circuitoId = e.circuitoId;
   return el;
+}
+
+function validarCircuito(c: unknown): Circuito | null {
+  if (!esObjeto(c) || typeof c.id !== 'string' || typeof c.numero !== 'string' || typeof c.nombre !== 'string') return null;
+  return { id: c.id, numero: c.numero, nombre: c.nombre };
 }
 
 /** Comprueba la forma de un proyecto leído de disco o de un respaldo. */
@@ -65,8 +72,8 @@ export function validarProyecto(p: unknown): Proyecto {
   exigir(esObjeto(p), 'Proyecto inválido.');
   exigir(typeof p.id === 'string' && p.id !== '', 'Proyecto inválido: falta el identificador.');
   exigir(Array.isArray(p.elementos), 'Proyecto inválido: faltan los elementos.');
-  // margenBorde_mm/modo/seccionCanaleta_mm no existían antes de esta versión: un proyecto guardado
-  // antes se abre igual, con el margen automático de su caja (compacto, canaleta de 40 mm).
+  // margenBorde_mm/modo/seccionCanaleta_mm/circuitos no existían antes de esta versión: un proyecto
+  // guardado antes se abre igual, con el margen automático de su caja y sin circuitos.
   return {
     id: p.id,
     nombre: typeof p.nombre === 'string' ? p.nombre : 'Proyecto sin nombre',
@@ -78,6 +85,7 @@ export function validarProyecto(p: unknown): Proyecto {
     margenBorde_mm: typeof p.margenBorde_mm === 'number' ? p.margenBorde_mm : null,
     modo: p.modo === 'con_canaleta' ? 'con_canaleta' : 'compacto',
     seccionCanaleta_mm: SECCIONES_CANALETA.includes(p.seccionCanaleta_mm as 25 | 40 | 60) ? (p.seccionCanaleta_mm as 25 | 40 | 60) : 40,
+    circuitos: Array.isArray(p.circuitos) ? p.circuitos.flatMap((c) => validarCircuito(c) ?? []) : [],
     elementos: p.elementos.map(validarElemento),
   };
 }

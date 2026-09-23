@@ -17,13 +17,20 @@ import {
   rotarElemento,
 } from '../core/colocacion';
 import type { Cambio, Contexto, Extremo } from '../core/colocacion';
+import {
+  agregarCircuito as agregarCircuitoCore,
+  asignarCircuito as asignarCircuitoCore,
+  borrarCircuito as borrarCircuitoCore,
+  fijarAlimentadoPor,
+  renombrarCircuito as renombrarCircuitoCore,
+} from '../core/conexion';
 import type { Punto } from '../core/geometria';
 import { margenesEfectivos } from '../core/margenes';
 import { trasladar } from '../core/sugerencia';
 import { deshacer as deshacerH, historialVacio, rehacer as rehacerH, registrar } from '../core/historial';
 import type { Historial } from '../core/historial';
 import { proyectoNuevo, valoresPorDefecto } from '../core/modelo';
-import type { CajaProyecto, Elemento, Proyecto } from '../core/modelo';
+import type { CajaProyecto, Circuito, Elemento, Proyecto } from '../core/modelo';
 import type { Biblioteca, ValorCampo } from '../core/tipos';
 import { useBiblioteca } from './biblioteca';
 
@@ -35,6 +42,7 @@ const CAJA_INICIAL = 'caja_metalica_400x500x200';
 interface Instantanea {
   caja: CajaProyecto;
   elementos: Elemento[];
+  circuitos: Circuito[];
 }
 
 export interface Aviso {
@@ -82,6 +90,14 @@ interface EstadoEditor {
   /** Mueve un lineal a una nueva X, conservando su Y. */
   moverX: (uid: string, nuevoX: number) => boolean;
   cambiarValor: (uid: string, campoId: string, valor: ValorCampo) => void;
+  /** Fija (o, con null, quita) quién alimenta a un elemento. Valida ciclos y montaje. */
+  alimentarDesde: (hijoUid: string, padreUid: string | null) => boolean;
+  /** Crea un circuito y devuelve su id. */
+  crearCircuito: (numero: string, nombre: string) => string;
+  renombrarCircuito: (id: string, cambios: Partial<Pick<Circuito, 'numero' | 'nombre'>>) => void;
+  /** Borra un circuito; los elementos que lo tenían asignado quedan sin circuito. */
+  borrarCircuito: (id: string) => void;
+  asignarCircuito: (uid: string, circuitoId: string | null) => void;
   deshacer: () => void;
   rehacer: () => void;
 }
@@ -130,7 +146,11 @@ let edicionActual: string | null = null;
 export const useEditor = create<EstadoEditor>((set, get) => {
   const contexto = (): Contexto | null => contextoDe(useBiblioteca.getState().biblioteca, get().proyecto);
 
-  const instantanea = (): Instantanea => ({ caja: get().proyecto.caja, elementos: get().proyecto.elementos });
+  const instantanea = (): Instantanea => ({
+    caja: get().proyecto.caja,
+    elementos: get().proyecto.elementos,
+    circuitos: get().proyecto.circuitos,
+  });
 
   const avisar = (texto: string, tipo: Aviso['tipo'] = 'error'): void => set({ aviso: { id: ++contadorAvisos, texto, tipo } });
 
@@ -156,8 +176,18 @@ export const useEditor = create<EstadoEditor>((set, get) => {
     const { proyecto, seleccion } = get();
     set({
       historial,
-      proyecto: { ...proyecto, caja: i.caja, elementos: i.elementos, actualizadoEn: new Date().toISOString() },
+      proyecto: { ...proyecto, caja: i.caja, elementos: i.elementos, circuitos: i.circuitos, actualizadoEn: new Date().toISOString() },
       seleccion: i.elementos.some((e) => e.uid === seleccion) ? seleccion : null,
+    });
+  };
+
+  /** Igual que `aplicar`, pero para cambios que tocan `elementos` y `circuitos` a la vez. */
+  const aplicarConCircuitos = (elementos: Elemento[], circuitos: Circuito[]): void => {
+    edicionActual = null;
+    const { proyecto, historial } = get();
+    set({
+      historial: registrar(historial, instantanea()),
+      proyecto: { ...proyecto, elementos, circuitos, actualizadoEn: new Date().toISOString() },
     });
   };
 
@@ -298,6 +328,34 @@ export const useEditor = create<EstadoEditor>((set, get) => {
           actualizadoEn: new Date().toISOString(),
         },
       });
+    },
+
+    alimentarDesde: (hijoUid, padreUid) => {
+      const ctx = contexto();
+      return ctx ? aplicar(fijarAlimentadoPor(get().proyecto.elementos, ctx, hijoUid, padreUid)) : false;
+    },
+
+    crearCircuito: (numero, nombre) => {
+      const { proyecto } = get();
+      const circuitos = agregarCircuitoCore(proyecto.circuitos, numero, nombre);
+      aplicarConCircuitos(proyecto.elementos, circuitos);
+      return circuitos[circuitos.length - 1]!.id;
+    },
+
+    renombrarCircuito: (id, cambios) => {
+      const { proyecto } = get();
+      aplicarConCircuitos(proyecto.elementos, renombrarCircuitoCore(proyecto.circuitos, id, cambios));
+    },
+
+    borrarCircuito: (id) => {
+      const { proyecto } = get();
+      const r = borrarCircuitoCore(proyecto.circuitos, proyecto.elementos, id);
+      aplicarConCircuitos(r.elementos, r.circuitos);
+    },
+
+    asignarCircuito: (uid, circuitoId) => {
+      const { proyecto } = get();
+      aplicarConCircuitos(asignarCircuitoCore(proyecto.elementos, uid, circuitoId), proyecto.circuitos);
     },
 
     deshacer: () => {

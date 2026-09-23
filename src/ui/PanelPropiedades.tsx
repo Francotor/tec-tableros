@@ -1,9 +1,65 @@
 import { useState } from 'react';
 import { validarLargo } from '../core/colocacion';
+import { candidatosPadre, puedeConectarse } from '../core/conexion';
 import { valoresEfectivos, interpretarValor } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Campo, Componente } from '../core/tipos';
 import { useContexto, useEditor } from '../store/editor';
+
+const SIN_PADRE = '__sin_padre__';
+const SIN_CIRCUITO = '__sin_circuito__';
+
+function CampoAlimentadoPor({ el }: { el: Elemento }) {
+  const ctx = useContexto();
+  const elementos = useEditor((s) => s.proyecto.elementos);
+  const alimentarDesde = useEditor((s) => s.alimentarDesde);
+  const id = `campo-${el.uid}-alimentado-por`;
+  if (!ctx) return null;
+  const candidatos = candidatosPadre(elementos, ctx, el.uid);
+
+  return (
+    <label className="campo" htmlFor={id}>
+      Alimentado por
+      <select
+        id={id}
+        value={el.alimentadoPor ?? SIN_PADRE}
+        onChange={(e) => alimentarDesde(el.uid, e.target.value === SIN_PADRE ? null : e.target.value)}
+      >
+        <option value={SIN_PADRE}>Sin alimentación (raíz)</option>
+        {candidatos.map((c) => (
+          <option key={c.uid} value={c.uid}>
+            {ctx.comps.get(c.componenteId)?.nombre ?? c.componenteId}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function CampoCircuito({ el }: { el: Elemento }) {
+  const circuitos = useEditor((s) => s.proyecto.circuitos);
+  const asignarCircuito = useEditor((s) => s.asignarCircuito);
+  const id = `campo-${el.uid}-circuito`;
+
+  return (
+    <label className="campo" htmlFor={id}>
+      Circuito
+      <select
+        id={id}
+        value={el.circuitoId ?? SIN_CIRCUITO}
+        onChange={(e) => asignarCircuito(el.uid, e.target.value === SIN_CIRCUITO ? null : e.target.value)}
+      >
+        <option value={SIN_CIRCUITO}>Sin circuito</option>
+        {circuitos.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.numero} · {c.nombre}
+          </option>
+        ))}
+      </select>
+      {circuitos.length === 0 && <span className="ayuda">Crea circuitos con el botón "Circuitos" de la barra superior.</span>}
+    </label>
+  );
+}
 
 interface CampoProps {
   uid: string;
@@ -166,7 +222,10 @@ export function PanelPropiedades() {
   const largoActual = el.largo_mm ?? Number(valores.largo ?? 0);
 
   return (
-    <div>
+    // La clave fuerza a React a desmontar y reconstruir todo el bloque al cambiar de selección,
+    // en vez de reutilizar posicionalmente los campos entre elementos con distinta forma de campos
+    // (lo que producía un <select> "Alimentado por" fantasma del elemento anterior).
+    <div key={el.uid}>
       <h2>{comp.nombre}</h2>
       {comp.notas && <p className="sub">{comp.notas}</p>}
       {/* La clave incluye el uid para reiniciar el estado local al cambiar de selección. */}
@@ -181,6 +240,8 @@ export function PanelPropiedades() {
         <CampoEditable key={`${el.uid}:${c.id}`} uid={el.uid} campo={c} valor={valores[c.id] ?? c.defecto} />
       ))}
       {editables.length === 0 && comp.montaje !== 'lineal' && <p className="vacio">Esta pieza no tiene datos editables.</p>}
+      {puedeConectarse(comp) && <CampoAlimentadoPor key={`${el.uid}:${el.alimentadoPor ?? ''}`} el={el} />}
+      <CampoCircuito key={`${el.uid}:${el.circuitoId ?? ''}`} el={el} />
     </div>
   );
 }

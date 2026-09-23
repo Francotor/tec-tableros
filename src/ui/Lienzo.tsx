@@ -63,12 +63,23 @@ interface ElementoKonvaProps {
   comp: Componente;
   seleccionado: boolean;
   fuera: boolean;
+  /** Número del circuito asignado, si tiene (indicador leve sobre el elemento). */
+  numeroCircuito?: string;
   onSeleccionar: (uid: string) => void;
   onArrastre: (el: Elemento, comp: Componente, x: number, y: number) => void;
   onSoltar: (el: Elemento, comp: Componente, nodo: Konva.Node) => void;
 }
 
-const ElementoKonva = memo(function ElementoKonva({ el, comp, seleccionado, fuera, onSeleccionar, onArrastre, onSoltar }: ElementoKonvaProps) {
+const ElementoKonva = memo(function ElementoKonva({
+  el,
+  comp,
+  seleccionado,
+  fuera,
+  numeroCircuito,
+  onSeleccionar,
+  onArrastre,
+  onSoltar,
+}: ElementoKonvaProps) {
   const r = huella(el, comp);
   const girado = comp.montaje === 'lineal' && (el.rotacion ?? 0) === 90;
   const largo = comp.montaje === 'lineal' ? (girado ? r.h : r.w) : 0;
@@ -134,6 +145,24 @@ const ElementoKonva = memo(function ElementoKonva({ el, comp, seleccionado, fuer
           fill={fuera ? 'rgba(198,40,40,0.25)' : undefined}
           listening={false}
         />
+      )}
+      {numeroCircuito && (
+        <Group x={r.w} y={0} listening={false}>
+          <Circle radius={4.2} fill={AZUL} stroke="#fff" strokeWidth={0.6} />
+          <Text
+            text={numeroCircuito}
+            x={-8}
+            y={-4.2}
+            width={16}
+            height={8.4}
+            align="center"
+            verticalAlign="middle"
+            fontSize={5}
+            fontStyle="bold"
+            fontFamily="Arial, Helvetica, sans-serif"
+            fill="#fff"
+          />
+        </Group>
       )}
     </Group>
   );
@@ -262,6 +291,7 @@ function CapaCaja({ ctx, cuadricula, zoom, elementos }: { ctx: Contexto; cuadric
 export function Lienzo() {
   const ctx = useContexto();
   const elementos = useEditor((s) => s.proyecto.elementos);
+  const circuitos = useEditor((s) => s.proyecto.circuitos);
   const seleccion = useEditor((s) => s.seleccion);
   const cuadricula = useEditor((s) => s.cuadricula);
   const aviso = useEditor((s) => s.aviso);
@@ -516,6 +546,7 @@ export function Lienzo() {
           <Layer>
             {ordenados.map((el) => {
               const comp = ctx.comps.get(el.componenteId);
+              const circuito = el.circuitoId ? circuitos.find((c) => c.id === el.circuitoId) : undefined;
               return comp ? (
                 <ElementoKonva
                   key={el.uid}
@@ -523,6 +554,7 @@ export function Lienzo() {
                   comp={comp}
                   seleccionado={seleccion === el.uid}
                   fuera={fuera.has(el.uid)}
+                  numeroCircuito={circuito?.numero}
                   onSeleccionar={seleccionar}
                   onArrastre={alArrastrar}
                   onSoltar={alSoltarElemento}

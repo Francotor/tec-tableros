@@ -5,7 +5,8 @@ import { calcularAvisos } from './avisos';
 import { agregarElemento, resolverColocacion } from './colocacion';
 import type { Contexto } from './colocacion';
 import { armarEjemplo, cargarBiblioteca, crearContextoDe, RAIZ_BIBLIOTECA } from './ejemplo.testutil';
-import { formatearMetros, generarLista, listaACsv, listaATexto } from './lista';
+import { formatearMetros, generarLista, generarListaPorCircuito, listaACsv, listaATexto } from './lista';
+import { agregarCircuito, asignarCircuito } from './conexion';
 import { nuevoUid, valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
 import { extensionDelDibujo, sugerirCaja, trasladar } from './sugerencia';
@@ -100,6 +101,73 @@ describe('lista de materiales: un corte por pieza, con su largo real', () => {
     const largoEnDescripcion = Number(linea?.descripcion.match(/corte de (\d+) mm/)?.[1]);
     expect(largoEnDescripcion).toBeGreaterThan(0);
     expect(l.metrosCanaleta).toBeCloseTo(largoEnDescripcion / 1000);
+  });
+});
+
+describe('lista de materiales: agrupar por circuito', () => {
+  it('la caja va en "Sin circuito"; cada aparato va al circuito que tiene asignado', () => {
+    const ctx = ctxDe();
+    const circuitos = agregarCircuito([], 'C1', 'Iluminación');
+    const c1 = circuitos[0]!.id;
+    let els = poner([], ctx, 'riel_din', 250, 100.5, 400);
+    els = poner(els, ctx, 'automatico_1p', 60, 100);
+    els = asignarCircuito(els, els[1]!.uid, c1);
+
+    const grupos = generarListaPorCircuito(els, ctx, circuitos);
+    const sinCircuito = grupos.find((g) => g.circuito === null);
+    const grupoC1 = grupos.find((g) => g.circuito?.id === c1);
+
+    expect(sinCircuito?.lineas.map((l) => l.descripcion)).toContain('Caja metalica sobrepuesta 400 x 500 x 200 (placa 450 x 350 mm)');
+    expect(sinCircuito?.lineas.some((l) => l.descripcion.startsWith('Riel DIN'))).toBe(true);
+    expect(grupoC1?.lineas).toEqual([{ descripcion: 'Interruptor automatico 1P C16 A', cantidad: 1, unidad: 'un' }]);
+  });
+
+  it('los topes van al circuito del riel al que pertenecen', () => {
+    const ctx = ctxDe();
+    const circuitos = agregarCircuito([], 'C1', 'Iluminación');
+    const c1 = circuitos[0]!.id;
+    let els = poner([], ctx, 'riel_din', 250, 100.5, 400);
+    const riel = els[0]!;
+    els = poner(els, ctx, 'automatico_1p', 60, 100);
+    els = asignarCircuito(els, riel.uid, c1); // el riel (no el aparato) queda en C1
+
+    const grupos = generarListaPorCircuito(els, ctx, circuitos);
+    const grupoC1 = grupos.find((g) => g.circuito?.id === c1);
+    const sinCircuito = grupos.find((g) => g.circuito === null);
+    expect(grupoC1?.lineas.filter((l) => l.descripcion === 'Tope de riel DIN')[0]?.cantidad).toBe(2);
+    expect(sinCircuito?.lineas.some((l) => l.descripcion === 'Tope de riel DIN')).toBe(false);
+  });
+
+  it('dos aparatos iguales en circuitos distintos no se agrupan entre sí', () => {
+    const ctx = ctxDe();
+    let circuitos = agregarCircuito([], 'C1', 'Iluminación');
+    circuitos = agregarCircuito(circuitos, 'C2', 'Enchufes');
+    const c1 = circuitos[0]!.id;
+    const c2 = circuitos[1]!.id;
+    let els = poner([], ctx, 'riel_din', 250, 100.5, 400);
+    els = poner(els, ctx, 'automatico_1p', 60, 100);
+    els = poner(els, ctx, 'automatico_1p', 100, 100);
+    els = asignarCircuito(els, els[1]!.uid, c1);
+    els = asignarCircuito(els, els[2]!.uid, c2);
+
+    const grupos = generarListaPorCircuito(els, ctx, circuitos);
+    expect(grupos.find((g) => g.circuito?.id === c1)?.lineas).toEqual([
+      { descripcion: 'Interruptor automatico 1P C16 A', cantidad: 1, unidad: 'un' },
+    ]);
+    expect(grupos.find((g) => g.circuito?.id === c2)?.lineas).toEqual([
+      { descripcion: 'Interruptor automatico 1P C16 A', cantidad: 1, unidad: 'un' },
+    ]);
+    // La suma de la lista sin agrupar sí los junta en una línea con cantidad 2.
+    const sinAgrupar = generarLista(els, ctx);
+    expect(sinAgrupar.lineas.find((l) => l.descripcion === 'Interruptor automatico 1P C16 A')?.cantidad).toBe(2);
+  });
+
+  it('un circuito sin ningún elemento no aparece en los grupos', () => {
+    const ctx = ctxDe();
+    const circuitos = agregarCircuito([], 'C9', 'Vacío');
+    const grupos = generarListaPorCircuito([], ctx, circuitos);
+    expect(grupos.some((g) => g.circuito?.numero === 'C9')).toBe(false);
+    expect(grupos).toHaveLength(1); // solo "Sin circuito", por la caja
   });
 });
 

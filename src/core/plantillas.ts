@@ -61,6 +61,10 @@ function validarElemento(e: unknown): Elemento {
   };
   if (e.rotacion === 0 || e.rotacion === 90) el.rotacion = e.rotacion;
   if (typeof e.largo_mm === 'number') el.largo_mm = e.largo_mm;
+  // alimentadoPor es una relación interna del dibujo (por uid, que se conserva al instanciar la
+  // plantilla) y sí se guarda; circuitoId no, porque los circuitos son propios de cada proyecto
+  // (la plantilla no trae circuitos) y se perdería la referencia.
+  if (typeof e.alimentadoPor === 'string') el.alimentadoPor = e.alimentadoPor;
   return el;
 }
 
@@ -93,7 +97,12 @@ export function plantillaDesdeProyecto(proyecto: Proyecto, nombre: string, ahora
     margenBorde_mm: proyecto.margenBorde_mm,
     modo: proyecto.modo,
     seccionCanaleta_mm: proyecto.seccionCanaleta_mm,
-    elementos: proyecto.elementos.map((e) => ({ ...e, valores: { ...e.valores } })),
+    // circuitoId no se copia: los circuitos son propios de cada proyecto, la plantilla no los trae.
+    elementos: proyecto.elementos.map((e) => {
+      const { circuitoId: _circuitoId, ...resto } = e;
+      void _circuitoId;
+      return { ...resto, valores: { ...e.valores } };
+    }),
   };
 }
 
@@ -115,6 +124,7 @@ export function proyectoDesdePlantilla(plantilla: Plantilla, ahora: Date = new D
     margenBorde_mm: plantilla.margenBorde_mm,
     modo: plantilla.modo,
     seccionCanaleta_mm: plantilla.seccionCanaleta_mm,
+    circuitos: [],
     elementos: plantilla.elementos.map((e) => ({ ...e, valores: { ...e.valores } })),
   };
 }

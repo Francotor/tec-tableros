@@ -20,6 +20,7 @@ const proyecto = (): Proyecto => ({
   margenBorde_mm: 25,
   modo: 'con_canaleta',
   seccionCanaleta_mm: 60,
+  circuitos: [],
   elementos: [
     { uid: 'a', componenteId: 'riel_din', x_mm: 50, y_mm: 83, largo_mm: 400, valores: {} },
     { uid: 'b', componenteId: 'automatico_1p', x_mm: 50, y_mm: 55.5, valores: { curva: 'C', amperaje: 16 } },
@@ -50,6 +51,21 @@ describe('plantillaDesdeProyecto', () => {
     if (valores) valores.amperaje = 63;
     expect(orig.elementos[1]?.valores.amperaje).toBe(16);
   });
+
+  it('no copia circuitoId: los circuitos son propios de cada proyecto, la plantilla no los trae', () => {
+    const orig = proyecto();
+    orig.elementos[1] = { ...(orig.elementos[1] as Proyecto['elementos'][number]), circuitoId: 'c1' };
+    const p = plantillaDesdeProyecto(orig, 'X');
+    expect(p.elementos[1]?.circuitoId).toBeUndefined();
+    expect('circuitoId' in (p.elementos[1] ?? {})).toBe(false);
+  });
+
+  it('sí copia alimentadoPor (es una relación interna del dibujo, por uid)', () => {
+    const orig = proyecto();
+    orig.elementos[1] = { ...(orig.elementos[1] as Proyecto['elementos'][number]), alimentadoPor: 'a' };
+    const p = plantillaDesdeProyecto(orig, 'X');
+    expect(p.elementos[1]?.alimentadoPor).toBe('a');
+  });
 });
 
 describe('proyectoDesdePlantilla', () => {
@@ -65,6 +81,7 @@ describe('proyectoDesdePlantilla', () => {
       margenBorde_mm: 25,
       modo: 'con_canaleta',
       seccionCanaleta_mm: 60,
+      circuitos: [],
     });
     expect(nuevo.elementos).toHaveLength(2);
   });
