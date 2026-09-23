@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useEditor } from '../store/editor';
 import { useEstadoGuardado } from '../store/autoguardado';
 import { exportarPdf, exportarPng } from './exportacion';
+import { DialogoGuardarPlantilla, DialogoNuevoDesdePlantilla } from './DialogoPlantillas';
 import { DialogoProyectos } from './DialogoProyectos';
 
 const TEXTO_ESTADO = {
@@ -17,6 +18,8 @@ export function Encabezado() {
   const avisar = useEditor((s) => s.avisar);
   const estado = useEstadoGuardado((s) => s.estado);
   const [abierto, setAbierto] = useState(false);
+  const [guardarPlantillaAbierto, setGuardarPlantillaAbierto] = useState(false);
+  const [nuevoDesdePlantillaAbierto, setNuevoDesdePlantillaAbierto] = useState(false);
   const [generando, setGenerando] = useState(false);
 
   const bajarPng = () => {
@@ -54,6 +57,12 @@ export function Encabezado() {
         <button type="button" onClick={() => setAbierto(true)}>
           Proyectos
         </button>
+        <button type="button" onClick={() => setGuardarPlantillaAbierto(true)}>
+          Guardar como plantilla
+        </button>
+        <button type="button" onClick={() => setNuevoDesdePlantillaAbierto(true)}>
+          Nuevo desde plantilla
+        </button>
         <button type="button" onClick={bajarPng}>
           PNG
         </button>
@@ -62,6 +71,8 @@ export function Encabezado() {
         </button>
       </div>
       <DialogoProyectos abierto={abierto} onCerrar={() => setAbierto(false)} />
+      <DialogoGuardarPlantilla abierto={guardarPlantillaAbierto} onCerrar={() => setGuardarPlantillaAbierto(false)} />
+      <DialogoNuevoDesdePlantilla abierto={nuevoDesdePlantillaAbierto} onCerrar={() => setNuevoDesdePlantillaAbierto(false)} />
     </header>
   );
 }

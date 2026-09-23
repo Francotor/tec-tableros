@@ -80,6 +80,27 @@ describe('lista de materiales: un corte por pieza, con su largo real', () => {
     expect(l.lineas.filter((x) => x.descripcion.includes('corte de 200 mm'))).toHaveLength(1);
     expect(l.lineas.find((x) => x.descripcion.includes('corte de 200 mm'))?.cantidad).toBe(2);
   });
+
+  it('una canaleta agregada en una caja plástica sí suma al total de canaleta (no se confunde con el riel incluido)', () => {
+    const ctx = ctxDe({ id: 'caja_plastica_embutida_2f' });
+    const els = poner([], ctx, 'canaleta_25', 145, 290, 120);
+    const l = generarLista(els, ctx);
+    expect(l.metrosRiel).toBe(0); // el riel incluido de la caja no se lista ni se suma
+    expect(l.metrosCanaleta).toBeCloseTo(0.12);
+    expect(l.lineas).toContainEqual({ descripcion: 'Canaleta ranurada 25 x 25 mm, corte de 120 mm', cantidad: 1, unidad: 'un' });
+  });
+
+  it('el total de metros nunca queda por debajo de lo que muestra la línea de la lista (dato sin largo_mm)', () => {
+    // Simula un elemento guardado antes de que se fijara siempre el largo (dato viejo/dañado):
+    // la línea de la lista usa el mismo largo por defecto de la ficha, así que el total debe coincidir.
+    const ctx = ctxDe();
+    const sinLargo = { uid: 'x', componenteId: 'canaleta_25', x_mm: 100, y_mm: 50, valores: {} };
+    const l = generarLista([sinLargo], ctx);
+    const linea = l.lineas.find((x) => x.descripcion.startsWith('Canaleta ranurada 25'));
+    const largoEnDescripcion = Number(linea?.descripcion.match(/corte de (\d+) mm/)?.[1]);
+    expect(largoEnDescripcion).toBeGreaterThan(0);
+    expect(l.metrosCanaleta).toBeCloseTo(largoEnDescripcion / 1000);
+  });
 });
 
 describe('lista de materiales: otros casos', () => {

@@ -2,19 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { combinarProyectos, crearRespaldo, parsearRespaldo } from '../core/proyectos';
 import type { Proyecto } from '../core/modelo';
 import { combinarPlantillas } from '../core/plantillas';
-import type { Plantilla } from '../core/plantillas';
-import {
-  abrirProyecto,
-  crearProyectoDesdePlantilla,
-  crearProyectoNuevo,
-  duplicarProyectoGuardado,
-  eliminarPlantilla,
-  eliminarProyecto,
-  guardarAhora,
-  guardarComoPlantilla,
-  renombrarPlantillaGuardada,
-  useEstadoGuardado,
-} from '../store/autoguardado';
+import { abrirProyecto, crearProyectoNuevo, duplicarProyectoGuardado, eliminarProyecto, guardarAhora, useEstadoGuardado } from '../store/autoguardado';
 import { guardarPlantilla, guardarProyecto, listarPlantillas, listarProyectos } from '../store/persistencia';
 import { useEditor } from '../store/editor';
 import { descargar } from './descarga';
@@ -26,140 +14,18 @@ interface Props {
 
 const formatoFecha = new Intl.DateTimeFormat('es-CL', { dateStyle: 'short', timeStyle: 'short' });
 
-function GuardarComoPlantilla({ onListo }: { onListo: () => void }) {
-  const [activo, setActivo] = useState(false);
-  const [nombre, setNombre] = useState('');
-
-  if (!activo) {
-    return (
-      <button type="button" onClick={() => setActivo(true)}>
-        Guardar como plantilla
-      </button>
-    );
-  }
-
-  const confirmar = async () => {
-    const limpio = nombre.trim();
-    if (!limpio) return;
-    await guardarComoPlantilla(limpio);
-    setActivo(false);
-    setNombre('');
-    onListo();
-  };
-
-  return (
-    <span className="nombrar-plantilla">
-      <input
-        type="text"
-        placeholder="Nombre de la plantilla"
-        maxLength={80}
-        value={nombre}
-        autoFocus
-        onChange={(e) => setNombre(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && void confirmar()}
-      />
-      <button type="button" onClick={() => void confirmar()} disabled={nombre.trim() === ''}>
-        Guardar
-      </button>
-      <button
-        type="button"
-        className="secundario"
-        onClick={() => {
-          setActivo(false);
-          setNombre('');
-        }}
-      >
-        Cancelar
-      </button>
-    </span>
-  );
-}
-
-function FilaPlantilla({ plantilla, onCambio, onCerrar }: { plantilla: Plantilla; onCambio: () => void; onCerrar: () => void }) {
-  const [porBorrar, setPorBorrar] = useState(false);
-  const [renombrando, setRenombrando] = useState(false);
-  const [nombre, setNombre] = useState(plantilla.nombre);
-
-  const usar = async () => {
-    if (await crearProyectoDesdePlantilla(plantilla.id)) onCerrar();
-  };
-
-  const confirmarNombre = async () => {
-    const limpio = nombre.trim();
-    if (limpio && limpio !== plantilla.nombre) await renombrarPlantillaGuardada(plantilla.id, limpio);
-    setRenombrando(false);
-    onCambio();
-  };
-
-  return (
-    <li>
-      <div className="info-proyecto">
-        {renombrando ? (
-          <input
-            type="text"
-            maxLength={80}
-            value={nombre}
-            autoFocus
-            onChange={(e) => setNombre(e.target.value)}
-            onBlur={() => void confirmarNombre()}
-            onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-          />
-        ) : (
-          <strong>{plantilla.nombre}</strong>
-        )}
-        <span className="detalle">
-          {plantilla.elementos.length} elemento(s) · {formatoFecha.format(new Date(plantilla.actualizadoEn))}
-        </span>
-      </div>
-      {porBorrar ? (
-        <div className="confirmar">
-          <span>¿Borrar esta plantilla?</span>
-          <button
-            type="button"
-            className="peligro"
-            onClick={() => {
-              setPorBorrar(false);
-              void eliminarPlantilla(plantilla.id).then(onCambio);
-            }}
-          >
-            Sí, borrar
-          </button>
-          <button type="button" className="secundario" onClick={() => setPorBorrar(false)}>
-            Cancelar
-          </button>
-        </div>
-      ) : (
-        <div className="botones-proyecto">
-          <button type="button" onClick={() => void usar()}>
-            Nuevo desde esta
-          </button>
-          <button type="button" className="secundario" onClick={() => setRenombrando(true)}>
-            Renombrar
-          </button>
-          <button type="button" className="peligro" onClick={() => setPorBorrar(true)}>
-            Borrar
-          </button>
-        </div>
-      )}
-    </li>
-  );
-}
-
 export function DialogoProyectos({ abierto, onCerrar }: Props) {
   const dialogo = useRef<HTMLDialogElement>(null);
   const entrada = useRef<HTMLInputElement>(null);
   const idActual = useEditor((s) => s.proyecto.id);
   const version = useEstadoGuardado((s) => s.version);
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
-  const [plantillas, setPlantillas] = useState<Plantilla[]>([]);
   const [mensaje, setMensaje] = useState<{ texto: string; error: boolean } | null>(null);
   const [porBorrar, setPorBorrar] = useState<string | null>(null);
 
   const refrescar = useCallback(async () => {
     try {
-      const [p, t] = await Promise.all([listarProyectos(), listarPlantillas()]);
-      setProyectos(p);
-      setPlantillas(t);
+      setProyectos(await listarProyectos());
     } catch {
       setMensaje({ texto: 'No se pudo leer la lista de proyectos.', error: true });
     }
@@ -176,17 +42,12 @@ export function DialogoProyectos({ abierto, onCerrar }: Props) {
     }
   }, [abierto, refrescar]);
 
-  // Relee las listas al abrir el diálogo y cada vez que cambian los proyectos o las plantillas guardadas.
+  // Relee la lista al abrir el diálogo y cada vez que cambian los proyectos guardados.
   useEffect(() => {
     if (!abierto) return;
     let vigente = true;
-    Promise.all([listarProyectos(), listarPlantillas()])
-      .then(([p, t]) => {
-        if (vigente) {
-          setProyectos(p);
-          setPlantillas(t);
-        }
-      })
+    listarProyectos()
+      .then((lista) => vigente && setProyectos(lista))
       .catch(() => vigente && setMensaje({ texto: 'No se pudo leer la lista de proyectos.', error: true }));
     return () => {
       vigente = false;
@@ -205,6 +66,8 @@ export function DialogoProyectos({ abierto, onCerrar }: Props) {
     onCerrar();
   };
 
+  // El respaldo cubre proyectos y plantillas juntos (las plantillas se administran desde los
+  // botones "Guardar como plantilla" / "Nuevo desde plantilla" de la barra superior).
   const exportar = async () => {
     await guardarAhora();
     const [todos, todasPlantillas] = await Promise.all([listarProyectos(), listarPlantillas()]);
@@ -272,6 +135,10 @@ export function DialogoProyectos({ abierto, onCerrar }: Props) {
           }}
         />
       </div>
+      <p className="ayuda">
+        El respaldo incluye tus plantillas. Para guardar o usar una plantilla, cierra este diálogo y usa "Guardar como
+        plantilla" o "Nuevo desde plantilla" en la barra superior.
+      </p>
 
       {mensaje && (
         <p className={mensaje.error ? 'mensaje error' : 'mensaje'} role="status">
@@ -324,21 +191,6 @@ export function DialogoProyectos({ abierto, onCerrar }: Props) {
                 </div>
               )}
             </li>
-          ))}
-        </ul>
-      )}
-
-      <div className="dialogo-cabecera dialogo-subseccion">
-        <h3>Plantillas</h3>
-        <GuardarComoPlantilla onListo={refrescar} />
-      </div>
-      <p className="ayuda">Una plantilla guarda la caja, el dibujo, el margen y el modo, sin N° de cotización ni notas.</p>
-      {plantillas.length === 0 ? (
-        <p className="vacio">Aún no hay plantillas guardadas.</p>
-      ) : (
-        <ul className="lista-proyectos">
-          {plantillas.map((t) => (
-            <FilaPlantilla key={t.id} plantilla={t} onCambio={refrescar} onCerrar={onCerrar} />
           ))}
         </ul>
       )}

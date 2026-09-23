@@ -37,9 +37,13 @@ export function generarLista(elementos: readonly Elemento[], ctx: Contexto): Lis
   for (const el of elementos) {
     const comp = ctx.comps.get(el.componenteId);
     if (!comp) continue;
-    sumar(expandirPlantilla(comp.bom, valoresEfectivos(comp, el)).trim());
+    const valores = valoresEfectivos(comp, el);
+    sumar(expandirPlantilla(comp.bom, valores).trim());
     if (comp.montaje === 'lineal') {
-      const largo = el.largo_mm ?? 0;
+      // Mismo largo que se muestra en la descripción ("corte de {largo} mm"): si el elemento no
+      // trae largo_mm (dato viejo o dañado), se usa el mismo valor que ya cae ahí por defecto,
+      // en vez de sumar 0 y desentonar con la línea de la lista.
+      const largo = typeof valores.largo === 'number' ? valores.largo : (el.largo_mm ?? 0);
       if (esRiel(comp)) mmRiel += largo;
       else if (esCanaleta(comp)) mmCanaleta += largo;
     }
