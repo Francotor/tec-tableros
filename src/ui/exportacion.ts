@@ -1,7 +1,9 @@
+import { calcularContornos } from '../core/contornos';
 import { formatearMetros, generarLista, lineasTotales } from '../core/lista';
 import { nombreSeguro } from '../core/proyectos';
 import { contextoActual, useEditor } from '../store/editor';
 import { descargarDataUrl, descargar } from './descarga';
+import { dibujarContornos, opcionesHoja } from './pdfContornos';
 
 /** El lienzo registra aquí cómo dibujar el tablero limpio (sin rejilla ni selección). */
 type GeneradorPng = () => string | null;
@@ -163,6 +165,24 @@ export async function generarPdf(): Promise<Blob> {
   });
 
   return doc.output('blob');
+}
+
+/** PDF aparte, solo vectorial: contornos negros a escala 1:1 en una hoja del tamaño del tablero (para importar en CAD). */
+export async function generarPdfContornos(): Promise<Blob> {
+  const { proyecto } = useEditor.getState();
+  const ctx = contextoActual();
+  if (!ctx) throw new Error('El tablero aún no está listo para exportar.');
+  const plan = calcularContornos(proyecto.elementos, ctx);
+  const { jsPDF } = await import('jspdf');
+  const doc = new jsPDF(opcionesHoja(plan));
+  dibujarContornos(doc, plan, proyecto.nombre || 'Tablero eléctrico');
+  return doc.output('blob');
+}
+
+export async function exportarPdfContornos(): Promise<void> {
+  const { proyecto } = useEditor.getState();
+  const blob = await generarPdfContornos();
+  descargar(`${nombreSeguro(proyecto.numeroCotizacion || proyecto.nombre)}-contornos-cad.pdf`, blob, 'application/pdf');
 }
 
 export async function exportarPdf(): Promise<void> {
