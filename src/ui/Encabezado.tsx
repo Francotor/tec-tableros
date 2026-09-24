@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useEditor } from '../store/editor';
 import { useEstadoGuardado } from '../store/autoguardado';
-import { exportarPdf, exportarPdfContornos, exportarPng } from './exportacion';
+import { exportarDxf, exportarPdf, exportarPdfContornos, exportarPng } from './exportacion';
 import { DialogoCircuitos } from './DialogoCircuitos';
 import { DialogoGuardarPlantilla, DialogoNuevoDesdePlantilla } from './DialogoPlantillas';
 import { DialogoProyectos } from './DialogoProyectos';
@@ -24,6 +24,7 @@ export function Encabezado() {
   const [circuitosAbierto, setCircuitosAbierto] = useState(false);
   const [generando, setGenerando] = useState(false);
   const [generandoCad, setGenerandoCad] = useState(false);
+  const [generandoDxf, setGenerandoDxf] = useState(false);
 
   const bajarPng = () => {
     if (!exportarPng()) avisar('El tablero aún no está listo para exportar.');
@@ -48,6 +49,17 @@ export function Encabezado() {
       avisar(e instanceof Error ? e.message : 'No se pudo generar el PDF de contornos.');
     } finally {
       setGenerandoCad(false);
+    }
+  };
+
+  const bajarDxf = async () => {
+    setGenerandoDxf(true);
+    try {
+      await exportarDxf();
+    } catch (e) {
+      avisar(e instanceof Error ? e.message : 'No se pudo generar el DXF.');
+    } finally {
+      setGenerandoDxf(false);
     }
   };
 
@@ -93,6 +105,9 @@ export function Encabezado() {
           title="PDF vectorial a escala 1:1, solo contornos en negro, para importar en AutoCAD."
         >
           {generandoCad ? 'Creando contornos…' : 'Exportar contornos (para CAD)'}
+        </button>
+        <button type="button" onClick={() => void bajarDxf()} disabled={generandoDxf} title="DXF R12 en mm, con capas por categoría, para AutoCAD.">
+          {generandoDxf ? 'Creando DXF…' : 'Exportar DXF'}
         </button>
       </div>
       <DialogoProyectos abierto={abierto} onCerrar={() => setAbierto(false)} />

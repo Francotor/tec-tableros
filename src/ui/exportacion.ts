@@ -1,8 +1,10 @@
 import { calcularContornos } from '../core/contornos';
+import { generarDxf, svgsNecesarios } from '../core/exportarDxf';
 import { formatearMetros, generarLista, lineasTotales } from '../core/lista';
 import { nombreSeguro } from '../core/proyectos';
 import { contextoActual, useEditor } from '../store/editor';
 import { descargarDataUrl, descargar } from './descarga';
+import { textoDeBiblioteca } from './imagenes';
 import { dibujarContornos, opcionesHoja } from './pdfContornos';
 
 /** El lienzo registra aquí cómo dibujar el tablero limpio (sin rejilla ni selección). */
@@ -183,6 +185,16 @@ export async function exportarPdfContornos(): Promise<void> {
   const { proyecto } = useEditor.getState();
   const blob = await generarPdfContornos();
   descargar(`${nombreSeguro(proyecto.numeroCotizacion || proyecto.nombre)}-contornos-cad.pdf`, blob, 'application/pdf');
+}
+
+/** DXF R12 del tablero (mm, capas por categoría, formas reales de cada SVG, rótulos como TEXT). */
+export async function exportarDxf(): Promise<void> {
+  const { proyecto } = useEditor.getState();
+  const ctx = contextoActual();
+  if (!ctx) throw new Error('El tablero aún no está listo para exportar.');
+  const rutas = svgsNecesarios(proyecto.elementos, ctx);
+  const svgs = new Map(await Promise.all(rutas.map(async (r): Promise<[string, string]> => [r, await textoDeBiblioteca(r)])));
+  descargar(`${nombreSeguro(proyecto.numeroCotizacion || proyecto.nombre)}.dxf`, generarDxf(proyecto.elementos, ctx, svgs), 'application/dxf');
 }
 
 export async function exportarPdf(): Promise<void> {
