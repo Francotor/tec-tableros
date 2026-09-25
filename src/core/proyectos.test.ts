@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { proyectoNuevo } from './modelo';
 import type { Proyecto } from './modelo';
 import { plantillaDesdeProyecto } from './plantillas';
 import {
@@ -21,7 +22,8 @@ const proyecto = (id: string, nombre = 'Obra 1'): Proyecto => ({
   margenBorde_mm: null,
   modo: 'compacto',
   seccionCanaleta_mm: 40,
-  topesAutomaticos: true,
+  topesAutomaticos: false,
+  ladoBisagras: 'izquierda',
   circuitos: [],
   elementos: [
     { uid: 'a', componenteId: 'riel_din', x_mm: 50, y_mm: 83, largo_mm: 400, valores: {} },
@@ -87,14 +89,23 @@ describe('respaldo', () => {
 });
 
 describe('topes automáticos del proyecto', () => {
-  it('un proyecto guardado antes de este ajuste se abre con los topes activados', () => {
-    const { topesAutomaticos: _t, ...sinCampo } = proyecto('a');
-    void _t;
-    expect(validarProyecto(sinCampo).topesAutomaticos).toBe(true);
+  it('un proyecto nuevo parte sin topes y con las bisagras a la izquierda', () => {
+    const nuevo = proyectoNuevo('caja_metalica_400x500x200');
+    expect(nuevo.topesAutomaticos).toBe(false);
+    expect(nuevo.ladoBisagras).toBe('izquierda');
   });
 
-  it('conserva el ajuste apagado al guardar y abrir', () => {
-    expect(validarProyecto({ ...proyecto('a'), topesAutomaticos: false }).topesAutomaticos).toBe(false);
+  it('un proyecto guardado antes de este ajuste se abre con los topes desactivados', () => {
+    const { topesAutomaticos: _t, ...sinCampo } = proyecto('a');
+    void _t;
+    expect(validarProyecto(sinCampo).topesAutomaticos).toBe(false);
+    expect(validarProyecto(sinCampo).ladoBisagras).toBe('izquierda');
+  });
+
+  it('conserva el ajuste activado y el lado de bisagras al guardar y abrir', () => {
+    const p = validarProyecto({ ...proyecto('a'), topesAutomaticos: true, ladoBisagras: 'derecha' });
+    expect(p.topesAutomaticos).toBe(true);
+    expect(p.ladoBisagras).toBe('derecha');
   });
 });
 

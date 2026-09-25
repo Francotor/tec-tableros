@@ -85,7 +85,8 @@ export function validarProyecto(p: unknown): Proyecto {
     margenBorde_mm: typeof p.margenBorde_mm === 'number' ? p.margenBorde_mm : null,
     modo: p.modo === 'con_canaleta' ? 'con_canaleta' : 'compacto',
     seccionCanaleta_mm: SECCIONES_CANALETA.includes(p.seccionCanaleta_mm as 25 | 40 | 60) ? (p.seccionCanaleta_mm as 25 | 40 | 60) : 40,
-    topesAutomaticos: p.topesAutomaticos !== false,
+    topesAutomaticos: p.topesAutomaticos === true,
+    ladoBisagras: p.ladoBisagras === 'derecha' ? 'derecha' : 'izquierda',
     circuitos: Array.isArray(p.circuitos) ? p.circuitos.flatMap((c) => validarCircuito(c) ?? []) : [],
     elementos: p.elementos.map(validarElemento),
   };

@@ -83,7 +83,7 @@ export function validarPlantilla(p: unknown): Plantilla {
     margenBorde_mm: typeof p.margenBorde_mm === 'number' ? p.margenBorde_mm : null,
     modo: p.modo === 'con_canaleta' ? 'con_canaleta' : 'compacto',
     seccionCanaleta_mm: SECCIONES_CANALETA.includes(p.seccionCanaleta_mm as 25 | 40 | 60) ? (p.seccionCanaleta_mm as 25 | 40 | 60) : 40,
-    topesAutomaticos: p.topesAutomaticos !== false,
+    topesAutomaticos: p.topesAutomaticos === true,
     elementos: p.elementos.map(validarElemento),
   };
 }
@@ -128,6 +128,7 @@ export function proyectoDesdePlantilla(plantilla: Plantilla, ahora: Date = new D
     modo: plantilla.modo,
     seccionCanaleta_mm: plantilla.seccionCanaleta_mm,
     topesAutomaticos: plantilla.topesAutomaticos,
+    ladoBisagras: 'izquierda',
     circuitos: [],
     elementos: plantilla.elementos.map((e) => ({ ...e, valores: { ...e.valores } })),
   };

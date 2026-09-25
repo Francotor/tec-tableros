@@ -20,7 +20,7 @@ export interface AjustesCapacidad {
   parametrosLayout: ParametrosLayout;
   moduloMm: number;
   altoModularMm: number;
-  /** false: el proyecto no usa topes de riel automáticos. Por defecto true. */
+  /** true: el proyecto usa topes de riel automáticos. Por defecto false (se activan cuando hacen falta). */
   topes?: boolean;
 }
 
@@ -66,7 +66,7 @@ export function crearContexto(catalogo: Catalogo, caja: CajaResuelta, ajustes: A
     seccionCanaleta: ajustes.seccionCanaleta,
     moduloMm: ajustes.moduloMm,
     altoModularMm: ajustes.altoModularMm,
-    topes: ajustes.topes ?? true,
+    topes: ajustes.topes ?? false,
     capacidad,
     areaUtil: calcularAreaUtil(caja.area, ajustes.margenes),
   };

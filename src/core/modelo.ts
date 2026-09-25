@@ -30,6 +30,8 @@ export interface Circuito {
   nombre: string;
 }
 
+export type LadoBisagras = 'izquierda' | 'derecha';
+
 export interface Proyecto {
   id: string;
   nombre: string;
@@ -43,8 +45,10 @@ export interface Proyecto {
   margenBorde_mm: number | null;
   modo: Modo;
   seccionCanaleta_mm: SeccionCanaleta;
-  /** Topes de riel automáticos (2 por riel con aparatos). Apagado: no se dibujan ni se cuentan en la lista. */
+  /** Topes de riel automáticos (2 por riel con aparatos). Apagado por defecto: se activan cuando hacen falta. */
   topesAutomaticos: boolean;
+  /** Lado de las bisagras de la puerta en la vista frontal (con dos hojas, las bisagras van a ambos lados). */
+  ladoBisagras: LadoBisagras;
   circuitos: Circuito[];
   elementos: Elemento[];
 }
@@ -81,7 +85,8 @@ export function proyectoNuevo(cajaId: string): Proyecto {
     modo: 'compacto',
     // Coincide con parametros.layout.canaleta_defecto_mm de la biblioteca actual (40 mm).
     seccionCanaleta_mm: 40,
-    topesAutomaticos: true,
+    topesAutomaticos: false,
+    ladoBisagras: 'izquierda',
     circuitos: [],
     elementos: [],
   };

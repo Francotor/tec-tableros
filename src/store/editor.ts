@@ -31,7 +31,7 @@ import { trasladar } from '../core/sugerencia';
 import { deshacer as deshacerH, historialVacio, rehacer as rehacerH, registrar } from '../core/historial';
 import type { Historial } from '../core/historial';
 import { proyectoNuevo, valoresPorDefecto } from '../core/modelo';
-import type { CajaProyecto, Circuito, Elemento, Proyecto } from '../core/modelo';
+import type { CajaProyecto, Circuito, Elemento, LadoBisagras, Proyecto } from '../core/modelo';
 import type { Biblioteca, ValorCampo } from '../core/tipos';
 import { useBiblioteca } from './biblioteca';
 
@@ -78,6 +78,8 @@ interface EstadoEditor {
   setSeccionCanaleta: (mm: SeccionCanaleta) => void;
   /** Activa o desactiva los topes de riel automáticos del proyecto (ajuste del proyecto, no entra en el historial). */
   setTopes: (activos: boolean) => void;
+  /** Lado de las bisagras de la puerta en la vista frontal (ajuste del proyecto, fuera del historial). */
+  setLadoBisagras: (lado: LadoBisagras) => void;
   /** Cambia a una caja de la lista y traslada el dibujo a su placa, en un solo paso de historial. */
   aplicarSugerencia: (cajaId: string, dx: number, dy: number) => void;
   agregar: (componenteId: string, punto: Punto) => boolean;
@@ -259,6 +261,12 @@ export const useEditor = create<EstadoEditor>((set, get) => {
       const { proyecto } = get();
       if (proyecto.seccionCanaleta_mm === mm) return;
       set({ proyecto: { ...proyecto, seccionCanaleta_mm: mm, actualizadoEn: new Date().toISOString() } });
+    },
+
+    setLadoBisagras: (lado) => {
+      const { proyecto } = get();
+      if (proyecto.ladoBisagras === lado) return;
+      set({ proyecto: { ...proyecto, ladoBisagras: lado, actualizadoEn: new Date().toISOString() } });
     },
 
     setTopes: (activos) => {

@@ -275,6 +275,8 @@ export function BarraHerramientas() {
   const rehacer = useEditor((s) => s.rehacer);
   const topes = useEditor((s) => s.proyecto.topesAutomaticos);
   const setTopes = useEditor((s) => s.setTopes);
+  const ladoBisagras = useEditor((s) => s.proyecto.ladoBisagras);
+  const setLadoBisagras = useEditor((s) => s.setLadoBisagras);
 
   return (
     <div className="barra-herramientas">
@@ -295,10 +297,17 @@ export function BarraHerramientas() {
             type="button"
             aria-pressed={topes}
             onClick={() => setTopes(!topes)}
-            title="Topes de riel automáticos: 2 por riel con aparatos (uno a cada extremo del grupo). Apagados, no se dibujan ni se cuentan en la lista."
+            title="Topes de riel automáticos: 2 por riel con aparatos (uno a cada extremo del grupo). Por defecto no se usan; actívalos cuando el tablero los necesite."
           >
             Topes de riel
           </button>
+          <label title="Lado de las bisagras de la puerta en la vista frontal del PDF.">
+            Bisagras
+            <select value={ladoBisagras} onChange={(e) => setLadoBisagras(e.target.value === 'derecha' ? 'derecha' : 'izquierda')}>
+              <option value="izquierda">Izquierda</option>
+              <option value="derecha">Derecha</option>
+            </select>
+          </label>
         </div>
       </div>
       <div className="fila-barra">
