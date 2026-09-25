@@ -100,12 +100,27 @@ body { overflow: hidden; }
 .datos-proyecto { display: flex; flex-wrap: wrap; gap: 8px 12px; flex: 1; min-width: 200px; }
 .datos-proyecto label { display: flex; flex-direction: column; gap: 2px; font-size: .72rem; color: var(--tec-plata-clara); }
 .datos-proyecto input { min-height: 36px; min-width: 150px; padding: 0 8px; font: inherit; font-size: .95rem; color: var(--tec-grafito); background: #fff; border: 1px solid var(--tec-gris-metal); border-radius: 4px; }
-.estado-guardado { font-size: .8rem; color: var(--tec-plata-clara); }
-.estado-guardado.error { color: #fff; background: #9b1c1c; padding: 4px 8px; border-radius: 4px; }
-.acciones-barra { display: flex; flex-wrap: wrap; gap: 8px; }
-.acciones-barra button, .dialogo button { min-height: 40px; min-width: 40px; padding: 0 14px; font: inherit; font-size: .9rem; color: var(--tec-navy); background: #fff; border: 1px solid var(--tec-plata); border-radius: 4px; cursor: pointer; }
-.acciones-barra button:hover:not(:disabled) { background: var(--tec-plata-clara); }
+.estado-guardado { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: .8rem; color: var(--tec-plata-clara); border: 1px solid rgba(217, 218, 220, .25); border-radius: 999px; }
+.estado-guardado::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #6fcf97; }
+.estado-guardado.pendiente::before { background: #f2c94c; }
+.estado-guardado.error { color: #fff; background: #9b1c1c; border-color: #9b1c1c; }
+.estado-guardado.error::before { background: #fff; }
+
+/* Barra superior: las acciones se agrupan por función; la principal es la única rellena. */
+.acciones-barra { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 0; }
+.grupo-acciones { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; border-left: 1px solid rgba(217, 218, 220, .22); }
+.grupo-acciones:first-child { padding-left: 0; border-left: 0; }
+.grupo-acciones:last-child { padding-right: 0; }
+.etiqueta-grupo { font-size: .68rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--tec-plata); }
+.grupo-acciones .botones { display: flex; flex-wrap: wrap; gap: 8px; }
+.acciones-barra button { min-height: 40px; min-width: 40px; padding: 0 14px; font: inherit; font-size: .9rem; color: #fff; background: transparent; border: 1px solid rgba(217, 218, 220, .4); border-radius: 4px; cursor: pointer; }
+.acciones-barra button:hover:not(:disabled) { background: rgba(255, 255, 255, .12); border-color: var(--tec-plata-clara); }
+.acciones-barra button.primario { font-weight: 600; color: var(--tec-navy); background: var(--tec-plata-clara); border-color: var(--tec-plata-clara); }
+.acciones-barra button.primario:hover:not(:disabled) { background: #fff; border-color: #fff; }
 .acciones-barra button:disabled { opacity: .6; cursor: default; }
+.barra button:focus-visible, .barra input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.dialogo button { min-height: 40px; min-width: 40px; padding: 0 14px; font: inherit; font-size: .9rem; border: 1px solid var(--tec-plata); border-radius: 4px; cursor: pointer; }
+@media (max-width: 900px) { .acciones-barra { width: 100%; } .grupo-acciones { padding: 0 12px 0 0; border-left: 0; } .grupo-acciones:last-child { padding-right: 0; } }
 .dialogo { width: min(640px, 94vw); max-height: 88vh; overflow-y: auto; padding: 16px; color: var(--tec-grafito); border: 1px solid var(--tec-gris-metal); border-radius: 8px; }
 .dialogo-chico { width: min(420px, 94vw); }
 .dialogo-subseccion { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--tec-plata); }

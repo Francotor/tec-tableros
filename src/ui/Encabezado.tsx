@@ -68,27 +68,42 @@ export function Encabezado() {
         {TEXTO_ESTADO[estado]}
       </span>
       <div className="acciones-barra">
-        <button type="button" onClick={() => setAbierto(true)}>
-          Proyectos
-        </button>
-        <button type="button" onClick={() => setGuardarPlantillaAbierto(true)}>
-          Guardar como plantilla
-        </button>
-        <button type="button" onClick={() => setNuevoDesdePlantillaAbierto(true)}>
-          Nuevo desde plantilla
-        </button>
-        <button type="button" onClick={() => setCircuitosAbierto(true)}>
-          Circuitos
-        </button>
-        <button type="button" onClick={bajarPng}>
-          PNG
-        </button>
-        <button type="button" onClick={() => void bajarPdf()} disabled={generando}>
-          {generando ? 'Creando PDF…' : 'PDF'}
-        </button>
-        <button type="button" onClick={() => void bajarDxf()} disabled={generandoDxf} title="DXF R12 en mm, con capas por categoría, para AutoCAD.">
-          {generandoDxf ? 'Creando DXF…' : 'Exportar DXF'}
-        </button>
+        <div className="grupo-acciones" role="group" aria-label="Proyecto">
+          <span className="etiqueta-grupo">Proyecto</span>
+          <div className="botones">
+            <button type="button" onClick={() => setAbierto(true)}>
+              Proyectos
+            </button>
+            <button type="button" onClick={() => setNuevoDesdePlantillaAbierto(true)}>
+              Nuevo desde plantilla
+            </button>
+            <button type="button" className="primario" onClick={() => setGuardarPlantillaAbierto(true)}>
+              Guardar como plantilla
+            </button>
+          </div>
+        </div>
+        <div className="grupo-acciones" role="group" aria-label="Edición">
+          <span className="etiqueta-grupo">Edición</span>
+          <div className="botones">
+            <button type="button" onClick={() => setCircuitosAbierto(true)}>
+              Circuitos
+            </button>
+          </div>
+        </div>
+        <div className="grupo-acciones" role="group" aria-label="Exportar">
+          <span className="etiqueta-grupo">Exportar</span>
+          <div className="botones">
+            <button type="button" onClick={bajarPng}>
+              PNG
+            </button>
+            <button type="button" onClick={() => void bajarPdf()} disabled={generando}>
+              {generando ? 'Creando PDF…' : 'PDF'}
+            </button>
+            <button type="button" onClick={() => void bajarDxf()} disabled={generandoDxf} title="DXF R12 en mm, con capas por categoría, para AutoCAD.">
+              {generandoDxf ? 'Creando DXF…' : 'DXF'}
+            </button>
+          </div>
+        </div>
       </div>
       <DialogoProyectos abierto={abierto} onCerrar={() => setAbierto(false)} />
       <DialogoGuardarPlantilla abierto={guardarPlantillaAbierto} onCerrar={() => setGuardarPlantillaAbierto(false)} />
