@@ -3,6 +3,7 @@ import type { Contexto } from './colocacion';
 import { lineasEtiqueta, tamanoAjustado } from './etiquetas';
 import { leerFormasSvg } from './lectorSvg';
 import type { Elemento } from './modelo';
+import { aAscii } from './textoAscii';
 import type { Categoria } from './tipos';
 
 // ---------------------------------------------------------------- escritor DXF R12
@@ -23,14 +24,6 @@ export const CAPAS_DXF: readonly { nombre: CapaDxf; color: number }[] = [
 function num(v: number): string {
   const s = v.toFixed(4).replace(/\.?0+$/, '');
   return s === '-0' || s === '' ? '0' : s;
-}
-
-/** R12 es ASCII puro: se quitan tildes y cualquier carácter fuera de ASCII imprimible. */
-function ascii(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/\p{M}/gu, '')
-    .replace(/[^\x20-\x7e]/g, '?');
 }
 
 /**
@@ -111,7 +104,7 @@ export class EscritorDxf {
     this.grupo(20, y);
     this.grupo(30, 0);
     this.grupo(40, altura);
-    this.grupo(1, ascii(contenido));
+    this.grupo(1, aAscii(contenido));
     this.grupo(72, 1);
     this.grupo(11, x);
     this.grupo(21, y);

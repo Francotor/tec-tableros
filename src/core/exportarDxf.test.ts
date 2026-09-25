@@ -72,8 +72,17 @@ describe('DXF mínimo: un círculo, una línea y un rectángulo conocidos', () =
     const e = leerDxf(t.toString()).entidades.find((x) => x.tipo === 'TEXT');
     expect(e?.capa).toBe('Texto');
     expect([nums(e!, 10), nums(e!, 20), nums(e!, 40)]).toEqual([5, 6, 3.5]);
-    expect(e?.g.get(1)?.[0]).toBe('Curva C 40 A ? Tension');
+    expect(e?.g.get(1)?.[0]).toBe('Curva C 40 A - Tension');
     expect([nums(e!, 72), nums(e!, 73), nums(e!, 11), nums(e!, 21)]).toEqual([1, 2, 5, 6]);
+  });
+
+  it('nombre de proyecto y de circuito con tildes, ñ y ° salen sin signos de interrogación', () => {
+    const t = new EscritorDxf();
+    t.texto('Texto', 0, 0, 3.5, 'Tablero Iluminación N°2');
+    t.texto('Texto', 0, 10, 3.5, 'Alimentación cocina');
+    const d1 = leerDxf(t.toString());
+    expect(d1.entidades.map((e) => e.g.get(1)?.[0])).toEqual(['Tablero Iluminacion No2', 'Alimentacion cocina']);
+    expect(t.toString()).not.toContain('?');
   });
 
   it('un archivo vacío también es un DXF válido', () => {
@@ -270,5 +279,17 @@ describe.each(CAJAS)('DXF del tablero — caja $nombre', ({ id }) => {
 
   it('falla con un mensaje claro si falta el SVG de una pieza', () => {
     expect(() => generarDxf(elementos, ctx, new Map())).toThrow(/Falta el SVG/);
+  });
+});
+
+describe('DXF del tablero con textos del usuario con tildes, ñ y °', () => {
+  it('el rótulo escrito por el usuario sale legible y el archivo completo no contiene ningún "?"', () => {
+    const ctx = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' });
+    const { elementos } = armar(ctx, ['reloj_control']);
+    const conTexto = elementos.map((e) => (e.componenteId === 'reloj_control' ? { ...e, valores: { ...e.valores, etiqueta: 'Iluminación N°2 ñ' } } : e));
+    const texto = generarDxf(conTexto, ctx, svgsDe(conTexto, ctx));
+    const rotulo = leerDxf(texto).entidades.find((e) => e.tipo === 'TEXT');
+    expect(rotulo?.g.get(1)?.[0]).toBe('Iluminacion No2 n');
+    expect(texto).not.toContain('?');
   });
 });
