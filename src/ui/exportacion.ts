@@ -1,9 +1,14 @@
 import { generarDxf, svgsNecesarios } from '../core/exportarDxf';
 import { formatearMetros, generarLista, lineasTotales } from '../core/lista';
 import { nombreSeguro } from '../core/proyectos';
+import { calcularVistaFrontal, datosFrontalDeCaja } from '../core/vistaFrontal';
+import { useBiblioteca } from '../store/biblioteca';
 import { contextoActual, useEditor } from '../store/editor';
 import { descargarDataUrl, descargar } from './descarga';
 import { textoDeBiblioteca } from './imagenes';
+import type { FilaLista } from './pdfLista';
+import { dibujarListaPaginada, numerarPaginas } from './pdfLista';
+import { dibujarVistaFrontal } from './pdfVistas';
 
 /** El lienzo registra aquí cómo dibujar el tablero limpio (sin rejilla ni selección). */
 type GeneradorPng = () => string | null;
@@ -30,6 +35,8 @@ export function exportarPng(): boolean {
 const MARGEN = 12;
 const A4_ANCHO = 210;
 const A4_ALTO = 297;
+/** Espacio al pie de cada página para el número de página. */
+const PIE_MM = 8;
 
 async function cargarLogo(): Promise<{ url: string; ancho: number; alto: number }> {
   const img = new Image();
@@ -77,12 +84,21 @@ function fechaLarga(d: Date): string {
   return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
 }
 
-/** Genera el PDF (una página A4) con título, N° de cotización, imagen del tablero y lista de materiales. */
+function medida(mm: number): string {
+  return new Intl.NumberFormat('es-CL', { maximumFractionDigits: 1 }).format(mm);
+}
+
+/**
+ * Genera el PDF. Página 1: encabezado (logo, título, cotización, fecha) y, lado a lado, la vista frontal exterior
+ * (dibujada en vector) y la vista interior (imagen del tablero), cada una con su título y sus medidas. Desde la
+ * página 2: la lista de materiales completa, con paginación automática (una fila nunca se parte entre páginas).
+ */
 export async function generarPdf(): Promise<Blob> {
   const { proyecto } = useEditor.getState();
   const ctx = contextoActual();
+  const gabinetes = useBiblioteca.getState().biblioteca?.gabinetes;
   const png = generarPngTablero();
-  if (!ctx || !png) throw new Error('El tablero aún no está listo para exportar.');
+  if (!ctx || !png || !gabinetes) throw new Error('El tablero aún no está listo para exportar.');
   const lista = generarLista(proyecto.elementos, ctx);
   const [{ jsPDF }, logo, dim] = await Promise.all([import('jspdf'), cargarLogo(), imagenParaPdf(png)]);
 
@@ -111,58 +127,59 @@ export async function generarPdf(): Promise<Blob> {
   doc.setLineWidth(0.4);
   doc.line(MARGEN, yLinea, A4_ANCHO - MARGEN, yLinea);
 
-  // Filas de la tabla (las descripciones largas se parten en varias líneas).
-  const totales = lineasTotales(lista);
-  const filas = [
-    ...lista.lineas.map((l) => ({ cant: `${l.cantidad} ${l.unidad}`, texto: l.descripcion, total: false })),
-    ...totales.map((t) => ({ cant: `${formatearMetros(t.cantidad)} m`, texto: t.descripcion, total: true })),
-  ];
-  const medirTabla = (tamano: number, alto: number): { lineas: string[][]; alto: number } => {
-    doc.setFontSize(tamano);
-    const partidas = filas.map((f) => doc.splitTextToSize(f.texto, anchoUtil - 24) as string[]);
-    const nLineas = partidas.reduce((s, p) => s + p.length, 0);
-    return { lineas: partidas, alto: nLineas * alto + 8 };
-  };
-  let tamano = 9;
-  let alto = 4.4;
-  let tabla = medirTabla(tamano, alto);
-  const yImagen = yLinea + 5;
-  const espacioMin = 70;
-  while (A4_ALTO - MARGEN - yImagen - tabla.alto - 14 < espacioMin && tamano > 6) {
-    tamano -= 0.5;
-    alto -= 0.25;
-    tabla = medirTabla(tamano, alto);
-  }
-  const altoImagen = Math.max(35, Math.min(150, A4_ALTO - MARGEN - yImagen - tabla.alto - 14));
+  // Página 1: vista frontal exterior e interior, lado a lado.
+  const separacion = 8;
+  const celdaAncho = (anchoUtil - separacion) / 2;
+  const yTitulos = yLinea + 9;
+  const yVistas = yTitulos + 4;
+  const celdaAlto = A4_ALTO - MARGEN - PIE_MM - 22 - yVistas;
+  const xIzq = MARGEN;
+  const xDer = MARGEN + celdaAncho + separacion;
+  const cajaDatos = gabinetes.cajas.find((c) => c.id === ctx.caja.id);
+  const vista = calcularVistaFrontal(datosFrontalDeCaja(ctx.caja, gabinetes), proyecto.nombre, proyecto.ladoBisagras);
 
-  // Imagen del tablero, centrada y sin deformar.
-  const escala = Math.min(anchoUtil / dim.ancho, altoImagen / dim.alto);
-  const w = dim.ancho * escala;
-  const h = dim.alto * escala;
-  doc.addImage(dim.url, 'JPEG', MARGEN + (anchoUtil - w) / 2, yImagen, w, h);
-  doc.setDrawColor(183, 184, 188);
-  doc.rect(MARGEN + (anchoUtil - w) / 2, yImagen, w, h);
-
-  // Lista de materiales.
-  let y = yImagen + h + 9;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(5, 33, 68);
-  doc.text('Lista de materiales', MARGEN, y);
-  y += 5;
-  doc.setFontSize(tamano);
-  filas.forEach((f, i) => {
-    const partes = tabla.lineas[i] ?? [];
-    if (f.total && (i === lista.lineas.length)) {
-      doc.setDrawColor(183, 184, 188);
-      doc.line(MARGEN, y - alto + 1, A4_ANCHO - MARGEN, y - alto + 1);
-    }
-    doc.setFont('helvetica', f.total ? 'bold' : 'normal');
-    doc.setTextColor(42, 42, 42);
-    doc.text(f.cant, MARGEN, y);
-    doc.text(partes, MARGEN + 24, y);
-    y += Math.max(1, partes.length) * alto;
-  });
+  doc.text('Vista frontal exterior', xIzq + celdaAncho / 2, yTitulos, { align: 'center' });
+  doc.text('Vista interior', xDer + celdaAncho / 2, yTitulos, { align: 'center' });
+
+  const frontal = dibujarVistaFrontal(doc, vista, xIzq, yVistas, celdaAncho, celdaAlto);
+  const escalaInterior = Math.min(celdaAncho / dim.ancho, celdaAlto / dim.alto);
+  const wi = dim.ancho * escalaInterior;
+  const hi = dim.alto * escalaInterior;
+  const xi = xDer + (celdaAncho - wi) / 2;
+  doc.addImage(dim.url, 'JPEG', xi, yVistas, wi, hi);
+  doc.setDrawColor(183, 184, 188);
+  doc.setLineWidth(0.3);
+  doc.rect(xi, yVistas, wi, hi);
+
+  const yPie = Math.max(frontal.y + frontal.h, yVistas + hi) + 6;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(42, 42, 42);
+  const fondo = cajaDatos?.fondo_mm;
+  const medidasCaja = `${medida(ctx.caja.ancho)} × ${medida(ctx.caja.alto)}${fondo ? ` × ${medida(fondo)}` : ''} mm`;
+  doc.text(`Caja: ${medidasCaja}`, xIzq + celdaAncho / 2, yPie, { align: 'center' });
+  doc.text(fondo ? '(ancho × alto × fondo)' : '(ancho × alto)', xIzq + celdaAncho / 2, yPie + 4.2, { align: 'center' });
+  const nombreCaja = doc.splitTextToSize(ctx.caja.nombre, celdaAncho) as string[];
+  doc.setTextColor(90, 90, 90);
+  doc.text(nombreCaja.slice(0, 2), xIzq + celdaAncho / 2, yPie + 8.4, { align: 'center' });
+  doc.setTextColor(42, 42, 42);
+  const interior = ctx.caja.permiteRieles
+    ? `Placa de montaje: ${medida(ctx.caja.area.w)} × ${medida(ctx.caja.area.h)} mm`
+    : `Interior: ${medida(ctx.caja.area.w)} × ${medida(ctx.caja.area.h)} mm`;
+  doc.text(interior, xDer + celdaAncho / 2, yPie, { align: 'center' });
+
+  // Página 2 en adelante: lista de materiales.
+  doc.addPage();
+  const totales = lineasTotales(lista);
+  const filas: FilaLista[] = [
+    ...lista.lineas.map((l) => ({ cant: `${l.cantidad} ${l.unidad}`, texto: l.descripcion, total: false })),
+    ...totales.map((t) => ({ cant: `${formatearMetros(t.cantidad)} m`, texto: t.descripcion, total: true })),
+  ];
+  dibujarListaPaginada(doc, filas, { margen: MARGEN, anchoPagina: A4_ANCHO, altoPagina: A4_ALTO, pie: PIE_MM });
+  numerarPaginas(doc, proyecto.nombre || 'Tablero eléctrico', A4_ANCHO, A4_ALTO, MARGEN);
 
   return doc.output('blob');
 }

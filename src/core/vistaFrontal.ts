@@ -52,7 +52,8 @@ const BISAGRA = { w: 6, h: 26 };
 const CIERRE_RADIO = 6;
 /** Distancia del borde de la puerta al centro de un cierre. */
 const CIERRE_INSET = 22;
-const PLACA = { maxW: 70, h: 14, inset: 12, arriba: 10 };
+/** La placa crece con la caja para que su texto se lea al imprimir a escala: entre 14 y 40 mm de alto, 70 y 200 mm de ancho. */
+const PLACA = { inset: 12, arriba: 10 };
 
 /** Datos de la caja del proyecto para la vista frontal: sus medidas y, si la caja de catálogo los trae, cierres, bisagras y puertas. */
 export function datosFrontalDeCaja(caja: CajaResuelta, gabinetes: Gabinetes): DatosCajaFrontal {
@@ -132,13 +133,14 @@ export function calcularVistaFrontal(datos: DatosCajaFrontal, nombre: string, la
   }
 
   // Placa de identificación: esquina superior del lado de las bisagras (o izquierda si hay dos hojas).
-  const w = Math.min(PLACA.maxW, puerta.w * 0.4);
+  const w = Math.min(Math.min(200, Math.max(70, ancho * 0.3)), puerta.w * 0.4);
+  const hPlaca = Math.min(40, Math.max(14, alto * 0.05));
   const enDerecha = !dosHojas && lado === 'derecha';
   const zona: Rect = {
     x: enDerecha ? derecha - PLACA.inset - w : izquierda + PLACA.inset,
     y: puerta.y + PLACA.arriba,
     w,
-    h: PLACA.h,
+    h: hPlaca,
   };
   rects.push({ ...zona, capa: 'placa' });
 
