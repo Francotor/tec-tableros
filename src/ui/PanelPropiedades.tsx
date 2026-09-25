@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { validarLargo } from '../core/colocacion';
+import { esCanaleta, huella, validarLargo } from '../core/colocacion';
+import { formatearMm } from '../core/biblioteca';
 import { candidatosPadre, puedeConectarse } from '../core/conexion';
 import { descripcionElemento, valoresEfectivos, interpretarValor } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
@@ -207,6 +208,34 @@ function BotonExtender({ el }: { el: Elemento }) {
   );
 }
 
+/** Girar (solo canaletas), duplicar y borrar el elemento seleccionado, y su posición. */
+function AccionesElemento({ el, comp }: { el: Elemento; comp: Componente }) {
+  const rotar = useEditor((s) => s.rotar);
+  const duplicar = useEditor((s) => s.duplicar);
+  const borrar = useEditor((s) => s.borrar);
+  const r = huella(el, comp);
+  return (
+    <div className="acciones-elemento">
+      <p className="posicion-elemento">
+        x {formatearMm(r.x)} · y {formatearMm(r.y)} mm
+      </p>
+      <div className="botones-elemento" role="group" aria-label="Acciones del elemento">
+        {esCanaleta(comp) && (
+          <button type="button" onClick={() => rotar(el.uid)} title="Girar 90° (R)">
+            Girar 90°
+          </button>
+        )}
+        <button type="button" onClick={() => duplicar(el.uid)} title="Duplicar (Ctrl+D)">
+          Duplicar
+        </button>
+        <button type="button" className="peligro" onClick={() => borrar(el.uid)} title="Borrar (Supr)">
+          Borrar
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function PanelPropiedades() {
   const ctx = useContexto();
   const el = useEditor((s) => s.proyecto.elementos.find((e) => e.uid === s.seleccion));
@@ -231,6 +260,7 @@ export function PanelPropiedades() {
     // (lo que producía un <select> "Alimentado por" fantasma del elemento anterior).
     <div key={el.uid}>
       <h2>{comp.nombre}</h2>
+      <AccionesElemento el={el} comp={comp} />
       {comp.notas && <p className="sub">{comp.notas}</p>}
       {/* La clave incluye el uid para reiniciar el estado local al cambiar de selección. */}
       {comp.montaje === 'lineal' && (

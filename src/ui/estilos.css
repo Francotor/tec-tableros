@@ -38,7 +38,6 @@ body { margin: 0; font-family: system-ui, "Segoe UI", sans-serif; color: var(--t
 .barra-herramientas button:disabled { color: var(--tec-gris-metal); background: #fff; border-color: var(--tec-plata-clara); cursor: default; }
 .barra-herramientas button.peligro { background: #fff; color: #9b1c1c; border-color: #9b1c1c; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--tec-azul-brillo); outline-offset: 2px; }
-.sel-nombre { align-self: center; }
 .hint { color: var(--tec-gris-texto); font-size: .85rem; align-self: center; }
 .lienzo { position: relative; flex: 1; min-height: 0; overflow: hidden; background: var(--tec-plata-clara); touch-action: none; }
 .controles-zoom { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 6px; align-items: center; }
@@ -186,3 +185,18 @@ body { overflow: hidden; }
   .catalogo-envoltura.fijo { width: 240px; }
   .panel-props.plegado { flex-direction: row; justify-content: center; width: auto; max-height: none; padding: 6px; border-left: 0; border-top: 1px solid var(--tec-plata); }
 }
+
+/* Herramientas de edición: barra de iconos flotante sobre el dibujo; acciones del elemento en Propiedades. */
+.barra-herramientas { padding: 8px 16px; }
+.barra-iconos { position: absolute; z-index: 5; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 4px; padding: 4px; background: rgba(255, 255, 255, .94); border: 1px solid var(--tec-plata); border-radius: 8px; box-shadow: 0 2px 8px rgba(8, 25, 51, .18); }
+.barra-iconos button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; color: var(--tec-navy); background: transparent; border: 1px solid transparent; border-radius: 6px; cursor: pointer; }
+.barra-iconos button:hover:not(:disabled) { background: var(--tec-plata-clara); }
+.barra-iconos button[aria-pressed=true] { background: var(--tec-plata-clara); border-color: var(--tec-azul-brillo); box-shadow: inset 0 0 0 1px var(--tec-azul-brillo); }
+.barra-iconos button:disabled { color: var(--tec-plata); cursor: default; }
+.separador-iconos { height: 1px; margin: 2px 6px; background: var(--tec-plata); }
+.acciones-elemento { margin-bottom: 12px; }
+.posicion-elemento { margin: 0 0 8px; font-size: .8rem; color: var(--tec-gris-texto); font-variant-numeric: tabular-nums; }
+.botones-elemento { display: flex; flex-wrap: wrap; gap: 8px; }
+.panel-props .botones-elemento button { margin-bottom: 0; }
+.panel-props .botones-elemento button.peligro { color: #9b1c1c; border-color: #9b1c1c; }
+.panel-props .botones-elemento button.peligro:hover { background: #fdf1f1; }

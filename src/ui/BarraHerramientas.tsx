@@ -2,8 +2,7 @@ import { useMemo, useState } from 'react';
 import { ANCHO_MAX_LIBRE_MM, ANCHO_MIN_LIBRE_MM } from '../core/caja';
 import { SECCIONES_CANALETA } from '../core/capacidad';
 import type { Modo } from '../core/capacidad';
-import { esCanaleta, huella } from '../core/colocacion';
-import { agruparCajasSelector, buscarCaja, formatearMm } from '../core/biblioteca';
+import { agruparCajasSelector, buscarCaja } from '../core/biblioteca';
 import { margenBordePorDefecto } from '../core/margenes';
 import { nombreCortoCaja } from '../core/nombreCaja';
 import type { Caja, Gabinetes } from '../core/tipos';
@@ -237,36 +236,6 @@ function AjustesCapacidad() {
   );
 }
 
-function Seleccion() {
-  const ctx = useContexto();
-  const uid = useEditor((s) => s.seleccion);
-  const el = useEditor((s) => s.proyecto.elementos.find((e) => e.uid === s.seleccion));
-  const { duplicar, borrar, rotar } = useEditor.getState();
-  const comp = el && ctx?.comps.get(el.componenteId);
-  if (!uid || !el || !comp) return <span className="hint">Selecciona un elemento para moverlo, girarlo, duplicarlo o borrarlo.</span>;
-
-  const r = huella(el, comp);
-  return (
-    <div className="grupo-barra">
-      <strong className="sel-nombre">{comp.nombre}</strong>
-      <span className="hint">
-        x {formatearMm(r.x)} · y {formatearMm(r.y)} mm
-      </span>
-      {esCanaleta(comp) && (
-        <button type="button" onClick={() => rotar(uid)} title="Girar 90° (R)">
-          Girar 90°
-        </button>
-      )}
-      <button type="button" onClick={() => duplicar(uid)} title="Duplicar (Ctrl+D)">
-        Duplicar
-      </button>
-      <button type="button" className="peligro" onClick={() => borrar(uid)} title="Borrar (Supr)">
-        Borrar
-      </button>
-    </div>
-  );
-}
-
 /**
  * Configuración de la caja (selector, margen, distribución, sección de canaleta y "Distribuir automáticamente") en un
  * panel plegable. Cerrado, ocupa una sola línea con la caja elegida; se despliega con ese botón.
@@ -294,51 +263,10 @@ function PanelCaja({ gabinetes }: { gabinetes: Gabinetes }) {
 
 export function BarraHerramientas() {
   const gabinetes = useBiblioteca((s) => s.biblioteca?.gabinetes);
-  const cuadricula = useEditor((s) => s.cuadricula);
-  const alternarCuadricula = useEditor((s) => s.alternarCuadricula);
-  const puedeDeshacer = useEditor((s) => s.historial.pasado.length > 0);
-  const puedeRehacer = useEditor((s) => s.historial.futuro.length > 0);
-  const deshacer = useEditor((s) => s.deshacer);
-  const rehacer = useEditor((s) => s.rehacer);
-  const topes = useEditor((s) => s.proyecto.topesAutomaticos);
-  const setTopes = useEditor((s) => s.setTopes);
-  const ladoBisagras = useEditor((s) => s.proyecto.ladoBisagras);
-  const setLadoBisagras = useEditor((s) => s.setLadoBisagras);
-
+  if (!gabinetes) return null;
   return (
     <div className="barra-herramientas">
-      {gabinetes && <PanelCaja gabinetes={gabinetes} />}
-      <div className="fila-barra">
-        <div className="grupo-barra">
-          <button type="button" onClick={deshacer} disabled={!puedeDeshacer} title="Deshacer (Ctrl+Z)">
-            Deshacer
-          </button>
-          <button type="button" onClick={rehacer} disabled={!puedeRehacer} title="Rehacer (Ctrl+Y)">
-            Rehacer
-          </button>
-          <button type="button" aria-pressed={cuadricula} onClick={alternarCuadricula}>
-            Cuadrícula
-          </button>
-          <button
-            type="button"
-            aria-pressed={topes}
-            onClick={() => setTopes(!topes)}
-            title="Topes de riel automáticos: 2 por riel con aparatos (uno a cada extremo del grupo). Por defecto no se usan; actívalos cuando el tablero los necesite."
-          >
-            Topes de riel
-          </button>
-          <label title="Lado de las bisagras de la puerta en la vista frontal del PDF.">
-            Bisagras
-            <select value={ladoBisagras} onChange={(e) => setLadoBisagras(e.target.value === 'derecha' ? 'derecha' : 'izquierda')}>
-              <option value="izquierda">Izquierda</option>
-              <option value="derecha">Derecha</option>
-            </select>
-          </label>
-        </div>
-      </div>
-      <div className="fila-barra">
-        <Seleccion />
-      </div>
+      <PanelCaja gabinetes={gabinetes} />
     </div>
   );
 }

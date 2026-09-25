@@ -12,6 +12,7 @@ import { lineasEtiqueta, tamanoAjustado } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Componente } from '../core/tipos';
 import { contextoActual, useContexto, useEditor } from '../store/editor';
+import { BarraIconos } from './BarraIconos';
 import { registrarGeneradorPng } from './exportacion';
 import { cargarLineales, textoDeBiblioteca, useImagen } from './imagenes';
 
@@ -586,6 +587,7 @@ export function Lienzo() {
         </Stage>
       )}
 
+      <BarraIconos />
       <div className="controles-zoom" role="group" aria-label="Zoom">
         <button type="button" onClick={() => zoomHacia(centroVista(), zoom * 1.25)} aria-label="Acercar">
           +
