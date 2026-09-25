@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { agregarElemento, calcularTopes } from './colocacion';
+import { calcularAvisos } from './avisos';
+import { distribuirAutomaticamente } from './distribucion';
 import { cargarBiblioteca, crearContextoDe } from './ejemplo.testutil';
+import { generarLista, generarListaPorCircuito } from './lista';
 import { valoresPorDefecto } from './modelo';
 import type { Elemento } from './modelo';
 
@@ -43,5 +46,33 @@ describe('topes de riel: dos por riel con aparatos, no uno por aparato', () => {
 
   it('con un hueco en medio siguen siendo 2 topes por riel (los extremos del grupo)', () => {
     expect(calcularTopes(rielConAparatos([18, 36, 180, 198]), ctx)).toHaveLength(2);
+  });
+});
+
+describe('topes de riel como interruptor del proyecto', () => {
+  const ctxSin = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' }, { topes: false });
+
+  it('apagados, no hay topes aunque haya aparatos', () => {
+    const els = rielConAparatos([0, 18, 36]);
+    expect(calcularTopes(els, ctx)).toHaveLength(2);
+    expect(calcularTopes(els, ctxSin)).toHaveLength(0);
+  });
+
+  it('apagados, la lista de materiales no trae topes ni suma sus líneas', () => {
+    const els = rielConAparatos([0, 18, 36]);
+    expect(generarLista(els, ctx).lineas.some((l) => /Tope/i.test(l.descripcion))).toBe(true);
+    expect(generarLista(els, ctxSin).lineas.some((l) => /Tope/i.test(l.descripcion))).toBe(false);
+    expect(generarListaPorCircuito(els, ctxSin, []).flatMap((g) => g.lineas).some((l) => /Tope/i.test(l.descripcion))).toBe(false);
+  });
+
+  it('apagados, desaparece el aviso de falta de espacio para topes', () => {
+    const els = rielConAparatos([0]); // pegado al inicio: con topes, sobresalen
+    expect(calcularAvisos(els, ctx, null).some((a) => a.id === 'topes')).toBe(true);
+    expect(calcularAvisos(els, ctxSin, null).some((a) => a.id === 'topes')).toBe(false);
+  });
+
+  it('apagados, "Distribuir automáticamente" no reserva sitio para topes en el riel', () => {
+    const r = distribuirAutomaticamente(rielConAparatos([]).slice(0, 0), ctxSin);
+    expect(r.ok).toBe(true);
   });
 });

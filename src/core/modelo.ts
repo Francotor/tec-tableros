@@ -43,6 +43,8 @@ export interface Proyecto {
   margenBorde_mm: number | null;
   modo: Modo;
   seccionCanaleta_mm: SeccionCanaleta;
+  /** Topes de riel automáticos (2 por riel con aparatos). Apagado: no se dibujan ni se cuentan en la lista. */
+  topesAutomaticos: boolean;
   circuitos: Circuito[];
   elementos: Elemento[];
 }
@@ -79,6 +81,7 @@ export function proyectoNuevo(cajaId: string): Proyecto {
     modo: 'compacto',
     // Coincide con parametros.layout.canaleta_defecto_mm de la biblioteca actual (40 mm).
     seccionCanaleta_mm: 40,
+    topesAutomaticos: true,
     circuitos: [],
     elementos: [],
   };

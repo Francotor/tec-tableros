@@ -20,6 +20,8 @@ export interface AjustesCapacidad {
   parametrosLayout: ParametrosLayout;
   moduloMm: number;
   altoModularMm: number;
+  /** false: el proyecto no usa topes de riel automáticos. Por defecto true. */
+  topes?: boolean;
 }
 
 export interface Contexto {
@@ -33,6 +35,8 @@ export interface Contexto {
   moduloMm: number;
   /** Alto modular de un aparato de riel (una fila), en mm. */
   altoModularMm: number;
+  /** Topes de riel automáticos activos en este proyecto. */
+  topes: boolean;
   /** Capacidad de riel con el margen/modo/sección actuales; null en cajas plásticas (rieles fijos). */
   capacidad: Capacidad | null;
   /** Placa reducida por el margen de borde: referencia para largos por defecto, no un límite duro. */
@@ -62,6 +66,7 @@ export function crearContexto(catalogo: Catalogo, caja: CajaResuelta, ajustes: A
     seccionCanaleta: ajustes.seccionCanaleta,
     moduloMm: ajustes.moduloMm,
     altoModularMm: ajustes.altoModularMm,
+    topes: ajustes.topes ?? true,
     capacidad,
     areaUtil: calcularAreaUtil(caja.area, ajustes.margenes),
   };
@@ -695,6 +700,7 @@ export interface Tope {
 
 /** Dos topes automáticos por riel con aparatos: uno a cada extremo del grupo. */
 export function calcularTopes(elementos: readonly Elemento[], ctx: Contexto): Tope[] {
+  if (!ctx.topes) return [];
   const tope = ctx.comps.get(TOPE_ID);
   const w = tope?.ancho_mm ?? 8;
   const h = tope?.alto_mm ?? 45;

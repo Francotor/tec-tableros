@@ -36,7 +36,7 @@ import type { Biblioteca, ValorCampo } from '../core/tipos';
 import { useBiblioteca } from './biblioteca';
 
 /** Subconjunto del proyecto del que depende el contexto de reglas (caja, margen, modo, sección de canaleta). */
-type AjustesProyecto = Pick<Proyecto, 'caja' | 'margenBordeManual' | 'margenBorde_mm' | 'modo' | 'seccionCanaleta_mm'>;
+type AjustesProyecto = Pick<Proyecto, 'caja' | 'margenBordeManual' | 'margenBorde_mm' | 'modo' | 'seccionCanaleta_mm' | 'topesAutomaticos'>;
 
 const CAJA_INICIAL = 'caja_metalica_400x500x200';
 
@@ -76,6 +76,8 @@ interface EstadoEditor {
   setMargenBorde: (mm: number) => void;
   setModo: (modo: Modo) => void;
   setSeccionCanaleta: (mm: SeccionCanaleta) => void;
+  /** Activa o desactiva los topes de riel automáticos del proyecto (ajuste del proyecto, no entra en el historial). */
+  setTopes: (activos: boolean) => void;
   /** Cambia a una caja de la lista y traslada el dibujo a su placa, en un solo paso de historial. */
   aplicarSugerencia: (cajaId: string, dx: number, dy: number) => void;
   agregar: (componenteId: string, punto: Punto) => boolean;
@@ -120,6 +122,7 @@ export function contextoDe(biblioteca: Biblioteca | null, ajustes: AjustesProyec
     parametrosLayout: parametros.layout,
     moduloMm: parametros.modulo_mm,
     altoModularMm: parametros.alto_modular_mm,
+    topes: ajustes.topesAutomaticos,
   });
 }
 
@@ -137,6 +140,7 @@ export function useContexto(): Contexto | null {
       margenBorde_mm: s.proyecto.margenBorde_mm,
       modo: s.proyecto.modo,
       seccionCanaleta_mm: s.proyecto.seccionCanaleta_mm,
+      topesAutomaticos: s.proyecto.topesAutomaticos,
     })),
   );
   return useMemo(() => contextoDe(biblioteca, ajustes), [biblioteca, ajustes]);
@@ -255,6 +259,12 @@ export const useEditor = create<EstadoEditor>((set, get) => {
       const { proyecto } = get();
       if (proyecto.seccionCanaleta_mm === mm) return;
       set({ proyecto: { ...proyecto, seccionCanaleta_mm: mm, actualizadoEn: new Date().toISOString() } });
+    },
+
+    setTopes: (activos) => {
+      const { proyecto } = get();
+      if (proyecto.topesAutomaticos === activos) return;
+      set({ proyecto: { ...proyecto, topesAutomaticos: activos, actualizadoEn: new Date().toISOString() } });
     },
 
     aplicarSugerencia: (cajaId, dx, dy) => {

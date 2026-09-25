@@ -273,6 +273,8 @@ export function BarraHerramientas() {
   const puedeRehacer = useEditor((s) => s.historial.futuro.length > 0);
   const deshacer = useEditor((s) => s.deshacer);
   const rehacer = useEditor((s) => s.rehacer);
+  const topes = useEditor((s) => s.proyecto.topesAutomaticos);
+  const setTopes = useEditor((s) => s.setTopes);
 
   return (
     <div className="barra-herramientas">
@@ -288,6 +290,14 @@ export function BarraHerramientas() {
           </button>
           <button type="button" aria-pressed={cuadricula} onClick={alternarCuadricula}>
             Cuadrícula
+          </button>
+          <button
+            type="button"
+            aria-pressed={topes}
+            onClick={() => setTopes(!topes)}
+            title="Topes de riel automáticos: 2 por riel con aparatos (uno a cada extremo del grupo). Apagados, no se dibujan ni se cuentan en la lista."
+          >
+            Topes de riel
           </button>
         </div>
       </div>

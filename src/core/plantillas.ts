@@ -16,6 +16,7 @@ export interface Plantilla {
   margenBorde_mm: number | null;
   modo: Modo;
   seccionCanaleta_mm: SeccionCanaleta;
+  topesAutomaticos: boolean;
   elementos: Elemento[];
 }
 
@@ -82,6 +83,7 @@ export function validarPlantilla(p: unknown): Plantilla {
     margenBorde_mm: typeof p.margenBorde_mm === 'number' ? p.margenBorde_mm : null,
     modo: p.modo === 'con_canaleta' ? 'con_canaleta' : 'compacto',
     seccionCanaleta_mm: SECCIONES_CANALETA.includes(p.seccionCanaleta_mm as 25 | 40 | 60) ? (p.seccionCanaleta_mm as 25 | 40 | 60) : 40,
+    topesAutomaticos: p.topesAutomaticos !== false,
     elementos: p.elementos.map(validarElemento),
   };
 }
@@ -97,6 +99,7 @@ export function plantillaDesdeProyecto(proyecto: Proyecto, nombre: string, ahora
     margenBorde_mm: proyecto.margenBorde_mm,
     modo: proyecto.modo,
     seccionCanaleta_mm: proyecto.seccionCanaleta_mm,
+    topesAutomaticos: proyecto.topesAutomaticos,
     // circuitoId no se copia: los circuitos son propios de cada proyecto, la plantilla no los trae.
     elementos: proyecto.elementos.map((e) => {
       const { circuitoId: _circuitoId, ...resto } = e;
@@ -124,6 +127,7 @@ export function proyectoDesdePlantilla(plantilla: Plantilla, ahora: Date = new D
     margenBorde_mm: plantilla.margenBorde_mm,
     modo: plantilla.modo,
     seccionCanaleta_mm: plantilla.seccionCanaleta_mm,
+    topesAutomaticos: plantilla.topesAutomaticos,
     circuitos: [],
     elementos: plantilla.elementos.map((e) => ({ ...e, valores: { ...e.valores } })),
   };

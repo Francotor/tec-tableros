@@ -20,11 +20,26 @@ const proyecto = (): Proyecto => ({
   margenBorde_mm: 25,
   modo: 'con_canaleta',
   seccionCanaleta_mm: 60,
+  topesAutomaticos: false,
   circuitos: [],
   elementos: [
     { uid: 'a', componenteId: 'riel_din', x_mm: 50, y_mm: 83, largo_mm: 400, valores: {} },
     { uid: 'b', componenteId: 'automatico_1p', x_mm: 50, y_mm: 55.5, valores: { curva: 'C', amperaje: 16 } },
   ],
+});
+
+describe('topes automáticos en plantillas', () => {
+  it('la plantilla conserva el ajuste y un proyecto nuevo desde ella lo hereda', () => {
+    const pl = plantillaDesdeProyecto(proyecto(), 'Tipo');
+    expect(pl.topesAutomaticos).toBe(false);
+    expect(proyectoDesdePlantilla(pl).topesAutomaticos).toBe(false);
+  });
+
+  it('una plantilla guardada antes de este ajuste se abre con los topes activados', () => {
+    const { topesAutomaticos: _t, ...sin } = plantillaDesdeProyecto(proyecto(), 'Tipo');
+    void _t;
+    expect(validarPlantilla(sin).topesAutomaticos).toBe(true);
+  });
 });
 
 describe('plantillaDesdeProyecto', () => {

@@ -21,6 +21,7 @@ const proyecto = (id: string, nombre = 'Obra 1'): Proyecto => ({
   margenBorde_mm: null,
   modo: 'compacto',
   seccionCanaleta_mm: 40,
+  topesAutomaticos: true,
   circuitos: [],
   elementos: [
     { uid: 'a', componenteId: 'riel_din', x_mm: 50, y_mm: 83, largo_mm: 400, valores: {} },
@@ -82,6 +83,18 @@ describe('respaldo', () => {
   it('ignora un modo o una sección de canaleta inválidos', () => {
     const p = validarProyecto({ id: 'x', elementos: [], caja: { id: 'c' }, modo: 'otro', seccionCanaleta_mm: 99 });
     expect(p).toMatchObject({ modo: 'compacto', seccionCanaleta_mm: 40 });
+  });
+});
+
+describe('topes automáticos del proyecto', () => {
+  it('un proyecto guardado antes de este ajuste se abre con los topes activados', () => {
+    const { topesAutomaticos: _t, ...sinCampo } = proyecto('a');
+    void _t;
+    expect(validarProyecto(sinCampo).topesAutomaticos).toBe(true);
+  });
+
+  it('conserva el ajuste apagado al guardar y abrir', () => {
+    expect(validarProyecto({ ...proyecto('a'), topesAutomaticos: false }).topesAutomaticos).toBe(false);
   });
 });
 

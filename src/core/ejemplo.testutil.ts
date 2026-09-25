@@ -33,6 +33,7 @@ export function crearContextoDe(bib: Biblioteca, caja: CajaProyecto, ajustes?: P
     parametrosLayout: bib.gabinetes.parametros.layout,
     moduloMm: bib.gabinetes.parametros.modulo_mm,
     altoModularMm: bib.gabinetes.parametros.alto_modular_mm,
+    topes: ajustes?.topes,
   });
 }
 

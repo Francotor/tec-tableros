@@ -164,7 +164,7 @@ export function distribuirAutomaticamente(elementos: readonly Elemento[], ctx: C
   }
 
   const nuevosRieles = plan.rieles.map((r) => elementoLineal(ctx, RIEL_DIN_ID, r.x, r.y, r.largo));
-  const topeAncho = ctx.comps.get(TOPE_ID)?.ancho_mm ?? 8;
+  const topeAncho = ctx.topes ? (ctx.comps.get(TOPE_ID)?.ancho_mm ?? 8) : 0;
 
   // Cada aparato va al riel nuevo más cercano a su fila de origen.
   const porRiel = plan.rieles.map(() => [] as Aparato[]);
