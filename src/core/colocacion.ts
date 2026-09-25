@@ -31,6 +31,8 @@ export interface Contexto {
   modo: Modo;
   seccionCanaleta: SeccionCanaleta;
   moduloMm: number;
+  /** Alto modular de un aparato de riel (una fila), en mm. */
+  altoModularMm: number;
   /** Capacidad de riel con el margen/modo/sección actuales; null en cajas plásticas (rieles fijos). */
   capacidad: Capacidad | null;
   /** Placa reducida por el margen de borde: referencia para largos por defecto, no un límite duro. */
@@ -59,6 +61,7 @@ export function crearContexto(catalogo: Catalogo, caja: CajaResuelta, ajustes: A
     modo: ajustes.modo,
     seccionCanaleta: ajustes.seccionCanaleta,
     moduloMm: ajustes.moduloMm,
+    altoModularMm: ajustes.altoModularMm,
     capacidad,
     areaUtil: calcularAreaUtil(caja.area, ajustes.margenes),
   };
@@ -247,6 +250,41 @@ export function ajustarEnRiel(
 
 // ---------------------------------------------------------------- colocación
 
+/**
+ * Tramo libre, a lo largo del eje del lineal, alrededor de `puntoEje`: parte del área útil y se recorta con las
+ * canaletas perpendiculares cuya banda cruza la del lineal nuevo (`banda`, en el eje transversal).
+ */
+function tramoLibreEntreCanaletas(
+  piezas: readonly Pieza[],
+  excluir: ReadonlySet<string>,
+  horizontal: boolean,
+  banda: readonly [number, number],
+  puntoEje: number,
+  util: readonly [number, number],
+): { inicio: number; fin: number; recortado: boolean } {
+  let inicio = util[0];
+  let fin = util[1];
+  let recortado = false;
+  for (const p of piezas) {
+    if (p.clase !== 'canaleta' || excluir.has(p.uid)) continue;
+    const vertical = p.rect.h > p.rect.w;
+    if (vertical !== horizontal) continue; // solo las perpendiculares
+    const [b0, b1] = horizontal ? [p.rect.y, p.rect.y + p.rect.h] : [p.rect.x, p.rect.x + p.rect.w];
+    if (!(b0 < banda[1] - 0.01 && banda[0] < b1 - 0.01)) continue;
+    const [o0, o1] = horizontal ? [p.rect.x, p.rect.x + p.rect.w] : [p.rect.y, p.rect.y + p.rect.h];
+    if ((o0 + o1) / 2 <= puntoEje) {
+      if (o1 > inicio) {
+        inicio = o1;
+        recortado = true;
+      }
+    } else if (o0 < fin) {
+      fin = o0;
+      recortado = true;
+    }
+  }
+  return { inicio, fin, recortado };
+}
+
 export function resolverColocacion(elementos: readonly Elemento[], ctx: Contexto, s: Solicitud): Colocacion {
   const { comp } = s;
   const excluir = s.excluir ?? new Set(s.actual ? [s.actual.uid] : []);
@@ -295,16 +333,33 @@ export function resolverColocacion(elementos: readonly Elemento[], ctx: Contexto
   // útil de la placa (según quede horizontal o vertical). Se acorta si no cabe en la placa física.
   const utilDisponible = rotacion === 90 ? ctx.areaUtil.h : ctx.areaUtil.w;
   const defecto = esR ? (ctx.capacidad ? ctx.capacidad.modulosPorFila * ctx.moduloMm : largoPorDefecto(comp)) : utilDisponible;
-  const largo =
-    s.largo_mm ??
-    s.actual?.largo_mm ??
-    Math.max(comp.largo_min_mm, Math.min(comp.largo_max_mm, Math.floor(defecto), Math.floor(disponible)));
+  const horizontal = rotacion !== 90;
+  const alto = comp.alto_mm;
+  let largo: number;
+  let inicioForzado: number | null = null;
+  if (s.largo_mm !== undefined || s.actual?.largo_mm !== undefined) {
+    largo = (s.largo_mm ?? s.actual?.largo_mm) as number;
+  } else {
+    // Largo por defecto: no debe pisar las canaletas perpendiculares (verticales, si el nuevo es horizontal)
+    // que ya cruzan su fila. Se acorta al tramo libre y se coloca pegado a su inicio.
+    const centroBanda = (horizontal ? s.punto.y : s.punto.x) - alto / 2;
+    const banda: [number, number] = [centroBanda, centroBanda + alto];
+    const util: [number, number] = horizontal ? [ctx.areaUtil.x, ctx.areaUtil.x + ctx.areaUtil.w] : [ctx.areaUtil.y, ctx.areaUtil.y + ctx.areaUtil.h];
+    const libre = tramoLibreEntreCanaletas(piezas, excluir, horizontal, banda, horizontal ? s.punto.x : s.punto.y, util);
+    const tope = libre.recortado ? Math.min(defecto, libre.fin - libre.inicio) : defecto;
+    if (libre.recortado) inicioForzado = libre.inicio;
+    largo = Math.max(comp.largo_min_mm, Math.min(comp.largo_max_mm, Math.floor(tope), Math.floor(disponible)));
+  }
   const errorLargo = validarLargo(comp, largo);
   if (errorLargo) return fallo(errorLargo);
   const w = rotacion === 90 ? comp.alto_mm : largo;
   const h = rotacion === 90 ? largo : comp.alto_mm;
-  const x = s.sinSnap ? s.punto.x - w / 2 : Math.round(s.punto.x - w / 2);
-  const y = s.sinSnap ? s.punto.y - h / 2 : Math.round(s.punto.y - h / 2);
+  let x = s.sinSnap ? s.punto.x - w / 2 : Math.round(s.punto.x - w / 2);
+  let y = s.sinSnap ? s.punto.y - h / 2 : Math.round(s.punto.y - h / 2);
+  if (inicioForzado !== null) {
+    if (horizontal) x = Math.ceil(inicioForzado - 0.01);
+    else y = Math.ceil(inicioForzado - 0.01);
+  }
   const rect: Rect = { x: redondear(x), y: redondear(y), w, h };
   if (!contiene(area, rect)) return fallo(MOTIVOS.fueraArea);
   if (colisionaConFijaciones(rect, ctx.caja.fijaciones)) return fallo(MOTIVOS.fijacion);

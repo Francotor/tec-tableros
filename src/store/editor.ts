@@ -26,6 +26,7 @@ import {
 } from '../core/conexion';
 import type { Punto } from '../core/geometria';
 import { margenesEfectivos } from '../core/margenes';
+import { distribuirAutomaticamente as distribuirCore } from '../core/distribucion';
 import { trasladar } from '../core/sugerencia';
 import { deshacer as deshacerH, historialVacio, rehacer as rehacerH, registrar } from '../core/historial';
 import type { Historial } from '../core/historial';
@@ -89,6 +90,8 @@ interface EstadoEditor {
   extender: (uid: string) => boolean;
   /** Mueve un lineal a una nueva X, conservando su Y. */
   moverX: (uid: string, nuevoX: number) => boolean;
+  /** Reemplaza rieles y canaletas por la distribución automática y reubica los aparatos; todo o nada. */
+  distribuirAutomaticamente: () => boolean;
   cambiarValor: (uid: string, campoId: string, valor: ValorCampo) => void;
   /** Fija (o, con null, quita) quién alimenta a un elemento. Valida ciclos y montaje. */
   alimentarDesde: (hijoUid: string, padreUid: string | null) => boolean;
@@ -301,6 +304,11 @@ export const useEditor = create<EstadoEditor>((set, get) => {
     cambiarLargoDesdeExtremo: (uid, extremo, coordenada) => {
       const ctx = contexto();
       return ctx ? aplicar(cambiarLargoDesdeExtremo(get().proyecto.elementos, ctx, uid, extremo, coordenada)) : false;
+    },
+
+    distribuirAutomaticamente: () => {
+      const ctx = contexto();
+      return ctx ? aplicar(distribuirCore(get().proyecto.elementos, ctx), null) : false;
     },
 
     extender: (uid) => {

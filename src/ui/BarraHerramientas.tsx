@@ -127,6 +127,46 @@ function SelectorCaja({ gabinetes }: { gabinetes: Gabinetes }) {
   );
 }
 
+/** "Distribuir automáticamente": pide confirmación si ya hay algo dibujado, porque reemplaza rieles y canaletas. */
+function BotonDistribuir() {
+  const elementos = useEditor((s) => s.proyecto.elementos);
+  const ctx = useContexto();
+  const [confirmando, setConfirmando] = useState(false);
+  if (!ctx) return null;
+
+  const aparatos = elementos.filter((e) => ctx.comps.get(e.componenteId)?.montaje === 'riel').length;
+  const lineales = elementos.filter((e) => ctx.comps.get(e.componenteId)?.montaje === 'lineal').length;
+  const ejecutar = () => {
+    setConfirmando(false);
+    useEditor.getState().distribuirAutomaticamente();
+  };
+
+  if (confirmando) {
+    return (
+      <div className="grupo-barra confirmar-distribucion" role="alertdialog" aria-label="Confirmar distribución automática">
+        <span className="hint">
+          Se reemplazarán {lineales} riel(es)/canaleta(s) por la distribución automática y se reubicarán {aparatos} aparato(s) en el riel más cercano, en su orden. Si alguno no cabe, no se cambia nada.
+        </span>
+        <button type="button" onClick={ejecutar}>
+          Aplicar
+        </button>
+        <button type="button" onClick={() => setConfirmando(false)}>
+          Cancelar
+        </button>
+      </div>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => (elementos.length > 0 ? setConfirmando(true) : ejecutar())}
+      title="Coloca canaletas y un riel por fila según el margen, modo y sección de canaleta actuales."
+    >
+      Distribuir automáticamente
+    </button>
+  );
+}
+
 /** Margen de borde, modo y sección de canaleta: solo aplican a cajas metálicas o inox (con rieles propios). */
 function AjustesCapacidad() {
   const ctx = useContexto();
@@ -190,6 +230,7 @@ function AjustesCapacidad() {
           {ctx.capacidad.modulosPorFila} módulos/fila · {ctx.capacidad.filas} fila(s)
         </span>
       )}
+      <BotonDistribuir />
     </div>
   );
 }
