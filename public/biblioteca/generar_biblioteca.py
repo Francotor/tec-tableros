@@ -163,11 +163,12 @@ DEF_AUTO = {1: 16, 2: 40, 3: 25, 4: 63}
 for p in (1, 2, 3, 4):
     W = MOD * p
     inner = cuerpo(W, H_MOD, p) + placa_etiqueta(2.5, 15, W - 5, 17) + palanca(W)
-    lineas = ["{curva}{amperaje}"] if p == 1 else ["{polos}P", "{curva}{amperaje}"]
+    lineas = ["Q{indice}", "{curva}{amperaje}"] if p == 1 else ["{polos}P Q{indice}", "{curva}{amperaje}"]
     reg(f"automatico_{p}p", f"Interruptor automatico {p}P", "Protecciones", W, H_MOD, inner,
         "riel", 45, SNAP_MOD,
         {"x": 2.5, "y": 15, "w": W - 5, "h": 17, "lineas": lineas, "tamano_mm": 4.4},
-        [campo_select("curva", ["B", "C", "D"], "C", "Curva"),
+        [{"id": "indice", "rotulo": "N° de automático", "tipo": "entero", "defecto": 1},
+         campo_select("curva", ["B", "C", "D"], "C", "Curva"),
          campo_select("amperaje", [6, 10, 16, 20, 25, 32, 40, 50, 63], DEF_AUTO[p], "Corriente (A)")],
         {"polos": p}, "Interruptor automatico {polos}P {curva}{amperaje} A", modulos=p, polos=p)
 
@@ -176,8 +177,9 @@ for p, defa, defs in ((2, 40, "30 mA"), (4, 63, "300 mA")):
     inner = cuerpo(W, H_MOD, p) + placa_etiqueta(2.5, 15, W - 5, 17) + palanca(W) + boton_test(W)
     reg(f"diferencial_{p}p", f"Interruptor diferencial {p}P", "Protecciones", W, H_MOD, inner,
         "riel", 45, SNAP_MOD,
-        {"x": 2.5, "y": 15, "w": W - 5, "h": 17, "lineas": ["{amperaje}A", "{sensibilidad}"], "tamano_mm": 4.2},
-        [campo_select("amperaje", [25, 40, 63, 80], defa, "Corriente (A)"),
+        {"x": 2.5, "y": 15, "w": W - 5, "h": 17, "lineas": ["QD{indice} {amperaje}A", "{sensibilidad}"], "tamano_mm": 4.2},
+        [{"id": "indice", "rotulo": "N° de diferencial", "tipo": "entero", "defecto": 1},
+         campo_select("amperaje", [25, 40, 63, 80], defa, "Corriente (A)"),
          campo_select("sensibilidad", ["30 mA", "300 mA"], defs, "Sensibilidad")],
         {"polos": p}, "Interruptor diferencial {polos}P {amperaje} A {sensibilidad}", modulos=p, polos=p)
 

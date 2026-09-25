@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { validarLargo } from '../core/colocacion';
 import { candidatosPadre, puedeConectarse } from '../core/conexion';
-import { valoresEfectivos, interpretarValor } from '../core/etiquetas';
+import { descripcionElemento, valoresEfectivos, interpretarValor } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Campo, Componente } from '../core/tipos';
 import { useContexto, useEditor } from '../store/editor';
@@ -16,6 +16,10 @@ function CampoAlimentadoPor({ el }: { el: Elemento }) {
   const id = `campo-${el.uid}-alimentado-por`;
   if (!ctx) return null;
   const candidatos = candidatosPadre(elementos, ctx, el.uid);
+  const textoElemento = (c: Elemento): string => {
+    const comp = ctx.comps.get(c.componenteId);
+    return comp ? descripcionElemento(comp, c) : c.componenteId;
+  };
 
   return (
     <label className="campo" htmlFor={id}>
@@ -28,7 +32,7 @@ function CampoAlimentadoPor({ el }: { el: Elemento }) {
         <option value={SIN_PADRE}>Sin alimentación (raíz)</option>
         {candidatos.map((c) => (
           <option key={c.uid} value={c.uid}>
-            {ctx.comps.get(c.componenteId)?.nombre ?? c.componenteId}
+            {textoElemento(c)}
           </option>
         ))}
       </select>

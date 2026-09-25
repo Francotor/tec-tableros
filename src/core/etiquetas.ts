@@ -25,6 +25,23 @@ export function lineasEtiqueta(comp: Componente, el: Pick<Elemento, 'valores' | 
   return comp.etiqueta.lineas.map((l) => expandirPlantilla(l, v).trim()).filter((l) => l !== '');
 }
 
+/**
+ * Texto que identifica a un elemento entre otros iguales: nombre, "N°" si su ficha tiene numeración (campo
+ * "indice") y, entre paréntesis, el resto de su rótulo. Ej.: "Interruptor automatico 1P N°3 (C16)".
+ */
+export function descripcionElemento(comp: Componente, el: Pick<Elemento, 'valores' | 'largo_mm'>): string {
+  const v = valoresEfectivos(comp, el);
+  const numerado = comp.campos.some((c) => c.id === 'indice');
+  const base = numerado && v.indice !== undefined ? `${comp.nombre} N°${v.indice}` : comp.nombre;
+  const etiqueta = 'etiqueta' in comp ? comp.etiqueta : null;
+  // El número ya va en el nombre (se quita la palabra del rótulo que lo lleva, p. ej. "Q{indice}") y la cantidad
+  // de polos ("2P") también: el nombre ya la dice.
+  const detalle = (etiqueta?.lineas ?? [])
+    .map((l) => expandirPlantilla(l.replace(/\S*\{indice\}\S*/g, ''), v).trim())
+    .filter((l) => l !== '' && !/^\d+P$/.test(l));
+  return detalle.length > 0 ? `${base} (${detalle.join(', ')})` : base;
+}
+
 /** Convierte lo escrito en un campo al valor que guarda el elemento; null si no es válido. */
 export function interpretarValor(campo: Campo, texto: string): ValorCampo | null {
   if (campo.tipo === 'texto') return texto;

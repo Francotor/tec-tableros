@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parsearCatalogo } from './biblioteca';
 import { validarLargo } from './colocacion';
-import { expandirPlantilla, interpretarValor, lineasEtiqueta, tamanoAjustado, valoresEfectivos } from './etiquetas';
+import { descripcionElemento, expandirPlantilla, interpretarValor, lineasEtiqueta, tamanoAjustado, valoresEfectivos } from './etiquetas';
 import { valoresPorDefecto } from './modelo';
 import type { Elemento } from './modelo';
 import type { Componente } from './tipos';
@@ -36,14 +36,14 @@ describe('expandirPlantilla', () => {
 });
 
 describe('lineasEtiqueta', () => {
-  it('automático 1P: curva y amperaje en una línea', () => {
-    expect(lineasEtiqueta(comp('automatico_1p'), elemento('automatico_1p'))).toEqual(['C16']);
+  it('automático 1P: número, y curva con amperaje en una línea', () => {
+    expect(lineasEtiqueta(comp('automatico_1p'), elemento('automatico_1p'))).toEqual(['Q1', 'C16']);
   });
 
   it('cambiar amperaje o curva actualiza la etiqueta', () => {
     const c = comp('automatico_2p');
-    expect(lineasEtiqueta(c, elemento('automatico_2p', { amperaje: 40 }))).toEqual(['2P', 'C40']);
-    expect(lineasEtiqueta(c, elemento('automatico_2p', { curva: 'D', amperaje: 25 }))).toEqual(['2P', 'D25']);
+    expect(lineasEtiqueta(c, elemento('automatico_2p', { amperaje: 40 }))).toEqual(['2P Q1', 'C40']);
+    expect(lineasEtiqueta(c, elemento('automatico_2p', { curva: 'D', amperaje: 25 }))).toEqual(['2P Q1', 'D25']);
   });
 
   it('diferencial: amperaje y sensibilidad', () => {
@@ -52,11 +52,11 @@ describe('lineasEtiqueta', () => {
     expect(sens?.tipo).toBe('select');
     if (sens?.tipo !== 'select') return;
     const otra = sens.opciones.find((o) => o !== sens.defecto) ?? sens.defecto;
-    expect(lineasEtiqueta(c, elemento('diferencial_2p', { amperaje: 63, sensibilidad: otra }))).toEqual(['63A', String(otra)]);
+    expect(lineasEtiqueta(c, elemento('diferencial_2p', { amperaje: 63, sensibilidad: otra }))).toEqual(['QD1 63A', String(otra)]);
   });
 
   it('un campo faltante en el elemento usa el defecto de la ficha', () => {
-    expect(lineasEtiqueta(comp('automatico_1p'), { valores: {} })).toEqual(['C16']);
+    expect(lineasEtiqueta(comp('automatico_1p'), { valores: {} })).toEqual(['Q1', 'C16']);
   });
 
   it('texto libre vacío no deja líneas vacías', () => {
@@ -119,5 +119,46 @@ describe('validarLargo', () => {
     expect(validarLargo(riel, 100.5)).toMatch(/entero/);
     expect(validarLargo(riel, Number.NaN)).toMatch(/entero/);
     expect(validarLargo(comp('automatico_1p'), 100)).not.toBeNull();
+  });
+});
+
+describe('numeración de automáticos y diferenciales', () => {
+  it('cada automático y diferencial tiene el campo "N° de ..." (entero, por defecto 1), como el contactor', () => {
+    for (const id of ['automatico_1p', 'automatico_2p', 'automatico_3p', 'automatico_4p']) {
+      expect(comp(id).campos[0], id).toMatchObject({ id: 'indice', rotulo: 'N° de automático', tipo: 'entero', defecto: 1 });
+    }
+    for (const id of ['diferencial_2p', 'diferencial_4p']) {
+      expect(comp(id).campos[0], id).toMatchObject({ id: 'indice', rotulo: 'N° de diferencial', tipo: 'entero', defecto: 1 });
+    }
+    expect(comp('contactor_3p').campos[0]).toMatchObject({ id: 'indice', rotulo: 'N° de contactor' });
+  });
+
+  it('el número entra en el rótulo dibujado sobre el componente', () => {
+    const rotulo = (id: string, valores: Record<string, string | number>) => {
+      const c = comp(id);
+      return lineasEtiqueta(c, { valores });
+    };
+    expect(rotulo('automatico_1p', { indice: 3, curva: 'C', amperaje: 16 })).toEqual(['Q3', 'C16']);
+    expect(rotulo('automatico_2p', { indice: 12 })).toEqual(['2P Q12', 'C40']);
+    expect(rotulo('diferencial_2p', { indice: 2 })).toEqual(['QD2 40A', '30 mA']);
+    expect(rotulo('contactor_3p', { indice: 4 })[0]).toBe('K4');
+  });
+
+  it('dos automáticos iguales se distinguen por su número en el selector "Alimentado por"', () => {
+    const c = comp('automatico_1p');
+    expect(descripcionElemento(c, { valores: { indice: 3, curva: 'C', amperaje: 16 } })).toBe('Interruptor automatico 1P N°3 (C16)');
+    expect(descripcionElemento(c, { valores: { indice: 4, curva: 'C', amperaje: 16 } })).toBe('Interruptor automatico 1P N°4 (C16)');
+    expect(descripcionElemento(comp('automatico_2p'), { valores: { indice: 1 } })).toBe('Interruptor automatico 2P N°1 (C40)');
+    expect(descripcionElemento(comp('diferencial_2p'), { valores: { indice: 2, amperaje: 25 } })).toBe('Interruptor diferencial 2P N°2 (25A, 30 mA)');
+    expect(descripcionElemento(comp('contactor_3p'), { valores: { indice: 1 } })).toBe('Contactor 3P (industrial) N°1 (25A)');
+  });
+
+  it('una pieza sin numeración conserva su nombre y su rótulo', () => {
+    expect(descripcionElemento(comp('reloj_control'), { valores: {} })).toBe('Reloj control horario (RC1)');
+    expect(descripcionElemento(comp('fotocelda'), { valores: {} })).toBe('Fotocelda (sensor exterior)');
+  });
+
+  it('los datos guardados antes de este cambio (sin indice) se ven con el valor por defecto', () => {
+    expect(lineasEtiqueta(comp('automatico_1p'), { valores: { curva: 'B', amperaje: 10 } })).toEqual(['Q1', 'B10']);
   });
 });

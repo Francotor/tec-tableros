@@ -33,11 +33,18 @@
     "w": 13,
     "h": 17,
     "lineas": [
+     "Q{indice}",
      "{curva}{amperaje}"
     ],
     "tamano_mm": 4.4
    },
    "campos": [
+    {
+     "id": "indice",
+     "rotulo": "N° de automático",
+     "tipo": "entero",
+     "defecto": 1
+    },
     {
      "id": "curva",
      "rotulo": "Curva",
@@ -94,12 +101,18 @@
     "w": 31,
     "h": 17,
     "lineas": [
-     "{polos}P",
+     "{polos}P Q{indice}",
      "{curva}{amperaje}"
     ],
     "tamano_mm": 4.4
    },
    "campos": [
+    {
+     "id": "indice",
+     "rotulo": "N° de automático",
+     "tipo": "entero",
+     "defecto": 1
+    },
     {
      "id": "curva",
      "rotulo": "Curva",
@@ -156,12 +169,18 @@
     "w": 49,
     "h": 17,
     "lineas": [
-     "{polos}P",
+     "{polos}P Q{indice}",
      "{curva}{amperaje}"
     ],
     "tamano_mm": 4.4
    },
    "campos": [
+    {
+     "id": "indice",
+     "rotulo": "N° de automático",
+     "tipo": "entero",
+     "defecto": 1
+    },
     {
      "id": "curva",
      "rotulo": "Curva",
@@ -218,12 +237,18 @@
     "w": 67,
     "h": 17,
     "lineas": [
-     "{polos}P",
+     "{polos}P Q{indice}",
      "{curva}{amperaje}"
     ],
     "tamano_mm": 4.4
    },
    "campos": [
+    {
+     "id": "indice",
+     "rotulo": "N° de automático",
+     "tipo": "entero",
+     "defecto": 1
+    },
     {
      "id": "curva",
      "rotulo": "Curva",
@@ -280,12 +305,18 @@
     "w": 31,
     "h": 17,
     "lineas": [
-     "{amperaje}A",
+     "QD{indice} {amperaje}A",
      "{sensibilidad}"
     ],
     "tamano_mm": 4.2
    },
    "campos": [
+    {
+     "id": "indice",
+     "rotulo": "N° de diferencial",
+     "tipo": "entero",
+     "defecto": 1
+    },
     {
      "id": "amperaje",
      "rotulo": "Corriente (A)",
@@ -336,12 +367,18 @@
     "w": 67,
     "h": 17,
     "lineas": [
-     "{amperaje}A",
+     "QD{indice} {amperaje}A",
      "{sensibilidad}"
     ],
     "tamano_mm": 4.2
    },
    "campos": [
+    {
+     "id": "indice",
+     "rotulo": "N° de diferencial",
+     "tipo": "entero",
+     "defecto": 1
+    },
     {
      "id": "amperaje",
      "rotulo": "Corriente (A)",
