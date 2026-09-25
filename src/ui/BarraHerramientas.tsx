@@ -5,6 +5,7 @@ import type { Modo } from '../core/capacidad';
 import { esCanaleta, huella } from '../core/colocacion';
 import { agruparCajasSelector, buscarCaja, formatearMm } from '../core/biblioteca';
 import { margenBordePorDefecto } from '../core/margenes';
+import { nombreCortoCaja } from '../core/nombreCaja';
 import type { Caja, Gabinetes } from '../core/tipos';
 import { useBiblioteca } from '../store/biblioteca';
 import { useContexto, useEditor } from '../store/editor';
@@ -266,6 +267,31 @@ function Seleccion() {
   );
 }
 
+/**
+ * Configuración de la caja (selector, margen, distribución, sección de canaleta y "Distribuir automáticamente") en un
+ * panel plegable. Cerrado, ocupa una sola línea con la caja elegida; se despliega con ese botón.
+ */
+function PanelCaja({ gabinetes }: { gabinetes: Gabinetes }) {
+  const caja = useEditor((s) => s.proyecto.caja);
+  const [abierto, setAbierto] = useState(false);
+  const nombre = nombreCortoCaja(caja, gabinetes);
+
+  return (
+    <div className={`panel-caja${abierto ? ' abierto' : ''}`}>
+      <button type="button" className="cabecera-panel-caja" aria-expanded={abierto} aria-controls="contenido-panel-caja" onClick={() => setAbierto(!abierto)}>
+        <span>
+          Caja: <strong>{nombre}</strong>
+        </span>
+        <span aria-hidden="true">{abierto ? '▴' : '▾'}</span>
+      </button>
+      <div id="contenido-panel-caja" className="contenido-panel-caja" hidden={!abierto}>
+        <SelectorCaja gabinetes={gabinetes} />
+        <AjustesCapacidad />
+      </div>
+    </div>
+  );
+}
+
 export function BarraHerramientas() {
   const gabinetes = useBiblioteca((s) => s.biblioteca?.gabinetes);
   const cuadricula = useEditor((s) => s.cuadricula);
@@ -281,9 +307,8 @@ export function BarraHerramientas() {
 
   return (
     <div className="barra-herramientas">
+      {gabinetes && <PanelCaja gabinetes={gabinetes} />}
       <div className="fila-barra">
-        {gabinetes && <SelectorCaja gabinetes={gabinetes} />}
-        <AjustesCapacidad />
         <div className="grupo-barra">
           <button type="button" onClick={deshacer} disabled={!puedeDeshacer} title="Deshacer (Ctrl+Z)">
             Deshacer

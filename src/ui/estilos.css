@@ -157,3 +157,32 @@ body { overflow: hidden; }
 .etiqueta-actual { margin-left: 8px; font-size: .72rem; color: var(--tec-navy); font-weight: 600; }
 .botones-proyecto, .confirmar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .confirmar span { font-size: .85rem; }
+
+/* Paneles plegables: caja, catálogo (izquierda) y propiedades/lista (derecha). */
+.panel-caja { align-self: flex-start; max-width: 100%; background: #fff; border: 1px solid var(--tec-plata); border-radius: 6px; }
+.panel-caja.abierto { align-self: stretch; }
+.barra-herramientas .cabecera-panel-caja { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-width: 260px; padding: 0 12px; text-align: left; background: #fff; border: 0; border-radius: 6px; }
+.barra-herramientas .cabecera-panel-caja:hover:not(:disabled) { background: var(--tec-plata-clara); }
+.contenido-panel-caja { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 24px; padding: 12px; border-top: 1px solid var(--tec-plata-clara); }
+.contenido-panel-caja[hidden] { display: none; }
+
+.catalogo-envoltura { position: relative; flex: none; display: flex; min-height: 0; }
+.catalogo-envoltura.fijo { width: 320px; }
+.franja-catalogo { width: 64px; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px 0; overflow-y: auto; background: var(--tec-plata-clara); border-right: 1px solid var(--tec-plata); }
+.franja-catalogo button { display: grid; place-items: center; width: 48px; min-height: 48px; padding: 0; font: inherit; color: var(--tec-navy); background: #fff; border: 1px solid var(--tec-plata); border-radius: 6px; cursor: pointer; }
+.franja-catalogo button:hover { border-color: var(--tec-azul-brillo); }
+.franja-catalogo img { max-width: 36px; max-height: 36px; object-fit: contain; }
+.franja-catalogo .franja-abrir { font-size: 1.4rem; line-height: 1; }
+.panel-catalogo.flotante { position: absolute; z-index: 30; top: 0; bottom: 0; left: 0; box-shadow: 6px 0 20px rgba(8, 25, 51, .3); }
+.cabecera-catalogo { display: flex; flex-direction: column; gap: 4px; }
+.fijar-panel { align-self: flex-start; min-height: 40px; margin: 0 8px 8px; padding: 0 12px; font: inherit; font-size: .85rem; color: var(--tec-navy); background: #fff; border: 1px solid var(--tec-gris-metal); border-radius: 6px; cursor: pointer; }
+.fijar-panel:hover { background: var(--tec-plata-clara); }
+
+.panel-props.plegado { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 64px; padding: 8px 0; }
+.panel-props.plegado button { position: relative; display: grid; place-items: center; width: 48px; min-height: 48px; margin: 0; padding: 0; }
+.insignia-franja { position: absolute; top: 2px; right: 2px; margin: 0; }
+.pestanas .plegar-panel { min-width: 40px; margin: 0 0 0 auto; padding: 0 10px; font-size: 1.3rem; line-height: 1; }
+@media (max-width: 900px) {
+  .catalogo-envoltura.fijo { width: 240px; }
+  .panel-props.plegado { flex-direction: row; justify-content: center; width: auto; max-height: none; padding: 6px; border-left: 0; border-top: 1px solid var(--tec-plata); }
+}
