@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useEditor } from '../store/editor';
 import { useEstadoGuardado } from '../store/autoguardado';
-import { exportarDxf, exportarPdf, exportarPdfContornos, exportarPng } from './exportacion';
+import { exportarDxf, exportarPdf, exportarPng } from './exportacion';
 import { DialogoCircuitos } from './DialogoCircuitos';
 import { DialogoGuardarPlantilla, DialogoNuevoDesdePlantilla } from './DialogoPlantillas';
 import { DialogoProyectos } from './DialogoProyectos';
@@ -23,7 +23,6 @@ export function Encabezado() {
   const [nuevoDesdePlantillaAbierto, setNuevoDesdePlantillaAbierto] = useState(false);
   const [circuitosAbierto, setCircuitosAbierto] = useState(false);
   const [generando, setGenerando] = useState(false);
-  const [generandoCad, setGenerandoCad] = useState(false);
   const [generandoDxf, setGenerandoDxf] = useState(false);
 
   const bajarPng = () => {
@@ -38,17 +37,6 @@ export function Encabezado() {
       avisar(e instanceof Error ? e.message : 'No se pudo generar el PDF.');
     } finally {
       setGenerando(false);
-    }
-  };
-
-  const bajarContornos = async () => {
-    setGenerandoCad(true);
-    try {
-      await exportarPdfContornos();
-    } catch (e) {
-      avisar(e instanceof Error ? e.message : 'No se pudo generar el PDF de contornos.');
-    } finally {
-      setGenerandoCad(false);
     }
   };
 
@@ -97,14 +85,6 @@ export function Encabezado() {
         </button>
         <button type="button" onClick={() => void bajarPdf()} disabled={generando}>
           {generando ? 'Creando PDF…' : 'PDF'}
-        </button>
-        <button
-          type="button"
-          onClick={() => void bajarContornos()}
-          disabled={generandoCad}
-          title="PDF vectorial a escala 1:1, solo contornos en negro, para importar en AutoCAD."
-        >
-          {generandoCad ? 'Creando contornos…' : 'Exportar contornos (para CAD)'}
         </button>
         <button type="button" onClick={() => void bajarDxf()} disabled={generandoDxf} title="DXF R12 en mm, con capas por categoría, para AutoCAD.">
           {generandoDxf ? 'Creando DXF…' : 'Exportar DXF'}

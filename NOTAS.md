@@ -181,3 +181,6 @@
   - **Lado de bisagras** editable por proyecto (`Proyecto.ladoBisagras`, por defecto izquierda; selector "Bisagras" en la barra, fuera del historial). No se copia a las plantillas.
 - Pruebas (`vistaFrontal.test.ts`): caja con todos los datos (sintética: catálogo no tiene ninguna con los tres), caja sin datos, plástica embutida, cajas con bisagras/cierres numéricos y con dos puertas, las 116 cajas del catálogo en ambos lados (medidas exactas, todo dentro del marco, placa sin pisar bisagras ni cierres) y medida libre.
 - **Todavía no está en el PDF**: eso es el Cambio 3 (página 1 con vista frontal e interior). Aún no hay renderizador de esta vista; se revisó a ojo dibujándola en un PDF de prueba.
+
+## Cambio 2 (lote de 4) — Se quitó el exportador de contornos para CAD
+- Borrados (no comentados): botón "Exportar contornos (para CAD)", `src/core/contornos.ts` y su prueba, `src/ui/pdfContornos.ts` y su prueba, y `generarPdfContornos`/`exportarPdfContornos` en `exportacion.ts`. Antes de borrar se buscó todo uso (`contornos`, `pdfContornos`, tipos y constantes): solo se usaban entre esos archivos; el DXF (`exportarDxf.ts`) no dependía de ellos. Las secciones anteriores de estas notas que hablan de ese exportador quedan como historia.
