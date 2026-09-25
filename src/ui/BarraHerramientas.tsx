@@ -147,7 +147,7 @@ function BotonDistribuir() {
         <span className="hint">
           Se reemplazarán {lineales} riel(es)/canaleta(s) por la distribución automática y se reubicarán {aparatos} aparato(s) en el riel más cercano, en su orden. Si alguno no cabe, no se cambia nada.
         </span>
-        <button type="button" onClick={ejecutar}>
+        <button type="button" className="primario" onClick={ejecutar}>
           Aplicar
         </button>
         <button type="button" onClick={() => setConfirmando(false)}>
@@ -159,6 +159,7 @@ function BotonDistribuir() {
   return (
     <button
       type="button"
+      className="primario"
       onClick={() => (elementos.length > 0 ? setConfirmando(true) : ejecutar())}
       title="Coloca canaletas y un riel por fila según el margen, modo y sección de canaleta actuales."
     >
