@@ -5,7 +5,7 @@ import { calcularVistaFrontal, datosFrontalDeCaja } from '../core/vistaFrontal';
 import { useBiblioteca } from '../store/biblioteca';
 import { contextoActual, useEditor } from '../store/editor';
 import { descargarDataUrl, descargar } from './descarga';
-import { textoDeBiblioteca } from './imagenes';
+import { cargarLineales, textoDeBiblioteca } from './imagenes';
 import type { FilaLista } from './pdfLista';
 import { dibujarListaPaginada, numerarPaginas } from './pdfLista';
 import { dibujarVistaFrontal } from './pdfVistas';
@@ -189,9 +189,15 @@ export async function exportarDxf(): Promise<void> {
   const { proyecto } = useEditor.getState();
   const ctx = contextoActual();
   if (!ctx) throw new Error('El tablero aún no está listo para exportar.');
+  const gabinetes = useBiblioteca.getState().biblioteca?.gabinetes;
+  if (!gabinetes) throw new Error('El tablero aún no está listo para exportar.');
   const rutas = svgsNecesarios(proyecto.elementos, ctx);
-  const svgs = new Map(await Promise.all(rutas.map(async (r): Promise<[string, string]> => [r, await textoDeBiblioteca(r)])));
-  descargar(`${nombreSeguro(proyecto.numeroCotizacion || proyecto.nombre)}.dxf`, generarDxf(proyecto.elementos, ctx, svgs), 'application/dxf');
+  const [svgs, lineales] = await Promise.all([
+    Promise.all(rutas.map(async (r): Promise<[string, string]> => [r, await textoDeBiblioteca(r)])).then((pares) => new Map(pares)),
+    cargarLineales(),
+  ]);
+  const vista = calcularVistaFrontal(datosFrontalDeCaja(ctx.caja, gabinetes), proyecto.nombre, proyecto.ladoBisagras);
+  descargar(`${nombreSeguro(proyecto.numeroCotizacion || proyecto.nombre)}.dxf`, generarDxf(proyecto.elementos, ctx, svgs, lineales, vista), 'application/dxf');
 }
 
 export async function exportarPdf(): Promise<void> {

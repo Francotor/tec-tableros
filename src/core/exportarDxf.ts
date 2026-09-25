@@ -2,13 +2,15 @@ import { calcularTopes, esRiel, huella, listarPiezas, listarRieles, TOPE_ID } fr
 import type { Contexto } from './colocacion';
 import { lineasEtiqueta, tamanoAjustado } from './etiquetas';
 import { leerFormasSvg } from './lectorSvg';
+import type { FormaSvg } from './lectorSvg';
 import type { Elemento } from './modelo';
 import { aAscii } from './textoAscii';
+import type { VistaFrontal } from './vistaFrontal';
 import type { Categoria } from './tipos';
 
 // ---------------------------------------------------------------- escritor DXF R12
 
-export type CapaDxf = Categoria | 'Caja' | 'Texto';
+export type CapaDxf = Categoria | 'Caja' | 'Caja_Frontal' | 'Texto';
 
 /** Capas del archivo y su color ACI (1 rojo, 2 amarillo, 3 verde, 4 cian, 5 azul, 7 blanco/negro, 8 gris). */
 export const CAPAS_DXF: readonly { nombre: CapaDxf; color: number }[] = [
@@ -18,6 +20,7 @@ export const CAPAS_DXF: readonly { nombre: CapaDxf; color: number }[] = [
   { nombre: 'Distribucion', color: 4 },
   { nombre: 'Montaje', color: 8 },
   { nombre: 'Caja', color: 7 },
+  { nombre: 'Caja_Frontal', color: 30 },
   { nombre: 'Texto', color: 2 },
 ];
 
@@ -222,26 +225,58 @@ export function svgsNecesarios(elementos: readonly Elemento[], ctx: Contexto): s
   return [...rutas];
 }
 
+/** Separación (mm) entre la vista interior y la vista frontal exterior dibujada a su derecha. */
+export const SEPARACION_FRONTAL_MM = 200;
+
+/** Generadores de SVG de los lineales (lineales.js de la biblioteca): la geometría real, con sus ranuras y costillas. */
+export interface GeneradoresLineales {
+  rielSVG: (largo: number) => string;
+  canaletaSVG: (largo: number, ancho: number) => string;
+}
+
+type Mapa = (x: number, y: number) => [number, number];
+
 /**
  * DXF R12 del tablero, en mm y con el eje Y hacia arriba (el editor lo tiene hacia abajo: y_dxf = alto de la caja − y).
  * - Caja, placa, fijaciones (CIRCLE) y rieles incluidos van en la capa Caja.
  * - Cada aparato: sus rect (POLYLINE cerrado), circle (CIRCLE) y line (LINE) reales, en la capa de su categoría.
+ * - Riel DIN y canaleta: su SVG real según el largo (y el ancho, en la canaleta) que tienen en el proyecto, con las
+ *   ranuras del riel y las costillas de la canaleta; el riel solo en los tramos que no cubre un aparato ni un tope.
  * - Rótulos: TEXT en la capa Texto, con las mismas líneas y el mismo tamaño que la vista a color.
- * - Riel DIN: solo los tramos que no cubre un aparato montado ni un tope.
+ * - Vista frontal exterior (si se pasa): a la derecha de la vista interior, en la capa Caja_Frontal.
  * Los `rx` (esquinas redondeadas) de los SVG no se reproducen: el rectángulo sale con esquinas vivas.
  */
-export function generarDxf(elementos: readonly Elemento[], ctx: Contexto, svgs: SvgsPorRuta): string {
+export function generarDxf(
+  elementos: readonly Elemento[],
+  ctx: Contexto,
+  svgs: SvgsPorRuta,
+  lineales: GeneradoresLineales,
+  vistaFrontal?: VistaFrontal,
+): string {
   const dxf = new EscritorDxf();
   const alto = ctx.caja.alto;
   const rectangulo = (capa: CapaDxf, x: number, y: number, w: number, h: number): void => dxf.rectangulo(capa, x, alto - y - h, w, h);
+  /** Dibuja formas de un SVG; `mapa` lleva sus coordenadas al tablero (Y hacia abajo). */
+  const dibujar = (capa: CapaDxf, fs: readonly FormaSvg[], mapa: Mapa): void => {
+    for (const f of fs) {
+      if (f.tipo === 'rect') {
+        const [x1, y1] = mapa(f.x, f.y);
+        const [x2, y2] = mapa(f.x + f.width, f.y + f.height);
+        rectangulo(capa, Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
+      } else if (f.tipo === 'circle') {
+        const [cx, cy] = mapa(f.cx, f.cy);
+        dxf.circulo(capa, cx, alto - cy, f.r);
+      } else {
+        const [x1, y1] = mapa(f.x1, f.y1);
+        const [x2, y2] = mapa(f.x2, f.y2);
+        dxf.linea(capa, x1, alto - y1, x2, alto - y2);
+      }
+    }
+  };
   const formas = (capa: CapaDxf, ruta: string, ox: number, oy: number): void => {
     const contenido = svgs.get(ruta);
     if (contenido === undefined) throw new Error(`Falta el SVG "${ruta}" para exportar.`);
-    for (const f of leerFormasSvg(contenido)) {
-      if (f.tipo === 'rect') rectangulo(capa, ox + f.x, oy + f.y, f.width, f.height);
-      else if (f.tipo === 'circle') dxf.circulo(capa, ox + f.cx, alto - (oy + f.cy), f.r);
-      else dxf.linea(capa, ox + f.x1, alto - (oy + f.y1), ox + f.x2, alto - (oy + f.y2));
-    }
+    dibujar(capa, leerFormasSvg(contenido), (x, y) => [ox + x, oy + y]);
   };
 
   // Caja
@@ -250,22 +285,19 @@ export function generarDxf(elementos: readonly Elemento[], ctx: Contexto, svgs: 
   if (caja.permiteRieles) rectangulo('Caja', caja.area.x, caja.area.y, caja.area.w, caja.area.h);
   for (const f of caja.fijaciones) dxf.circulo('Caja', f.x, alto - f.y, f.r);
 
-  // Rieles (incluidos de la caja y agregados): solo los tramos libres.
+  // Rieles (incluidos de la caja y agregados): su geometría real, solo en los tramos libres.
   const piezas = listarPiezas(elementos, ctx);
   const topes = calcularTopes(elementos, ctx);
   for (const r of listarRieles(elementos, ctx)) {
-    const el = r.incluido ? undefined : elementos.find((e) => e.uid === r.uid);
-    const vertical = (el?.rotacion ?? 0) === 90;
     const capa: CapaDxf = r.incluido ? 'Caja' : 'Montaje';
-    if (vertical) {
-      rectangulo(capa, r.rect.x, r.rect.y, r.rect.w, r.rect.h);
-      continue;
-    }
     const ocupados: [number, number][] = [
       ...piezas.filter((p) => p.clase === 'aparato' && p.rielUid === r.uid).map((p): [number, number] => [p.rect.x, p.rect.x + p.rect.w]),
       ...topes.filter((t) => t.rielUid === r.uid).map((t): [number, number] => [t.rect.x, t.rect.x + t.rect.w]),
     ];
-    for (const [a, b] of tramosLibres(r.x, r.x + r.largo, ocupados)) rectangulo(capa, a, r.rect.y, b - a, r.rect.h);
+    const rielSvg = leerFormasSvg(lineales.rielSVG(r.largo));
+    for (const [a, b] of tramosLibres(r.x, r.x + r.largo, ocupados)) {
+      dibujar(capa, recortarRiel(rielSvg, r.largo, a - r.x, b - r.x), (x, y) => [r.x + x, r.rect.y + y]);
+    }
   }
 
   // Elementos del proyecto
@@ -275,7 +307,10 @@ export function generarDxf(elementos: readonly Elemento[], ctx: Contexto, svgs: 
     if (comp.montaje === 'lineal') {
       if (esRiel(comp)) continue; // los rieles se dibujan aparte, por tramos libres
       const r = huella(el, comp);
-      rectangulo(comp.categoria, r.x, r.y, r.w, r.h);
+      const vertical = (el.rotacion ?? 0) === 90;
+      const largo = vertical ? r.h : r.w;
+      const mapa: Mapa = vertical ? (x, y) => [r.x + comp.alto_mm - y, r.y + x] : (x, y) => [r.x + x, r.y + y];
+      dibujar(comp.categoria, leerFormasSvg(lineales.canaletaSVG(largo, comp.alto_mm)), mapa);
       continue;
     }
     formas(comp.categoria, comp.svg, el.x_mm, el.y_mm);
@@ -294,5 +329,37 @@ export function generarDxf(elementos: readonly Elemento[], ctx: Contexto, svgs: 
   const tope = ctx.comps.get(TOPE_ID);
   if (tope) for (const t of topes) formas(tope.categoria, tope.svg, t.rect.x, t.rect.y);
 
+  // Vista frontal exterior, a la derecha de la interior.
+  if (vistaFrontal) {
+    const dx = caja.ancho + SEPARACION_FRONTAL_MM;
+    for (const r of vistaFrontal.rects) dxf.rectangulo('Caja_Frontal', dx + r.x, alto - r.y - r.h, r.w, r.h);
+    for (const c of vistaFrontal.circulos) dxf.circulo('Caja_Frontal', dx + c.cx, alto - c.cy, c.r);
+    for (const l of vistaFrontal.lineas) dxf.linea('Caja_Frontal', dx + l.x1, alto - l.y1, dx + l.x2, alto - l.y2);
+    const z = vistaFrontal.placa.zona;
+    dxf.texto('Caja_Frontal', dx + z.x + z.w / 2, alto - (z.y + z.h / 2), tamanoAjustado(vistaFrontal.placa.texto, z.w, z.h * 0.6), vistaFrontal.placa.texto);
+  }
+
   return dxf.toString();
+}
+
+/**
+ * Parte del SVG del riel (de largo `largo`) que cae en el tramo libre [desde, hasta] (mm sobre el riel): el cuerpo y
+ * las líneas se recortan al tramo; una ranura solo se dibuja si cabe entera (la que queda tapada por un aparato no).
+ */
+function recortarRiel(formas: readonly FormaSvg[], largo: number, desde: number, hasta: number): FormaSvg[] {
+  const res: FormaSvg[] = [];
+  for (const f of formas) {
+    if (f.tipo === 'rect') {
+      if (f.width >= largo - 1) {
+        const x1 = Math.max(f.x, desde);
+        const x2 = Math.min(f.x + f.width, hasta);
+        if (x2 - x1 > 0.01) res.push({ ...f, x: x1, width: x2 - x1 });
+      } else if (f.x >= desde - 0.01 && f.x + f.width <= hasta + 0.01) res.push(f);
+    } else if (f.tipo === 'line') {
+      const x1 = Math.max(Math.min(f.x1, f.x2), desde);
+      const x2 = Math.min(Math.max(f.x1, f.x2), hasta);
+      if (x2 - x1 > 0.01) res.push({ ...f, x1, x2 });
+    } else if (f.cx - f.r >= desde - 0.01 && f.cx + f.r <= hasta + 0.01) res.push(f);
+  }
+  return res;
 }

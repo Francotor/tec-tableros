@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { parsearBiblioteca } from './biblioteca';
 import { resolverCaja } from './caja';
 import type { Margenes, Modo, SeccionCanaleta } from './capacidad';
@@ -98,4 +99,12 @@ export function armarEjemplo(ctx: Contexto): Elemento[] {
     ['barra_repartidora_12v', { funcion: 'N' }, 5],
   ]);
   return els;
+}
+
+/** lineales.js de la biblioteca (rielSVG y canaletaSVG), cargado igual que lo hace el editor: como módulo en tiempo de ejecución. */
+export async function cargarLinealesDeBiblioteca(): Promise<{ rielSVG: (largo: number) => string; canaletaSVG: (largo: number, ancho: number) => string }> {
+  return (await import(/* @vite-ignore */ pathToFileURL(join(RAIZ_BIBLIOTECA, 'lineales.js')).href)) as {
+    rielSVG: (largo: number) => string;
+    canaletaSVG: (largo: number, ancho: number) => string;
+  };
 }
