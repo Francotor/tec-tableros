@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1",
+  "version": "1.1.2",
   "unidad": "mm",
   "modulo": "medidores",
   "nota_reserva": "Este módulo NO aplica la reserva de 25% de RIC N°02 6.1.16.3 (esa norma aplica solo a tableros). No se usa en ningún cálculo de esta biblioteca.",
@@ -28,7 +28,7 @@
         "lineas": [
           "Medidor trifásico ARES 8023"
         ],
-        "tamano_mm": 4.0
+        "tamano_mm": 6.0
       },
       "campos": [],
       "atributos": {
@@ -65,7 +65,7 @@
         "lineas": [
           "Medidor trifásico (compacto)"
         ],
-        "tamano_mm": 4.0
+        "tamano_mm": 6.0
       },
       "campos": [],
       "atributos": {
@@ -100,7 +100,7 @@
         "lineas": [
           "Medidor monofásico"
         ],
-        "tamano_mm": 4.0
+        "tamano_mm": 6.0
       },
       "campos": [],
       "atributos": {
@@ -138,7 +138,7 @@
           "Int. caja moldeada 30A",
           "{polos}P"
         ],
-        "tamano_mm": 4.0
+        "tamano_mm": 6.0
       },
       "campos": [
         {
@@ -189,7 +189,7 @@
           "Int. caja moldeada 50-63A",
           "{polos}P"
         ],
-        "tamano_mm": 4.0
+        "tamano_mm": 6.0
       },
       "campos": [
         {
@@ -240,7 +240,7 @@
           "Int. caja moldeada 100-125A",
           "{polos}P"
         ],
-        "tamano_mm": 4.0
+        "tamano_mm": 6.0
       },
       "campos": [
         {
@@ -291,7 +291,7 @@
           "Int. caja moldeada 225-250A",
           "{polos}P"
         ],
-        "tamano_mm": 4.0
+        "tamano_mm": 6.0
       },
       "campos": [
         {
