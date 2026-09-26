@@ -16,6 +16,7 @@ const proyecto = (): Proyecto => ({
   notas: 'Ojo con el medidor',
   actualizadoEn: '2026-01-01T00:00:00.000Z',
   caja: { id: 'caja_metalica_400x500x200' },
+  tipo: 'tablero',
   margenBordeManual: true,
   margenBorde_mm: 25,
   modo: 'con_canaleta',

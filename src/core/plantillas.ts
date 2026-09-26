@@ -1,6 +1,8 @@
 import { SECCIONES_CANALETA } from './capacidad';
 import type { Modo, SeccionCanaleta } from './capacidad';
 import { nuevoUid } from './modelo';
+import { validarTipo } from './tipoProyecto';
+import type { TipoProyecto } from './tipoProyecto';
 import type { CajaProyecto, Elemento, Proyecto } from './modelo';
 
 /**
@@ -12,6 +14,8 @@ export interface Plantilla {
   nombre: string;
   actualizadoEn: string;
   caja: CajaProyecto;
+  /** Tipo de proyecto de la plantilla: un proyecto nuevo desde ella es del mismo tipo. */
+  tipo: TipoProyecto;
   margenBordeManual: boolean;
   margenBorde_mm: number | null;
   modo: Modo;
@@ -79,6 +83,7 @@ export function validarPlantilla(p: unknown): Plantilla {
     nombre: typeof p.nombre === 'string' && p.nombre.trim() !== '' ? p.nombre : 'Plantilla sin nombre',
     actualizadoEn: typeof p.actualizadoEn === 'string' ? p.actualizadoEn : new Date().toISOString(),
     caja: validarCaja(p.caja),
+    tipo: validarTipo(p.tipo),
     margenBordeManual: p.margenBordeManual === true,
     margenBorde_mm: typeof p.margenBorde_mm === 'number' ? p.margenBorde_mm : null,
     modo: p.modo === 'con_canaleta' ? 'con_canaleta' : 'compacto',
@@ -95,6 +100,7 @@ export function plantillaDesdeProyecto(proyecto: Proyecto, nombre: string, ahora
     nombre,
     actualizadoEn: ahora.toISOString(),
     caja: proyecto.caja,
+    tipo: proyecto.tipo,
     margenBordeManual: proyecto.margenBordeManual,
     margenBorde_mm: proyecto.margenBorde_mm,
     modo: proyecto.modo,
@@ -123,6 +129,7 @@ export function proyectoDesdePlantilla(plantilla: Plantilla, ahora: Date = new D
     notas: '',
     actualizadoEn: ahora.toISOString(),
     caja: plantilla.caja,
+    tipo: plantilla.tipo,
     margenBordeManual: plantilla.margenBordeManual,
     margenBorde_mm: plantilla.margenBorde_mm,
     modo: plantilla.modo,

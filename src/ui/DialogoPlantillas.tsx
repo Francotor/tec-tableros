@@ -7,6 +7,7 @@ import {
   renombrarPlantillaGuardada,
 } from '../store/autoguardado';
 import { listarPlantillas } from '../store/persistencia';
+import { EtiquetaTipo } from './EtiquetaTipo';
 
 const formatoFecha = new Intl.DateTimeFormat('es-CL', { dateStyle: 'short', timeStyle: 'short' });
 
@@ -114,6 +115,7 @@ function FilaPlantilla({ plantilla, onCambio, onCerrar }: { plantilla: Plantilla
         ) : (
           <strong>{plantilla.nombre}</strong>
         )}
+        <EtiquetaTipo tipo={plantilla.tipo} />
         <span className="detalle">
           {plantilla.elementos.length} elemento(s) · {formatoFecha.format(new Date(plantilla.actualizadoEn))}
         </span>

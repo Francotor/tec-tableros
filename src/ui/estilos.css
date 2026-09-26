@@ -200,3 +200,9 @@ body { overflow: hidden; }
 .panel-props .botones-elemento button { margin-bottom: 0; }
 .panel-props .botones-elemento button.peligro { color: #9b1c1c; border-color: #9b1c1c; }
 .panel-props .botones-elemento button.peligro:hover { background: #fdf1f1; }
+
+/* Tipo de proyecto (tablero / medidor) */
+.etiqueta-tipo { display: inline-block; padding: 1px 8px; font-size: .72rem; font-weight: 600; letter-spacing: .03em; border-radius: 10px; color: var(--tec-navy); background: var(--tec-plata-clara); border: 1px solid var(--tec-plata); }
+.etiqueta-tipo.medidor { color: #fff; background: var(--tec-azul-acero); border-color: var(--tec-azul-acero); }
+.tipo-bloqueado { display: flex; align-items: flex-end; min-height: 40px; padding-bottom: 8px; }
+.datos-proyecto select { min-height: 40px; padding: 0 8px; font: inherit; font-size: .95rem; color: var(--tec-grafito); background: #fff; border: 1px solid var(--tec-gris-metal); border-radius: 4px; }

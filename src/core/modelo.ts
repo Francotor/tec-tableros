@@ -30,6 +30,8 @@ export interface Circuito {
   nombre: string;
 }
 
+import type { TipoProyecto } from './tipoProyecto';
+
 export type LadoBisagras = 'izquierda' | 'derecha';
 
 export interface Proyecto {
@@ -43,6 +45,8 @@ export interface Proyecto {
   margenBordeManual: boolean;
   /** Solo tiene valor mientras margenBordeManual es true. */
   margenBorde_mm: number | null;
+  /** Tablero o medidor/empalme: decide de qué carpeta sale el catálogo. No cambia una vez colocada la primera pieza. */
+  tipo: TipoProyecto;
   modo: Modo;
   seccionCanaleta_mm: SeccionCanaleta;
   /** Topes de riel automáticos (2 por riel con aparatos). Apagado por defecto: se activan cuando hacen falta. */
@@ -72,7 +76,7 @@ export function largoPorDefecto(comp: Componente): number {
   return campo && campo.tipo === 'entero' ? campo.defecto : 400;
 }
 
-export function proyectoNuevo(cajaId: string): Proyecto {
+export function proyectoNuevo(cajaId: string, tipo: TipoProyecto = 'tablero'): Proyecto {
   return {
     id: nuevoUid(),
     nombre: 'Proyecto sin nombre',
@@ -80,6 +84,7 @@ export function proyectoNuevo(cajaId: string): Proyecto {
     notas: '',
     actualizadoEn: new Date().toISOString(),
     caja: { id: cajaId },
+    tipo,
     margenBordeManual: false,
     margenBorde_mm: null,
     modo: 'compacto',

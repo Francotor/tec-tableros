@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { TIPOS_PROYECTO, nombreTipo } from '../core/tipoProyecto';
 import { useEditor } from '../store/editor';
+import { EtiquetaTipo } from './EtiquetaTipo';
 import { useEstadoGuardado } from '../store/autoguardado';
 import { exportarDxf, exportarPdf, exportarPng } from './exportacion';
 import { DialogoCircuitos } from './DialogoCircuitos';
@@ -16,6 +18,9 @@ export function Encabezado() {
   const nombre = useEditor((s) => s.proyecto.nombre);
   const cotizacion = useEditor((s) => s.proyecto.numeroCotizacion);
   const setMeta = useEditor((s) => s.setMeta);
+  const tipo = useEditor((s) => s.proyecto.tipo);
+  const vacio = useEditor((s) => s.proyecto.elementos.length === 0);
+  const setTipoProyecto = useEditor((s) => s.setTipoProyecto);
   const avisar = useEditor((s) => s.avisar);
   const estado = useEstadoGuardado((s) => s.estado);
   const [abierto, setAbierto] = useState(false);
@@ -63,6 +68,22 @@ export function Encabezado() {
           N° cotización
           <input type="text" value={cotizacion} maxLength={30} onChange={(e) => setMeta({ numeroCotizacion: e.target.value })} />
         </label>
+        {vacio ? (
+          <label>
+            Tipo de proyecto
+            <select value={tipo} onChange={(e) => setTipoProyecto(e.target.value === 'medidor' ? 'medidor' : 'tablero')}>
+              {TIPOS_PROYECTO.map((t) => (
+                <option key={t} value={t}>
+                  {nombreTipo(t)}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <div className="tipo-bloqueado" title="El tipo de proyecto no se puede cambiar una vez colocada la primera pieza.">
+            <EtiquetaTipo tipo={tipo} />
+          </div>
+        )}
       </div>
       <span className={`estado-guardado ${estado}`} role="status" aria-live="polite">
         {TEXTO_ESTADO[estado]}

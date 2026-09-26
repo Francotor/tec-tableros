@@ -4,6 +4,8 @@ import type { Capacidad, Margenes, Modo, SeccionCanaleta } from './capacidad';
 import { contiene, distanciaARect, redondear, solapan } from './geometria';
 import type { Punto, Rect } from './geometria';
 import { largoPorDefecto, nuevoUid } from './modelo';
+import { usaCapacidadDeRiel } from './tipoProyecto';
+import type { TipoProyecto } from './tipoProyecto';
 import type { Elemento } from './modelo';
 import type { Catalogo, Componente, ComponenteRiel, ParametrosLayout } from './tipos';
 
@@ -22,6 +24,8 @@ export interface AjustesCapacidad {
   altoModularMm: number;
   /** true: el proyecto usa topes de riel automáticos. Por defecto false (se activan cuando hacen falta). */
   topes?: boolean;
+  /** Tipo de proyecto (por defecto, tablero). En un medidor no hay capacidad de riel ni reserva. */
+  tipo?: TipoProyecto;
 }
 
 export interface Contexto {
@@ -37,6 +41,7 @@ export interface Contexto {
   altoModularMm: number;
   /** Topes de riel automáticos activos en este proyecto. */
   topes: boolean;
+  tipo: TipoProyecto;
   /** Capacidad de riel con el margen/modo/sección actuales; null en cajas plásticas (rieles fijos). */
   capacidad: Capacidad | null;
   /** Placa reducida por el margen de borde: referencia para largos por defecto, no un límite duro. */
@@ -45,7 +50,8 @@ export interface Contexto {
 
 export function crearContexto(catalogo: Catalogo, caja: CajaResuelta, ajustes: AjustesCapacidad): Contexto {
   const comps = new Map(catalogo.componentes.map((c) => [c.id, c]));
-  const capacidad = caja.permiteRieles
+  const tipo = ajustes.tipo ?? 'tablero';
+  const capacidad = caja.permiteRieles && usaCapacidadDeRiel(tipo)
     ? calcularCapacidad(
         caja.area.w,
         caja.area.h,
@@ -67,6 +73,7 @@ export function crearContexto(catalogo: Catalogo, caja: CajaResuelta, ajustes: A
     moduloMm: ajustes.moduloMm,
     altoModularMm: ajustes.altoModularMm,
     topes: ajustes.topes ?? false,
+    tipo,
     capacidad,
     areaUtil: calcularAreaUtil(caja.area, ajustes.margenes),
   };

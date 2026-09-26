@@ -6,6 +6,7 @@ import { abrirProyecto, crearProyectoNuevo, duplicarProyectoGuardado, eliminarPr
 import { guardarPlantilla, guardarProyecto, listarPlantillas, listarProyectos } from '../store/persistencia';
 import { useEditor } from '../store/editor';
 import { descargar } from './descarga';
+import { EtiquetaTipo } from './EtiquetaTipo';
 
 interface Props {
   abierto: boolean;
@@ -154,6 +155,7 @@ export function DialogoProyectos({ abierto, onCerrar }: Props) {
             <li key={p.id} className={p.id === idActual ? 'actual' : undefined}>
               <div className="info-proyecto">
                 <strong>{p.nombre || 'Sin nombre'}</strong>
+                <EtiquetaTipo tipo={p.tipo} />
                 {p.id === idActual && <span className="etiqueta-actual">abierto</span>}
                 <span className="detalle">
                   {p.numeroCotizacion ? `Cotización ${p.numeroCotizacion} · ` : ''}

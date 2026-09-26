@@ -9,13 +9,17 @@ import type { AjustesCapacidad, Contexto } from './colocacion';
 import { margenesEfectivos } from './margenes';
 import { valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
+import { carpetaBiblioteca } from './tipoProyecto';
+import type { TipoProyecto } from './tipoProyecto';
 import type { Biblioteca } from './tipos';
 
 export const RAIZ_BIBLIOTECA = join(process.cwd(), 'public', 'biblioteca');
 
-const leer = (f: string): unknown => JSON.parse(readFileSync(join(RAIZ_BIBLIOTECA, f), 'utf8'));
+/** Carpeta de `public/` de la biblioteca de cada tipo de proyecto. */
+export const raizBiblioteca = (tipo: TipoProyecto = 'tablero'): string => join(process.cwd(), 'public', carpetaBiblioteca(tipo));
 
-export function cargarBiblioteca(): Biblioteca {
+export function cargarBiblioteca(tipo: TipoProyecto = 'tablero'): Biblioteca {
+  const leer = (f: string): unknown => JSON.parse(readFileSync(join(raizBiblioteca(tipo), f), 'utf8'));
   return parsearBiblioteca(leer('catalogo.json'), leer('gabinetes.json'));
 }
 
@@ -36,6 +40,7 @@ export function crearContextoDe(bib: Biblioteca, caja: CajaProyecto, ajustes?: P
     altoModularMm: bib.gabinetes.parametros.alto_modular_mm,
     // Las pruebas de topes, lista y ejemplo parten con topes activos (el proyecto real parte sin ellos).
     topes: ajustes?.topes ?? true,
+    tipo: ajustes?.tipo,
   });
 }
 

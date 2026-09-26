@@ -1,4 +1,5 @@
 import { generarDxf, svgsNecesarios } from '../core/exportarDxf';
+import type { GeneradoresLineales } from '../core/exportarDxf';
 import { formatearMetros, generarLista, lineasTotales } from '../core/lista';
 import { nombreSeguro } from '../core/proyectos';
 import { calcularVistaFrontal, datosFrontalDeCaja } from '../core/vistaFrontal';
@@ -184,6 +185,15 @@ export async function generarPdf(): Promise<Blob> {
   return doc.output('blob');
 }
 
+const SIN_LINEALES: GeneradoresLineales = {
+  rielSVG: () => {
+    throw new Error('Este catálogo no trae lineales.js: no se puede exportar un riel a DXF.');
+  },
+  canaletaSVG: () => {
+    throw new Error('Este catálogo no trae lineales.js: no se puede exportar una canaleta a DXF.');
+  },
+};
+
 /** DXF R12 del tablero (mm, capas por categoría, formas reales de cada SVG, rótulos como TEXT). */
 export async function exportarDxf(): Promise<void> {
   const { proyecto } = useEditor.getState();
@@ -194,7 +204,8 @@ export async function exportarDxf(): Promise<void> {
   const rutas = svgsNecesarios(proyecto.elementos, ctx);
   const [svgs, lineales] = await Promise.all([
     Promise.all(rutas.map(async (r): Promise<[string, string]> => [r, await textoDeBiblioteca(r)])).then((pares) => new Map(pares)),
-    cargarLineales(),
+    // Un catálogo sin lineales.js (por ejemplo, el de medidores) igual se exporta: solo falla si el dibujo usa riel o canaleta.
+    cargarLineales().catch((): GeneradoresLineales => SIN_LINEALES),
   ]);
   const vista = calcularVistaFrontal(datosFrontalDeCaja(ctx.caja, gabinetes), proyecto.nombre, proyecto.ladoBisagras);
   descargar(`${nombreSeguro(proyecto.numeroCotizacion || proyecto.nombre)}.dxf`, generarDxf(proyecto.elementos, ctx, svgs, lineales, vista), 'application/dxf');

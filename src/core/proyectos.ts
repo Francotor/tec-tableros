@@ -3,6 +3,7 @@ import { nuevoUid } from './modelo';
 import type { CajaProyecto, Circuito, Elemento, Proyecto } from './modelo';
 import { validarPlantilla } from './plantillas';
 import type { Plantilla } from './plantillas';
+import { validarTipo } from './tipoProyecto';
 
 export const FORMATO_RESPALDO = 'tec-tableros';
 // v2 agrega las plantillas; un respaldo v1 (sin plantillas) se sigue leyendo igual.
@@ -81,6 +82,7 @@ export function validarProyecto(p: unknown): Proyecto {
     notas: typeof p.notas === 'string' ? p.notas : '',
     actualizadoEn: typeof p.actualizadoEn === 'string' ? p.actualizadoEn : new Date().toISOString(),
     caja: validarCaja(p.caja),
+    tipo: validarTipo(p.tipo),
     margenBordeManual: p.margenBordeManual === true,
     margenBorde_mm: typeof p.margenBorde_mm === 'number' ? p.margenBorde_mm : null,
     modo: p.modo === 'con_canaleta' ? 'con_canaleta' : 'compacto',

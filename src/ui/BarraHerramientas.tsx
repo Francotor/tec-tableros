@@ -5,6 +5,7 @@ import type { Modo } from '../core/capacidad';
 import { agruparCajasSelector, buscarCaja } from '../core/biblioteca';
 import { margenBordePorDefecto } from '../core/margenes';
 import { nombreCortoCaja } from '../core/nombreCaja';
+import { usaCapacidadDeRiel } from '../core/tipoProyecto';
 import type { Caja, Gabinetes } from '../core/tipos';
 import { useBiblioteca } from '../store/biblioteca';
 import { useContexto, useEditor } from '../store/editor';
@@ -176,6 +177,9 @@ function AjustesCapacidad() {
   const { setMargenBorde, setModo, setSeccionCanaleta, avisar } = useEditor.getState();
 
   if (!ctx || !biblioteca || !ctx.caja.permiteRieles) return null;
+  // Distribución compacta/con canaleta, sección de canaleta, capacidad por fila (con su reserva del 25 %) y la
+  // distribución automática son del riel DIN de los tableros: en un medidor no se muestran.
+  const conRiel = usaCapacidadDeRiel(ctx.tipo);
 
   const margenMostrado =
     proyecto.margenBordeManual && proyecto.margenBorde_mm !== null
@@ -207,14 +211,16 @@ function AjustesCapacidad() {
           onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
         />
       </label>
-      <label>
-        Distribución
-        <select value={proyecto.modo} onChange={(e) => setModo(e.target.value as Modo)}>
-          <option value="compacto">Compacta (sin canaleta)</option>
-          <option value="con_canaleta">Con canaleta</option>
-        </select>
-      </label>
-      {proyecto.modo === 'con_canaleta' && (
+      {conRiel && (
+        <label>
+          Distribución
+          <select value={proyecto.modo} onChange={(e) => setModo(e.target.value as Modo)}>
+            <option value="compacto">Compacta (sin canaleta)</option>
+            <option value="con_canaleta">Con canaleta</option>
+          </select>
+        </label>
+      )}
+      {conRiel && proyecto.modo === 'con_canaleta' && (
         <label>
           Sección canaleta (mm)
           <select value={proyecto.seccionCanaleta_mm} onChange={(e) => setSeccionCanaleta(Number(e.target.value) as (typeof SECCIONES_CANALETA)[number])}>
@@ -226,12 +232,12 @@ function AjustesCapacidad() {
           </select>
         </label>
       )}
-      {ctx.capacidad && (
+      {conRiel && ctx.capacidad && (
         <span className="hint">
           {ctx.capacidad.modulosPorFila} módulos/fila · {ctx.capacidad.filas} fila(s)
         </span>
       )}
-      <BotonDistribuir />
+      {conRiel && <BotonDistribuir />}
     </div>
   );
 }

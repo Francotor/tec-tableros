@@ -32,11 +32,12 @@ import { deshacer as deshacerH, historialVacio, rehacer as rehacerH, registrar }
 import type { Historial } from '../core/historial';
 import { proyectoNuevo, valoresPorDefecto } from '../core/modelo';
 import type { CajaProyecto, Circuito, Elemento, LadoBisagras, Proyecto } from '../core/modelo';
-import type { Biblioteca, ValorCampo } from '../core/tipos';
+import type { TipoProyecto } from '../core/tipoProyecto';
+import type { Biblioteca, Gabinetes, ValorCampo } from '../core/tipos';
 import { useBiblioteca } from './biblioteca';
 
 /** Subconjunto del proyecto del que depende el contexto de reglas (caja, margen, modo, sección de canaleta). */
-type AjustesProyecto = Pick<Proyecto, 'caja' | 'margenBordeManual' | 'margenBorde_mm' | 'modo' | 'seccionCanaleta_mm' | 'topesAutomaticos'>;
+type AjustesProyecto = Pick<Proyecto, 'caja' | 'margenBordeManual' | 'margenBorde_mm' | 'modo' | 'seccionCanaleta_mm' | 'topesAutomaticos' | 'tipo'>;
 
 const CAJA_INICIAL = 'caja_metalica_400x500x200';
 
@@ -70,7 +71,12 @@ interface EstadoEditor {
   cambiarCaja: (caja: CajaProyecto) => void;
   /** Reemplaza el proyecto abierto (historial y selección se reinician). */
   cargarProyecto: (p: Proyecto) => void;
-  nuevoProyecto: () => void;
+  /** Proyecto nuevo del tipo indicado (por defecto, un tablero). */
+  nuevoProyecto: (tipo?: TipoProyecto) => void;
+  /** Cambia el tipo de proyecto; solo mientras no haya ninguna pieza colocada. */
+  setTipoProyecto: (tipo: TipoProyecto) => boolean;
+  /** Si la caja del proyecto vacío no existe en la biblioteca activa, la reemplaza por la primera de ella (no entra al historial). */
+  reconciliarCaja: (gabinetes: Gabinetes) => void;
   setMeta: (meta: Partial<Pick<Proyecto, 'nombre' | 'numeroCotizacion' | 'notas'>>) => void;
   /** Fija el margen de borde a mano; deja de seguir al de la caja hasta que se cambie de caja. */
   setMargenBorde: (mm: number) => void;
@@ -125,6 +131,7 @@ export function contextoDe(biblioteca: Biblioteca | null, ajustes: AjustesProyec
     moduloMm: parametros.modulo_mm,
     altoModularMm: parametros.alto_modular_mm,
     topes: ajustes.topesAutomaticos,
+    tipo: ajustes.tipo,
   });
 }
 
@@ -143,6 +150,7 @@ export function useContexto(): Contexto | null {
       modo: s.proyecto.modo,
       seccionCanaleta_mm: s.proyecto.seccionCanaleta_mm,
       topesAutomaticos: s.proyecto.topesAutomaticos,
+      tipo: s.proyecto.tipo,
     })),
   );
   return useMemo(() => contextoDe(biblioteca, ajustes), [biblioteca, ajustes]);
@@ -233,9 +241,30 @@ export const useEditor = create<EstadoEditor>((set, get) => {
       set({ proyecto: p, historial: historialVacio(), seleccion: null, fichaActiva: null, aviso: null });
     },
 
-    nuevoProyecto: () => {
+    nuevoProyecto: (tipo = 'tablero') => {
       edicionActual = null;
-      set({ proyecto: proyectoNuevo(CAJA_INICIAL), historial: historialVacio(), seleccion: null, fichaActiva: null, aviso: null });
+      set({ proyecto: proyectoNuevo(CAJA_INICIAL, tipo), historial: historialVacio(), seleccion: null, fichaActiva: null, aviso: null });
+    },
+
+    setTipoProyecto: (tipo) => {
+      const { proyecto } = get();
+      if (proyecto.tipo === tipo) return true;
+      if (proyecto.elementos.length > 0) {
+        avisar('El tipo de proyecto no se puede cambiar una vez colocada la primera pieza.');
+        return false;
+      }
+      edicionActual = null;
+      set({ proyecto: { ...proyecto, tipo, actualizadoEn: new Date().toISOString() }, fichaActiva: null, seleccion: null });
+      return true;
+    },
+
+    reconciliarCaja: (gabinetes) => {
+      const { proyecto } = get();
+      if ('libre' in proyecto.caja || proyecto.elementos.length > 0) return;
+      const { id } = proyecto.caja;
+      if (gabinetes.cajas.some((c) => c.id === id)) return;
+      const primera = gabinetes.cajas.find((c) => !c.referencial) ?? gabinetes.cajas[0];
+      if (primera) set({ proyecto: { ...proyecto, caja: { id: primera.id } } });
     },
 
     setMeta: (meta) => {

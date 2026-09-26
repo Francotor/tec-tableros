@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { urlBiblioteca } from '../store/biblioteca';
+import { urlBiblioteca, useBiblioteca } from '../store/biblioteca';
+import type { TipoProyecto } from '../core/tipoProyecto';
 
 const MAX_LADO_PX = 4096;
 const MAX_PX_POR_MM = 10;
@@ -31,7 +32,8 @@ export function cargarImagen(
   anchoMm: number,
   altoMm: number,
 ): Promise<HTMLImageElement> {
-  const k = `${clave}|${anchoMm}x${altoMm}`;
+  // Dos bibliotecas pueden tener el mismo nombre de archivo: la clave incluye el tipo activo.
+  const k = `${useBiblioteca.getState().tipo}|${clave}|${anchoMm}x${altoMm}`;
   let p = cache.get(k);
   if (!p) {
     p = obtenerSvg().then((s) => imagenDesdeSvg(escalarSvg(s, anchoMm, altoMm)));
@@ -52,14 +54,20 @@ interface Lineales {
   canaletaSVG: (largo: number, ancho: number) => string;
 }
 
-let lineales: Promise<Lineales> | null = null;
+const lineales = new Map<TipoProyecto, Promise<Lineales>>();
 
-/** Carga lineales.js de la biblioteca en tiempo de ejecución, para actualizarla sin tocar el código. */
+/** Carga lineales.js de la biblioteca del tipo activo en tiempo de ejecución, para actualizarla sin tocar el código. */
 export function cargarLineales(): Promise<Lineales> {
-  lineales ??= textoDeBiblioteca('lineales.js').then(
-    (js) => import(/* @vite-ignore */ URL.createObjectURL(new Blob([js], { type: 'text/javascript' }))) as Promise<Lineales>,
-  );
-  return lineales;
+  const tipo = useBiblioteca.getState().tipo;
+  let p = lineales.get(tipo);
+  if (!p) {
+    p = textoDeBiblioteca('lineales.js').then(
+      (js) => import(/* @vite-ignore */ URL.createObjectURL(new Blob([js], { type: 'text/javascript' }))) as Promise<Lineales>,
+    );
+    p.catch(() => lineales.delete(tipo));
+    lineales.set(tipo, p);
+  }
+  return p;
 }
 
 /** Imagen (rasterizada desde un SVG) lista para pasar a Konva; null mientras carga. */

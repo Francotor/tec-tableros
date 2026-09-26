@@ -1,6 +1,7 @@
 import { calcularTopes, elementosFuera, listarPiezas, listarRieles } from './colocacion';
 import type { Contexto } from './colocacion';
 import type { Elemento } from './modelo';
+import { usaCapacidadDeRiel } from './tipoProyecto';
 import type { Sugerencia } from './sugerencia';
 
 /** La caja se considera "mucho más grande" si su placa es al menos el doble (en área) que la sugerida. */
@@ -29,7 +30,9 @@ export function calcularAvisos(elementos: readonly Elemento[], ctx: Contexto, su
   const limiteModulos = ctx.capacidad ? ctx.capacidad.modulosPorFila : ctx.caja.modulosPorFila;
   const piezas = listarPiezas(elementos, ctx).filter((p) => p.clase === 'aparato');
   const rieles = listarRieles(elementos, ctx);
-  rieles.forEach((r, i) => {
+  // La capacidad por fila es del riel DIN de los tableros: en un medidor no hay filas que comparar.
+  const filasConLimite = usaCapacidadDeRiel(ctx.tipo) ? rieles : [];
+  filasConLimite.forEach((r, i) => {
     const mm = piezas.filter((p) => p.rielUid === r.uid).reduce((s, p) => s + p.rect.w, 0);
     const modulos = mm / modulo;
     if (modulos > limiteModulos + 1e-9) {
