@@ -2,9 +2,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { calcularAvisos } from './avisos';
-import { agregarElemento } from './colocacion';
+import { agregarElemento, listarPiezas } from './colocacion';
 import { puedeDistribuir, distribuirAutomaticamente } from './distribucion';
 import { cargarBiblioteca, cargarLinealesDeBiblioteca, crearContextoDe, raizBiblioteca } from './ejemplo.testutil';
+import { parsearBiblioteca } from './biblioteca';
 import { generarDxf, svgsNecesarios } from './exportarDxf';
 import { leerFormasSvg } from './lectorSvg';
 import { generarLista, lineasTotales, listaACsv, listaATexto } from './lista';
@@ -196,5 +197,60 @@ describe('un empalme (medidor) no tiene circuitos ni totales de riel y canaleta'
     const svgs = new Map(svgsNecesarios(elementos, ctx).map((r) => [r, readFileSync(join(raiz, r), 'utf8')]));
     const dxf = generarDxf(elementos, ctx, svgs, await cargarLinealesDeBiblioteca());
     expect(dxf).not.toMatch(/circuito|reserva|riel/i);
+  });
+});
+
+describe('montaje en riel en un medidor (si el catálogo trae riel_din y aparatos de riel)', () => {
+  const tablero = cargarBiblioteca('tablero');
+  const fixture = cargarBiblioteca('medidor');
+  const de = (id: string) => JSON.parse(JSON.stringify(tablero.catalogo.componentes.find((c) => c.id === id)));
+  // Catálogo de medidor con piezas libres + un riel DIN y un automático 2P (copiados del catálogo de tableros).
+  const catalogo = { ...fixture.catalogo, componentes: [...fixture.catalogo.componentes, de('riel_din'), de('automatico_2p')] };
+  const bib = parsearBiblioteca(JSON.parse(JSON.stringify(catalogo)), JSON.parse(JSON.stringify(fixture.gabinetes)));
+  const cajaId = bib.gabinetes.cajas[0]!.id;
+  const ctx = crearContextoDe(bib, { id: cajaId }, { tipo: 'medidor' });
+
+  it('sin riel, el aparato de riel se rechaza por falta de riel (no por ser un medidor)', () => {
+    const comp = bib.catalogo.componentes.find((c) => c.id === 'automatico_2p')!;
+    const r = agregarElemento([], ctx, comp.id, { x: 150, y: 200 }, valoresPorDefecto(comp));
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.motivo).toMatch(/riel/i);
+  });
+
+  it('con un riel_din, el automático se coloca sobre el riel en un medidor, sin capacidad ni reserva', () => {
+    expect(ctx.capacidad).toBeNull();
+    const riel = bib.catalogo.componentes.find((c) => c.id === 'riel_din')!;
+    const r1 = agregarElemento([], ctx, riel.id, { x: 200, y: 200 }, valoresPorDefecto(riel));
+    expect(r1.ok).toBe(true);
+    if (!r1.ok) return;
+    const rielEl = r1.elementos[0]!;
+    const auto = bib.catalogo.componentes.find((c) => c.id === 'automatico_2p')!;
+    const r2 = agregarElemento(r1.elementos, ctx, auto.id, { x: rielEl.x_mm + 40, y: rielEl.y_mm + 17.5 }, valoresPorDefecto(auto));
+    expect(r2.ok).toBe(true);
+    if (!r2.ok) return;
+    const piezas = listarPiezas(r2.elementos, ctx).filter((p) => p.clase === 'aparato');
+    expect(piezas).toHaveLength(1);
+    expect(piezas[0]?.rielUid).toBe(rielEl.uid);
+    // Sin avisos de "fila ocupa X módulos" (no hay capacidad por fila), y "Distribuir" sigue sin aplicar.
+    expect(calcularAvisos(r2.elementos, ctx, null).filter((a) => a.id.startsWith('fila'))).toEqual([]);
+    expect(distribuirAutomaticamente(r2.elementos, ctx).ok).toBe(false);
+    // La lista trae el riel y el aparato; los totales de metros siguen ocultos en un medidor.
+    const lista = generarLista(r2.elementos, ctx);
+    expect(lista.lineas.map((l) => l.descripcion).join('\n')).toMatch(/Riel DIN/);
+    expect(lista.lineas.map((l) => l.descripcion).join('\n')).toMatch(/automatico 2P/i);
+    expect(lineasTotales(lista)).toEqual([]);
+  });
+
+  it('el DXF de ese empalme dibuja el riel y el automático', async () => {
+    const riel = bib.catalogo.componentes.find((c) => c.id === 'riel_din')!;
+    const auto = bib.catalogo.componentes.find((c) => c.id === 'automatico_2p')!;
+    const r1 = agregarElemento([], ctx, riel.id, { x: 200, y: 200 }, valoresPorDefecto(riel));
+    if (!r1.ok) throw new Error(r1.motivo);
+    const r2 = agregarElemento(r1.elementos, ctx, auto.id, { x: r1.elementos[0]!.x_mm + 40, y: r1.elementos[0]!.y_mm + 17.5 }, valoresPorDefecto(auto));
+    if (!r2.ok) throw new Error(r2.motivo);
+    const svgs = new Map(svgsNecesarios(r2.elementos, ctx).map((r) => [r, readFileSync(join(raizBiblioteca('tablero'), r), 'utf8')]));
+    const dxf = generarDxf(r2.elementos, ctx, svgs, await cargarLinealesDeBiblioteca());
+    expect(dxf).toContain('Montaje');
+    expect(dxf).toContain('Protecciones');
   });
 });

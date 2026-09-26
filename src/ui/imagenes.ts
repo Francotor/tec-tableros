@@ -61,7 +61,14 @@ export function cargarLineales(): Promise<Lineales> {
   const tipo = useBiblioteca.getState().tipo;
   let p = lineales.get(tipo);
   if (!p) {
-    p = textoDeBiblioteca('lineales.js').then(
+    // Un catálogo que no trae su propio lineales.js (el de medidores) usa el de tableros: el riel y la canaleta se dibujan igual.
+    p = textoDeBiblioteca('lineales.js')
+      .catch(async () => {
+        const r = await fetch(urlBiblioteca('lineales.js', 'tablero'));
+        if (!r.ok) throw new Error('No se pudo cargar lineales.js');
+        return r.text();
+      })
+      .then(
       (js) => import(/* @vite-ignore */ URL.createObjectURL(new Blob([js], { type: 'text/javascript' }))) as Promise<Lineales>,
     );
     p.catch(() => lineales.delete(tipo));
