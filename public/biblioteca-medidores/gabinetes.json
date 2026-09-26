@@ -1,83 +1,219 @@
 {
- "version": "0.1-prueba",
- "unidad": "mm",
- "parametros": {
-  "margen_placa_mm": 50,
-  "modulo_mm": 18,
-  "alto_modular_mm": 90,
-  "layout": {
-   "margen_borde_mm": 20,
-   "holgura_mm": 10,
-   "tope_riel_mm": 8,
-   "paso_compacto_mm": 125,
-   "paso_minimo_con_canaleta_mm": 150,
-   "canaleta_defecto_mm": 40,
-   "canaletas_mm": [
-    25,
-    40,
-    60
-   ],
-   "reserva": 0.25,
-   "reemplazo_max_dif_fondo_mm": 30,
-   "reemplazo_excluye_series": [
-    "KT"
-   ],
-   "fijacion_keepout_mm": 10
-  },
-  "modos": {
-   "compacto": "Menos de 8 circuitos: sin canaletas (excepcion del RIC N°02, 6.1.16.1). Paso entre filas de 125 mm.",
-   "con_canaleta": "8 circuitos o mas: canaletas no metalicas en ambos costados y sobre y bajo cada fila. Seccion por defecto 40 mm; capacidad.por_canaleta trae 25, 40 y 60."
-  },
-  "formulas": {
-   "placa": "caja exterior - margen_placa por dimension",
-   "compacto": {
-    "largo_riel": "ancho_placa - 2 * (margen_lateral + holgura)",
-    "filas": "floor((alto_placa - 2 * margen_vertical + (paso_compacto - alto_modular)) / paso_compacto)"
-   },
-   "con_canaleta": {
-    "largo_riel": "ancho_placa - 2 * (margen_lateral + canaleta + holgura)",
-    "paso": "max(paso_minimo_con_canaleta, alto_modular + canaleta + 2 * holgura)",
-    "filas": "floor((alto_placa - altura_1) / paso) + 1, con altura_1 = 2 * (margen_vertical + canaleta + (paso - alto_modular - canaleta) / 2) + alto_modular"
-   },
-   "modulos_por_fila": "floor((largo_riel - 2 * tope_riel) / modulo)",
-   "modulos_max_con_reserva": "floor(filas * modulos_por_fila / (1 + reserva))",
-   "margenes": "margen_lateral y margen_vertical valen margen_borde_mm salvo que la caja traiga layout (cajas de fabricante): entonces se usa caja.layout"
-  },
-  "fuentes": [
-   "RIC N°02 (SEC), 6.1.16.1: cableado interno por bandejas no metalicas, maximo 50 % de ocupacion, salvo tableros de menos de 8 circuitos",
-   "RIC N°02 (SEC), 6.1.16.3: prever ampliacion del 25 % por tipo de servicio, con espacio en riel y barras",
-   "Paso entre filas de riel: 125 mm (modulos residenciales) y 150 mm (cuatro filas) en fabricantes de cuadros modulares"
-  ],
-  "estado": "Cajas con fabricante (Eldon ASR, Lerkenbox KT, DM y ARES): la placa sale del catalogo; los pernos solo en ASR. Cajas con referencial=true: medidas genericas sin verificar; margen, holgura y paso son propios. Los margenes dependen de la placa: el editor debe permitir cambiarlos por proyecto. Los valores por defecto sirven de referencia y de vectores de prueba."
- },
- "regla_sugerencia": "Elegir la caja mas chica cuya capacidad del modo elegido (modulos_max_con_reserva) contenga el dibujo, prefiriendo las de fabricante (referencial=false); permitir medida libre.",
- "cajas": [
-  {
-   "id": "gabinete_medidor_prueba",
-   "nombre": "Gabinete para medidor (dato de prueba) 600 x 400 x 250",
-   "tipo": "metalica",
-   "montaje": "sobrepuesta",
-   "alto_mm": 600,
-   "ancho_mm": 400,
-   "fondo_mm": 250,
-   "svg": "gabinetes/gabinete_medidor_prueba.svg",
-   "placa": {
-    "x": 25,
-    "y": 25,
-    "ancho": 350,
-    "alto": 550
-   },
-   "modulos_por_fila": 0,
-   "filas_max_estimado": 0,
-   "rieles_incluidos": false,
-   "fabricante": "Prueba",
-   "serie": "MED",
-   "referencial": false,
-   "reemplazo_sugerido": null,
-   "puertas": 1,
-   "cierres": 2,
-   "bisagras": 2,
-   "notas": "Caja de prueba."
-  }
- ]
+  "version": "1.1.1",
+  "unidad": "mm",
+  "modulo": "medidores",
+  "cajas": [
+    {
+      "id": "caja_trifasica_cge",
+      "nombre": "Caja trifásica para empalme (tipo CGE)",
+      "tipo": "metalica",
+      "montaje": "sobrepuesta",
+      "fabricante": null,
+      "serie": null,
+      "ref_fabricante": null,
+      "alto_mm": 550,
+      "ancho_mm": 300,
+      "fondo_mm": 290,
+      "profundidad_util_mm": null,
+      "cierres": "2",
+      "svg": "gabinetes/caja_trifasica_cge.svg",
+      "placa": {
+        "x": 30.0,
+        "y": 27.5,
+        "ancho": 240.0,
+        "alto": 495.0
+      },
+      "fijaciones": [],
+      "layout": {
+        "margen_lateral_mm": 30.0,
+        "margen_vertical_mm": 27.5
+      },
+      "modulos_por_fila": 0,
+      "filas_max_estimado": 0,
+      "capacidad": {
+        "con_canaleta": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "compacto": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "por_canaleta": {},
+        "nota": "No aplica en este módulo: los gabinetes de medidor no usan riel/canaleta ni la reserva de 25% de RIC N°02 (esa reserva es exclusiva de tableros)."
+      },
+      "rieles_incluidos": false,
+      "referencial": false,
+      "confianza": "confirmado",
+      "reemplazo_sugerido": null,
+      "notas": "Tamaño exterior (550 alto x 300 ancho x 290 fondo) confirmado por el usuario. Disposición esperada: medidor en el tercio/mitad superior, interruptor en la mitad inferior — sin plano acotado que fije la partición exacta, así que aquí se modela como una sola placa de montaje; la posición relativa de medidor e interruptor dentro de ella queda a criterio de quien arma el proyecto. 'tipo' fijado como 'metalica' (SUPUESTO: confirmar si es acero galvanizado o inoxidable, ya que el esquema del editor no distingue 'metalica_inox' como tipo válido)."
+    },
+    {
+      "id": "caja_monofasica_policarbonato",
+      "nombre": "Caja monofásica de policarbonato (empalme domiciliario)",
+      "tipo": "plastica_sobrepuesta",
+      "montaje": "sobrepuesta",
+      "fabricante": null,
+      "serie": null,
+      "ref_fabricante": null,
+      "alto_mm": 309,
+      "ancho_mm": 204,
+      "fondo_mm": 128,
+      "profundidad_util_mm": null,
+      "cierres": "1",
+      "svg": "gabinetes/caja_monofasica_policarbonato.svg",
+      "placa": {
+        "x": 24.48,
+        "y": 15.450000000000001,
+        "ancho": 155.04,
+        "alto": 169.95000000000002
+      },
+      "fijaciones": [],
+      "layout": {
+        "margen_lateral_mm": 24.48,
+        "margen_vertical_mm": 15.450000000000001
+      },
+      "modulos_por_fila": 0,
+      "filas_max_estimado": 0,
+      "capacidad": {
+        "con_canaleta": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "compacto": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "por_canaleta": {},
+        "nota": "No aplica en este módulo: los gabinetes de medidor no usan riel/canaleta ni la reserva de 25% de RIC N°02 (esa reserva es exclusiva de tableros)."
+      },
+      "rieles_incluidos": false,
+      "referencial": false,
+      "confianza": "confirmado",
+      "reemplazo_sugerido": null,
+      "notas": "Medidas confirmadas por el usuario a partir de la ficha de policarbonato aportada. Zona inferior angulada con 8 orificios para amarre por zip-tie del interruptor (no un campo funcional, solo referencia visual). Sin marca fija: son estándar entre proveedores según indicó el usuario. 'tipo' fijado como 'plastica_sobrepuesta' (SUPUESTO: el editor no tiene un tipo 'policarbonato'; se eligió sobrepuesta porque se monta expuesta en muro o poste, no empotrada)."
+    },
+    {
+      "id": "caja_inox_vialidad_300x200x150",
+      "nombre": "Caja inoxidable genérica 300x200x150 (empalme en vialidad)",
+      "tipo": "inox",
+      "montaje": "sobrepuesta",
+      "fabricante": null,
+      "serie": null,
+      "ref_fabricante": null,
+      "alto_mm": 200,
+      "ancho_mm": 300,
+      "fondo_mm": 150,
+      "profundidad_util_mm": null,
+      "cierres": "1",
+      "svg": "gabinetes/caja_inox_vialidad_300x200x150.svg",
+      "placa": {
+        "x": 24.0,
+        "y": 12.0,
+        "ancho": 252.0,
+        "alto": 176.0
+      },
+      "fijaciones": [],
+      "layout": {
+        "margen_lateral_mm": 24.0,
+        "margen_vertical_mm": 12.0
+      },
+      "modulos_por_fila": 0,
+      "filas_max_estimado": 0,
+      "capacidad": {
+        "con_canaleta": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "compacto": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "por_canaleta": {},
+        "nota": "No aplica en este módulo: los gabinetes de medidor no usan riel/canaleta ni la reserva de 25% de RIC N°02 (esa reserva es exclusiva de tableros)."
+      },
+      "rieles_incluidos": false,
+      "referencial": false,
+      "confianza": "probable",
+      "reemplazo_sugerido": null,
+      "notas": "Origen catálogo genérico STX/STXI en convención Ancho x Alto x Fondo (300 x 200 x 150 mm), convertida aquí a la convención plana del proyecto (alto_mm=200, ancho_mm=300, fondo_mm=150). Sin marca fija ni ficha de pernos de fijación específica: la placa interior es aproximada (margen de referencia, no posición de pernos verificada)."
+    },
+    {
+      "id": "caja_inox_vialidad_400x300x200",
+      "nombre": "Caja inoxidable genérica 400x300x200 (empalme en vialidad)",
+      "tipo": "inox",
+      "montaje": "sobrepuesta",
+      "fabricante": null,
+      "serie": null,
+      "ref_fabricante": null,
+      "alto_mm": 300,
+      "ancho_mm": 400,
+      "fondo_mm": 200,
+      "profundidad_util_mm": null,
+      "cierres": "1",
+      "svg": "gabinetes/caja_inox_vialidad_400x300x200.svg",
+      "placa": {
+        "x": 32.0,
+        "y": 18.0,
+        "ancho": 336.0,
+        "alto": 264.0
+      },
+      "fijaciones": [],
+      "layout": {
+        "margen_lateral_mm": 32.0,
+        "margen_vertical_mm": 18.0
+      },
+      "modulos_por_fila": 0,
+      "filas_max_estimado": 0,
+      "capacidad": {
+        "con_canaleta": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "compacto": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "por_canaleta": {},
+        "nota": "No aplica en este módulo: los gabinetes de medidor no usan riel/canaleta ni la reserva de 25% de RIC N°02 (esa reserva es exclusiva de tableros)."
+      },
+      "rieles_incluidos": false,
+      "referencial": false,
+      "confianza": "probable",
+      "reemplazo_sugerido": null,
+      "notas": "Origen catálogo genérico STX/STXI en convención Ancho x Alto x Fondo (400 x 300 x 200 mm), convertida aquí a la convención plana del proyecto (alto_mm=300, ancho_mm=400, fondo_mm=200). Sin marca fija ni ficha de pernos de fijación específica: la placa interior es aproximada (margen de referencia, no posición de pernos verificada)."
+    }
+  ]
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Vista previa — biblioteca-medidores</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#fff; margin:20px; }
+  h1 { font-size:18px; }
+  h2 { font-size:14px; margin-top:28px; border-bottom:1px solid #ccc; padding-bottom:4px; }
+  .grid { display:flex; flex-wrap:wrap; gap:18px; }
+  .item { border:1px solid #ddd; padding:8px; text-align:center; width:220px; }
+  .item img { max-width:180px; max-height:220px; background:#fafafa; border:1px solid #eee; }
+  .item div.label { font-size:11px; margin-top:6px; color:#333; }
+  .conf { font-size:10px; padding:1px 6px; border-radius:8px; display:inline-block; margin-top:4px; }
+  .conf.confirmado { background:#d4f5d4; color:#1a5c1a; }
+  .conf.probable { background:#fff3cd; color:#7a5a00; }
+  .conf.referencial { background:#fde2e2; color:#8a1c1c; }
+</style>
+</head>
+<body>
+<h1>biblioteca-medidores — vista previa</h1>
+
+<h2>Componentes</h2>
+<div class="grid" id="componentes"></div>
+
+<h2>Gabinetes</h2>
+<div class="grid" id="gabinetes"></div>
+
+<script>
+async function cargar() {
+  const cat = await fetch('catalogo.json').then(r => r.json());
+  const gabs = await fetch('gabinetes.json').then(r => r.json());
+
+  const contC = document.getElementById('componentes');
+  for (const c of cat.componentes) {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = `<img src="${c.svg}">
+      <div class="label">${c.nombre}<br>${c.tamano_mm.alto}×${c.tamano_mm.ancho}×${c.tamano_mm.fondo}mm</div>
+      <span class="conf ${c.confianza}">${c.confianza}</span>`;
+    contC.appendChild(div);
+  }
+
+  const contG = document.getElementById('gabinetes');
+  for (const g of gabs.gabinetes) {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = `<img src="${g.svg}">
+      <div class="label">${g.nombre}<br>${g.tamano_mm.alto}×${g.tamano_mm.ancho}×${g.tamano_mm.fondo}mm</div>
+      <span class="conf ${g.confianza}">${g.confianza}</span>`;
+    contG.appendChild(div);
+  }
+}
+cargar();
+</script>
+</body>
+</html>
