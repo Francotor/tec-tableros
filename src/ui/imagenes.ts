@@ -56,21 +56,33 @@ interface Lineales {
 
 const lineales = new Map<TipoProyecto, Promise<Lineales>>();
 
-/** Carga lineales.js de la biblioteca del tipo activo en tiempo de ejecución, para actualizarla sin tocar el código. */
+/** Importa un lineales.js (texto) como módulo y comprueba que trae las dos funciones. */
+async function importarLineales(js: string): Promise<Lineales> {
+  const url = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
+  try {
+    const m = (await import(/* @vite-ignore */ url)) as Partial<Lineales>;
+    if (typeof m.rielSVG !== 'function' || typeof m.canaletaSVG !== 'function') throw new Error('lineales.js sin rielSVG o canaletaSVG');
+    return m as Lineales;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/**
+ * Carga lineales.js de la biblioteca del tipo activo en tiempo de ejecución, para actualizarla sin tocar el código.
+ * Si esa carpeta no trae uno propio (el de medidores) o lo que devuelve el servidor no es un módulo válido (un sitio
+ * de una sola página responde con su index.html en vez de un 404), usa el de tableros.
+ */
 export function cargarLineales(): Promise<Lineales> {
   const tipo = useBiblioteca.getState().tipo;
   let p = lineales.get(tipo);
   if (!p) {
-    // Un catálogo que no trae su propio lineales.js (el de medidores) usa el de tableros: el riel y la canaleta se dibujan igual.
-    p = textoDeBiblioteca('lineales.js')
-      .catch(async () => {
-        const r = await fetch(urlBiblioteca('lineales.js', 'tablero'));
-        if (!r.ok) throw new Error('No se pudo cargar lineales.js');
-        return r.text();
-      })
-      .then(
-      (js) => import(/* @vite-ignore */ URL.createObjectURL(new Blob([js], { type: 'text/javascript' }))) as Promise<Lineales>,
-    );
+    const deTablero = async (): Promise<Lineales> => {
+      const r = await fetch(urlBiblioteca('lineales.js', 'tablero'));
+      if (!r.ok) throw new Error('No se pudo cargar lineales.js');
+      return importarLineales(await r.text());
+    };
+    p = tipo === 'tablero' ? textoDeBiblioteca('lineales.js').then(importarLineales) : textoDeBiblioteca('lineales.js').then(importarLineales).catch(deTablero);
     p.catch(() => lineales.delete(tipo));
     lineales.set(tipo, p);
   }
