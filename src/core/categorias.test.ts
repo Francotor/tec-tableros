@@ -100,3 +100,20 @@ describe('capas del DXF por categoría', () => {
     for (const e of d.entidades) expect(d.capas.map((c) => c.nombre)).toContain(e.capa);
   });
 });
+
+describe('gabinetes.json sin "parametros" (el de medidores no los trae)', () => {
+  it('se carga con los parámetros de diseño por defecto y el editor puede armar su contexto', () => {
+    const gab = JSON.parse(JSON.stringify(medidor.gabinetes));
+    delete gab.parametros;
+    const bib = parsearBiblioteca(JSON.parse(JSON.stringify(medidor.catalogo)), gab);
+    expect(bib.gabinetes.parametros.layout.margen_borde_mm).toBe(20);
+    expect(bib.gabinetes.parametros.modulo_mm).toBe(18);
+    const ctx = crearContextoDe(bib, { id: bib.gabinetes.cajas[0]!.id }, { tipo: 'medidor' });
+    expect(ctx.capacidad).toBeNull();
+    expect(ctx.caja.area.w).toBeGreaterThan(0);
+  });
+
+  it('si trae parametros, se respetan', () => {
+    expect(tablero.gabinetes.parametros.layout.holgura_mm).toBe(10);
+  });
+});

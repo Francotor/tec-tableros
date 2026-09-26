@@ -17,7 +17,7 @@ export function nombreCortoCaja(caja: CajaProyecto, gabinetes: Gabinetes): strin
   if ('libre' in caja) return `Libre ${caja.libre.ancho_mm}×${caja.libre.alto_mm}`;
   const c = gabinetes.cajas.find((x) => x.id === caja.id);
   if (!c) return 'sin caja';
-  const medidas = /(\d+) x (\d+) x (\d+)/.exec(c.nombre);
+  const medidas = /(\d+)\s*x\s*(\d+)\s*x\s*(\d+)/.exec(c.nombre);
   if (medidas) {
     const dims = `${medidas[1]}×${medidas[2]}×${medidas[3]}`;
     return `${c.serie ?? (c.referencial ? 'Genérica' : TIPO[c.tipo])} ${dims}`;

@@ -34,3 +34,10 @@ describe('nombre corto de la caja', () => {
     }
   });
 });
+
+describe('nombre corto con medidas escritas sin espacios', () => {
+  it('"300x200x150" también se reconoce', () => {
+    const g = { cajas: [{ id: 'x', nombre: 'Caja inoxidable genérica 300x200x150 (empalme en vialidad)', tipo: 'inox', referencial: true }] } as never;
+    expect(nombreCortoCaja({ id: 'x' }, g)).toBe('Genérica 300×200×150');
+  });
+});
