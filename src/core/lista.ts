@@ -2,6 +2,7 @@ import { calcularTopes, esCanaleta, esRiel, listarRieles, TOPE_ID } from './colo
 import type { Contexto } from './colocacion';
 import { expandirPlantilla, valoresEfectivos } from './etiquetas';
 import type { Circuito, Elemento } from './modelo';
+import { muestraTotalesDeRielYCanaleta } from './tipoProyecto';
 
 export interface LineaLista {
   descripcion: string;
@@ -15,6 +16,8 @@ export interface ListaMateriales {
   /** Suma de cortes, en metros. */
   metrosRiel: number;
   metrosCanaleta: number;
+  /** false en un medidor: no hay riel ni canaleta, así que no se agregan las líneas "Total riel DIN" y "Total canaleta". */
+  conTotales: boolean;
 }
 
 const UNIDAD = 'un';
@@ -53,7 +56,12 @@ export function generarLista(elementos: readonly Elemento[], ctx: Contexto): Lis
   const topes = calcularTopes(elementos, ctx).length;
   if (tope && topes > 0) sumar(expandirPlantilla(tope.bom, {}).trim(), topes);
 
-  return { lineas: ordenarLineas(cuenta), metrosRiel: mmRiel / 1000, metrosCanaleta: mmCanaleta / 1000 };
+  return {
+    lineas: ordenarLineas(cuenta),
+    metrosRiel: mmRiel / 1000,
+    metrosCanaleta: mmCanaleta / 1000,
+    conTotales: muestraTotalesDeRielYCanaleta(ctx.tipo),
+  };
 }
 
 function ordenarLineas(cuenta: ReadonlyMap<string, number>): LineaLista[] {
@@ -118,6 +126,7 @@ export function formatearMetros(m: number): string {
 
 /** Líneas de total que se agregan al final de la lista. */
 export function lineasTotales(lista: ListaMateriales): LineaLista[] {
+  if (!lista.conTotales) return [];
   return [
     { descripcion: 'Total riel DIN', cantidad: lista.metrosRiel, unidad: 'm' },
     { descripcion: 'Total canaleta', cantidad: lista.metrosCanaleta, unidad: 'm' },
@@ -128,7 +137,7 @@ export function lineasTotales(lista: ListaMateriales): LineaLista[] {
 export function listaATexto(lista: ListaMateriales): string {
   const materiales = lista.lineas.map((l) => `${l.cantidad} x ${l.descripcion}`);
   const totales = lineasTotales(lista).map((t) => `${t.descripcion}: ${formatearMetros(t.cantidad)} m`);
-  return [...materiales, '', ...totales].join('\n');
+  return (totales.length > 0 ? [...materiales, '', ...totales] : materiales).join('\n');
 }
 
 function campoCsv(v: string): string {

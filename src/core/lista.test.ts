@@ -197,7 +197,7 @@ describe('lista de materiales: otros casos', () => {
   });
 
   it('escapa comas y comillas en el CSV', () => {
-    const lista = { lineas: [{ descripcion: 'a, "b"', cantidad: 1, unidad: 'un' }], metrosRiel: 0, metrosCanaleta: 0 };
+    const lista = { lineas: [{ descripcion: 'a, "b"', cantidad: 1, unidad: 'un' }], metrosRiel: 0, metrosCanaleta: 0, conTotales: true };
     expect(listaACsv(lista, { conTotales: false })).toContain('"a, ""b""",1,un');
   });
 

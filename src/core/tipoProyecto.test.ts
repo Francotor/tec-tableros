@@ -7,11 +7,11 @@ import { puedeDistribuir, distribuirAutomaticamente } from './distribucion';
 import { cargarBiblioteca, cargarLinealesDeBiblioteca, crearContextoDe, raizBiblioteca } from './ejemplo.testutil';
 import { generarDxf, svgsNecesarios } from './exportarDxf';
 import { leerFormasSvg } from './lectorSvg';
-import { generarLista } from './lista';
+import { generarLista, lineasTotales, listaACsv, listaATexto } from './lista';
 import { proyectoNuevo, valoresPorDefecto } from './modelo';
 import { plantillaDesdeProyecto, proyectoDesdePlantilla, validarPlantilla } from './plantillas';
 import { validarProyecto } from './proyectos';
-import { carpetaBiblioteca, nombreTipo, usaCapacidadDeRiel, validarTipo } from './tipoProyecto';
+import { carpetaBiblioteca, muestraTotalesDeRielYCanaleta, nombreTipo, usaCapacidadDeRiel, usaCircuitos, validarTipo } from './tipoProyecto';
 import { calcularVistaFrontal, datosFrontalDeCaja } from './vistaFrontal';
 import { useEditor } from '../store/editor';
 
@@ -147,5 +147,54 @@ describe('cambio de tipo en el editor (solo con el proyecto vacío)', () => {
     }));
     useEditor.getState().reconciliarCaja(cargarBiblioteca('medidor').gabinetes);
     expect(useEditor.getState().proyecto.caja).toEqual({ id: 'caja_metalica_400x500x200' });
+  });
+});
+
+describe('un empalme (medidor) no tiene circuitos ni totales de riel y canaleta', () => {
+  const bib = cargarBiblioteca('medidor');
+  const cajaId = bib.gabinetes.cajas[0]!.id;
+  const comp = bib.catalogo.componentes[0]!;
+
+  function empalme() {
+    const ctx = crearContextoDe(bib, { id: cajaId }, { tipo: 'medidor' });
+    const c = agregarElemento([], ctx, comp.id, { x: 200, y: 300 }, valoresPorDefecto(comp));
+    if (!c.ok) throw new Error(c.motivo);
+    return { ctx, elementos: c.elementos };
+  }
+
+  it('las reglas por tipo', () => {
+    expect(usaCircuitos('tablero')).toBe(true);
+    expect(usaCircuitos('medidor')).toBe(false);
+    expect(muestraTotalesDeRielYCanaleta('tablero')).toBe(true);
+    expect(muestraTotalesDeRielYCanaleta('medidor')).toBe(false);
+  });
+
+  it('la lista de materiales de un medidor trae solo nombres de componentes, sin "Total riel DIN" ni "Total canaleta"', () => {
+    const { ctx, elementos } = empalme();
+    const lista = generarLista(elementos, ctx);
+    expect(lista.conTotales).toBe(false);
+    expect(lineasTotales(lista)).toEqual([]);
+    expect(lista.lineas.map((l) => l.descripcion).join('\n')).not.toMatch(/riel|canaleta|circuito|reserva/i);
+    const texto = listaATexto(lista);
+    expect(texto).not.toMatch(/Total|riel|canaleta|circuito|reserva/i);
+    expect(texto.endsWith('\n')).toBe(false);
+    expect(listaACsv(lista)).not.toMatch(/Total|riel|canaleta|circuito|reserva/i);
+  });
+
+  it('la lista de un tablero sigue igual: con sus totales de riel y canaleta', () => {
+    const tab = cargarBiblioteca('tablero');
+    const ctx = crearContextoDe(tab, { id: 'caja_metalica_400x500x200' });
+    const lista = generarLista([], ctx);
+    expect(lista.conTotales).toBe(true);
+    expect(lineasTotales(lista).map((t) => t.descripcion)).toEqual(['Total riel DIN', 'Total canaleta']);
+    expect(listaATexto(lista)).toContain('Total riel DIN: 0 m');
+  });
+
+  it('el DXF de un empalme no lleva ningún texto de circuito ni de reserva', async () => {
+    const { ctx, elementos } = empalme();
+    const raiz = raizBiblioteca('medidor');
+    const svgs = new Map(svgsNecesarios(elementos, ctx).map((r) => [r, readFileSync(join(raiz, r), 'utf8')]));
+    const dxf = generarDxf(elementos, ctx, svgs, await cargarLinealesDeBiblioteca());
+    expect(dxf).not.toMatch(/circuito|reserva|riel/i);
   });
 });

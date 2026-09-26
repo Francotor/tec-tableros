@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { usaCircuitos } from '../core/tipoProyecto';
 import { calcularAvisos } from '../core/avisos';
 import type { AvisoLista } from '../core/avisos';
 import { formatearMm } from '../core/biblioteca';
@@ -128,7 +129,7 @@ export function PanelLista() {
         <p className="ayuda">Sin sugerencia de caja: no hay una caja del mismo tipo que contenga el dibujo (o la caja es plástica).</p>
       )}
 
-      {proyecto.circuitos.length > 0 && (
+      {usaCircuitos(proyecto.tipo) && proyecto.circuitos.length > 0 && (
         <label className="agrupar-circuito">
           <input type="checkbox" checked={agruparPorCircuito} onChange={(e) => setAgruparPorCircuito(e.target.checked)} />
           Agrupar por circuito
@@ -165,16 +166,18 @@ export function PanelLista() {
           </tbody>
         </table>
       )}
-      <table className="tabla-lista tabla-totales">
-        <tfoot>
-          {lineasTotales(lista).map((t) => (
-            <tr key={t.descripcion}>
-              <td>{formatearMetros(t.cantidad)} m</td>
-              <td>{t.descripcion}</td>
-            </tr>
-          ))}
-        </tfoot>
-      </table>
+      {lineasTotales(lista).length > 0 && (
+        <table className="tabla-lista tabla-totales">
+          <tfoot>
+            {lineasTotales(lista).map((t) => (
+              <tr key={t.descripcion}>
+                <td>{formatearMetros(t.cantidad)} m</td>
+                <td>{t.descripcion}</td>
+              </tr>
+            ))}
+          </tfoot>
+        </table>
+      )}
 
       <div className="acciones-lista">
         <button type="button" onClick={() => void copiar()}>

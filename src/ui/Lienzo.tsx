@@ -12,6 +12,7 @@ import { lineasEtiqueta, tamanoAjustado } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Componente } from '../core/tipos';
 import { contextoActual, useContexto, useEditor } from '../store/editor';
+import { usaCircuitos } from '../core/tipoProyecto';
 import { BarraIconos } from './BarraIconos';
 import { registrarGeneradorPng } from './exportacion';
 import { cargarLineales, textoDeBiblioteca, useImagen } from './imagenes';
@@ -555,7 +556,7 @@ export function Lienzo() {
                   comp={comp}
                   seleccionado={seleccion === el.uid}
                   fuera={fuera.has(el.uid)}
-                  numeroCircuito={circuito?.numero}
+                  numeroCircuito={usaCircuitos(ctx.tipo) ? circuito?.numero : undefined}
                   onSeleccionar={seleccionar}
                   onArrastre={alArrastrar}
                   onSoltar={alSoltarElemento}

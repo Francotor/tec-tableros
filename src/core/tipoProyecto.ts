@@ -31,3 +31,13 @@ export function validarTipo(v: unknown): TipoProyecto {
 export function usaCapacidadDeRiel(tipo: TipoProyecto): boolean {
   return tipo === 'tablero';
 }
+
+/** Circuitos ("Circuito", "Alimentado por", agrupar la lista por circuito): un empalme no tiene, solo componentes. */
+export function usaCircuitos(tipo: TipoProyecto): boolean {
+  return tipo === 'tablero';
+}
+
+/** Totales de riel DIN y de canaleta en la lista de materiales: son de los tableros. */
+export function muestraTotalesDeRielYCanaleta(tipo: TipoProyecto): boolean {
+  return tipo === 'tablero';
+}

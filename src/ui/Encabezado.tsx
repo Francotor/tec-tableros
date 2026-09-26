@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TIPOS_PROYECTO, nombreTipo } from '../core/tipoProyecto';
+import { TIPOS_PROYECTO, nombreTipo, usaCircuitos } from '../core/tipoProyecto';
 import { useEditor } from '../store/editor';
 import { EtiquetaTipo } from './EtiquetaTipo';
 import { useEstadoGuardado } from '../store/autoguardado';
@@ -103,14 +103,16 @@ export function Encabezado() {
             </button>
           </div>
         </div>
-        <div className="grupo-acciones" role="group" aria-label="Edición">
-          <span className="etiqueta-grupo">Edición</span>
-          <div className="botones">
-            <button type="button" onClick={() => setCircuitosAbierto(true)}>
-              Circuitos
-            </button>
+        {usaCircuitos(tipo) && (
+          <div className="grupo-acciones" role="group" aria-label="Edición">
+            <span className="etiqueta-grupo">Edición</span>
+            <div className="botones">
+              <button type="button" onClick={() => setCircuitosAbierto(true)}>
+                Circuitos
+              </button>
+            </div>
           </div>
-        </div>
+        )}
         <div className="grupo-acciones" role="group" aria-label="Exportar">
           <span className="etiqueta-grupo">Exportar</span>
           <div className="botones">
@@ -129,7 +131,7 @@ export function Encabezado() {
       <DialogoProyectos abierto={abierto} onCerrar={() => setAbierto(false)} />
       <DialogoGuardarPlantilla abierto={guardarPlantillaAbierto} onCerrar={() => setGuardarPlantillaAbierto(false)} />
       <DialogoNuevoDesdePlantilla abierto={nuevoDesdePlantillaAbierto} onCerrar={() => setNuevoDesdePlantillaAbierto(false)} />
-      <DialogoCircuitos abierto={circuitosAbierto} onCerrar={() => setCircuitosAbierto(false)} />
+      {usaCircuitos(tipo) && <DialogoCircuitos abierto={circuitosAbierto} onCerrar={() => setCircuitosAbierto(false)} />}
     </header>
   );
 }

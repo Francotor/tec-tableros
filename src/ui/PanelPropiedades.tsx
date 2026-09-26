@@ -5,6 +5,7 @@ import { candidatosPadre, puedeConectarse } from '../core/conexion';
 import { descripcionElemento, valoresEfectivos, interpretarValor } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Campo, Componente } from '../core/tipos';
+import { usaCircuitos } from '../core/tipoProyecto';
 import { useContexto, useEditor } from '../store/editor';
 
 const SIN_PADRE = '__sin_padre__';
@@ -250,6 +251,8 @@ export function PanelPropiedades() {
     );
   }
 
+  // Un empalme (medidor) no tiene circuitos ni alimentación entre piezas: solo componentes.
+  const conCircuitos = usaCircuitos(ctx?.tipo ?? 'tablero');
   const valores = valoresEfectivos(comp, el);
   const editables = comp.campos.filter((c) => !(comp.montaje === 'lineal' && c.id === 'largo'));
   const largoActual = el.largo_mm ?? Number(valores.largo ?? 0);
@@ -274,8 +277,8 @@ export function PanelPropiedades() {
         <CampoEditable key={`${el.uid}:${c.id}`} uid={el.uid} campo={c} valor={valores[c.id] ?? c.defecto} />
       ))}
       {editables.length === 0 && comp.montaje !== 'lineal' && <p className="vacio">Esta pieza no tiene datos editables.</p>}
-      {puedeConectarse(comp) && <CampoAlimentadoPor key={`${el.uid}:${el.alimentadoPor ?? ''}`} el={el} />}
-      <CampoCircuito key={`${el.uid}:${el.circuitoId ?? ''}`} el={el} />
+      {conCircuitos && puedeConectarse(comp) && <CampoAlimentadoPor key={`${el.uid}:${el.alimentadoPor ?? ''}`} el={el} />}
+      {conCircuitos && <CampoCircuito key={`${el.uid}:${el.circuitoId ?? ''}`} el={el} />}
     </div>
   );
 }
