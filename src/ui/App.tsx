@@ -38,7 +38,7 @@ export function App() {
       {estado === 'error' && <p className="aviso error">{error}</p>}
       {biblioteca && sesionLista && tipoBiblioteca === tipo && (
         <main className="cuerpo">
-          <PanelCatalogo componentes={biblioteca.catalogo.componentes} />
+          <PanelCatalogo componentes={biblioteca.catalogo.componentes} categorias={biblioteca.catalogo.categorias} />
           <div className="zona-trabajo">
             <BarraHerramientas />
             <div className="area">

@@ -1,14 +1,10 @@
 // Tipos derivados de la forma real de public/biblioteca/catalogo.json y gabinetes.json.
 
-export type Categoria = 'Protecciones' | 'Comando' | 'Control' | 'Distribucion' | 'Montaje';
+/** Categoría de una pieza: el texto que trae su ficha (cada catálogo define las suyas). */
+export type Categoria = string;
 
-export const CATEGORIAS: readonly Categoria[] = [
-  'Protecciones',
-  'Comando',
-  'Control',
-  'Distribucion',
-  'Montaje',
-];
+/** Orden preferido de las categorías del catálogo de tableros; el de otros catálogos lo da su `categorias` o su orden de aparición. */
+export const CATEGORIAS_TABLERO: readonly Categoria[] = ['Protecciones', 'Comando', 'Control', 'Distribucion', 'Montaje'];
 
 export type ValorCampo = string | number;
 
@@ -79,6 +75,8 @@ export type Componente = ComponenteRiel | ComponenteLibre | ComponenteLineal;
 
 export interface Catalogo {
   version: string;
+  /** Opcional: orden en que se muestran las categorías. Si falta, es el orden en que aparecen en `componentes`. */
+  categorias?: string[];
   unidad: 'mm';
   modulo_din_mm: number;
   alto_modular_mm: number;

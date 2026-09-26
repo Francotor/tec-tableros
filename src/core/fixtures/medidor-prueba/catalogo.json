@@ -1,0 +1,32 @@
+{
+ "version": "0.1-prueba",
+ "unidad": "mm",
+ "origen": "arriba-izquierda, eje y hacia abajo",
+ "modulo_din_mm": 18,
+ "alto_modular_mm": 90,
+ "riel_din_ancho_mm": 35,
+ "nota": "DATOS DE PRUEBA para verificar el mecanismo de tipos de proyecto. Se reemplaza por el catálogo real de medidores / empalmes.",
+ "componentes": [
+  {
+   "id": "medidor_monofasico_prueba",
+   "nombre": "Medidor monofásico (dato de prueba)",
+   "categoria": "medidor",
+   "svg": "componentes/medidor_monofasico_prueba.svg",
+   "ancho_mm": 110,
+   "alto_mm": 170,
+   "montaje": "libre",
+   "riel_y_mm": null,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {},
+   "bom": "Medidor monofásico (dato de prueba)",
+   "notas": "Pieza de prueba: se fija directo a la placa."
+  }
+ ]
+}

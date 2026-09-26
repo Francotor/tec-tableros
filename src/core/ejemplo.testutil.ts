@@ -16,7 +16,9 @@ import type { Biblioteca } from './tipos';
 export const RAIZ_BIBLIOTECA = join(process.cwd(), 'public', 'biblioteca');
 
 /** Carpeta de `public/` de la biblioteca de cada tipo de proyecto. */
-export const raizBiblioteca = (tipo: TipoProyecto = 'tablero'): string => join(process.cwd(), 'public', carpetaBiblioteca(tipo));
+// La del medidor NO es public/biblioteca-medidores (esa es la biblioteca real, que puede cambiar): las pruebas usan una copia fija de datos de prueba.
+export const raizBiblioteca = (tipo: TipoProyecto = 'tablero'): string =>
+  tipo === 'medidor' ? join(process.cwd(), 'src', 'core', 'fixtures', 'medidor-prueba') : join(process.cwd(), 'public', carpetaBiblioteca(tipo));
 
 export function cargarBiblioteca(tipo: TipoProyecto = 'tablero'): Biblioteca {
   const leer = (f: string): unknown => JSON.parse(readFileSync(join(raizBiblioteca(tipo), f), 'utf8'));

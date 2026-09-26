@@ -6,23 +6,47 @@ import type { FormaSvg } from './lectorSvg';
 import type { Elemento } from './modelo';
 import { aAscii } from './textoAscii';
 import type { VistaFrontal } from './vistaFrontal';
-import type { Categoria } from './tipos';
+import { CATEGORIAS_TABLERO } from './tipos';
 
 // ---------------------------------------------------------------- escritor DXF R12
 
-export type CapaDxf = Categoria | 'Caja' | 'Caja_Frontal' | 'Texto';
+/** Nombre de una capa: la categoría de la ficha, o Caja, Caja_Frontal y Texto. */
+export type CapaDxf = string;
 
-/** Capas del archivo y su color ACI (1 rojo, 2 amarillo, 3 verde, 4 cian, 5 azul, 7 blanco/negro, 8 gris). */
-export const CAPAS_DXF: readonly { nombre: CapaDxf; color: number }[] = [
-  { nombre: 'Protecciones', color: 1 },
-  { nombre: 'Comando', color: 5 },
-  { nombre: 'Control', color: 3 },
-  { nombre: 'Distribucion', color: 4 },
-  { nombre: 'Montaje', color: 8 },
-  { nombre: 'Caja', color: 7 },
-  { nombre: 'Caja_Frontal', color: 30 },
-  { nombre: 'Texto', color: 2 },
-];
+export interface DefCapaDxf {
+  nombre: CapaDxf;
+  color: number;
+}
+
+/** Colores ACI de las categorías de tablero de siempre (1 rojo, 5 azul, 3 verde, 4 cian, 8 gris). */
+const COLOR_CATEGORIA: Record<string, number> = { Protecciones: 1, Comando: 5, Control: 3, Distribucion: 4, Montaje: 8 };
+/** Colores ACI para las demás categorías, en orden. */
+const COLORES_EXTRA = [6, 40, 90, 110, 130, 150, 170, 190, 210, 230];
+const RESERVADAS = ['caja', 'caja_frontal', 'texto'];
+
+/**
+ * Nombre de capa DXF R12 de una categoría: solo letras ASCII, dígitos, "_", "$" y "-" (sin tildes ni espacios); no puede
+ * chocar con las capas propias (Caja, Caja_Frontal, Texto).
+ */
+export function nombreCapa(categoria: string): string {
+  const limpio = categoria.normalize('NFD').replace(/\p{M}/gu, '').replace(/[^A-Za-z0-9_$-]/g, '_') || '_';
+  return RESERVADAS.includes(limpio.toLowerCase()) ? `Cat_${limpio}` : limpio;
+}
+
+/** Capas del archivo para estas categorías (una por categoría, sin repetir) más Caja, Caja_Frontal y Texto. */
+export function capasDxf(categorias: readonly string[]): DefCapaDxf[] {
+  const capas: DefCapaDxf[] = [];
+  let extra = 0;
+  for (const cat of categorias) {
+    const nombre = nombreCapa(cat);
+    if (capas.some((c) => c.nombre === nombre)) continue;
+    capas.push({ nombre, color: COLOR_CATEGORIA[cat] ?? COLORES_EXTRA[extra++ % COLORES_EXTRA.length] ?? 6 });
+  }
+  return [...capas, { nombre: 'Caja', color: 7 }, { nombre: 'Caja_Frontal', color: 30 }, { nombre: 'Texto', color: 2 }];
+}
+
+/** Capas por defecto: las categorías del catálogo de tableros. */
+export const CAPAS_DXF: readonly DefCapaDxf[] = capasDxf(CATEGORIAS_TABLERO);
 
 function num(v: number): string {
   const s = v.toFixed(4).replace(/\.?0+$/, '');
@@ -35,6 +59,8 @@ function num(v: number): string {
  * (POLYLINE + 4 VERTEX + SEQEND), que es su equivalente en este formato.
  */
 export class EscritorDxf {
+  constructor(private readonly capas: readonly DefCapaDxf[] = CAPAS_DXF) {}
+
   private readonly entidades: string[] = [];
   private minX = Infinity;
   private minY = Infinity;
@@ -153,8 +179,8 @@ export class EscritorDxf {
     g(0, 'ENDTAB');
     g(0, 'TABLE');
     g(2, 'LAYER');
-    g(70, CAPAS_DXF.length);
-    for (const c of CAPAS_DXF) {
+    g(70, this.capas.length);
+    for (const c of this.capas) {
       g(0, 'LAYER');
       g(2, c.nombre);
       g(70, 0);
@@ -253,7 +279,7 @@ export function generarDxf(
   lineales: GeneradoresLineales,
   vistaFrontal?: VistaFrontal,
 ): string {
-  const dxf = new EscritorDxf();
+  const dxf = new EscritorDxf(capasDxf([...new Set([...ctx.comps.values()].map((c) => c.categoria))]));
   const alto = ctx.caja.alto;
   const rectangulo = (capa: CapaDxf, x: number, y: number, w: number, h: number): void => dxf.rectangulo(capa, x, alto - y - h, w, h);
   /** Dibuja formas de un SVG; `mapa` lleva sus coordenadas al tablero (Y hacia abajo). */
@@ -310,10 +336,10 @@ export function generarDxf(
       const vertical = (el.rotacion ?? 0) === 90;
       const largo = vertical ? r.h : r.w;
       const mapa: Mapa = vertical ? (x, y) => [r.x + comp.alto_mm - y, r.y + x] : (x, y) => [r.x + x, r.y + y];
-      dibujar(comp.categoria, leerFormasSvg(lineales.canaletaSVG(largo, comp.alto_mm)), mapa);
+      dibujar(nombreCapa(comp.categoria), leerFormasSvg(lineales.canaletaSVG(largo, comp.alto_mm)), mapa);
       continue;
     }
-    formas(comp.categoria, comp.svg, el.x_mm, el.y_mm);
+    formas(nombreCapa(comp.categoria), comp.svg, el.x_mm, el.y_mm);
     const etiqueta = comp.etiqueta;
     if (etiqueta) {
       const lineas = lineasEtiqueta(comp, el);
@@ -327,7 +353,7 @@ export function generarDxf(
 
   // Topes automáticos
   const tope = ctx.comps.get(TOPE_ID);
-  if (tope) for (const t of topes) formas(tope.categoria, tope.svg, t.rect.x, t.rect.y);
+  if (tope) for (const t of topes) formas(nombreCapa(tope.categoria), tope.svg, t.rect.x, t.rect.y);
 
   // Vista frontal exterior, a la derecha de la interior.
   if (vistaFrontal) {

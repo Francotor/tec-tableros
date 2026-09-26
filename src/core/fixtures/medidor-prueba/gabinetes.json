@@ -1,0 +1,83 @@
+{
+ "version": "0.1-prueba",
+ "unidad": "mm",
+ "parametros": {
+  "margen_placa_mm": 50,
+  "modulo_mm": 18,
+  "alto_modular_mm": 90,
+  "layout": {
+   "margen_borde_mm": 20,
+   "holgura_mm": 10,
+   "tope_riel_mm": 8,
+   "paso_compacto_mm": 125,
+   "paso_minimo_con_canaleta_mm": 150,
+   "canaleta_defecto_mm": 40,
+   "canaletas_mm": [
+    25,
+    40,
+    60
+   ],
+   "reserva": 0.25,
+   "reemplazo_max_dif_fondo_mm": 30,
+   "reemplazo_excluye_series": [
+    "KT"
+   ],
+   "fijacion_keepout_mm": 10
+  },
+  "modos": {
+   "compacto": "Menos de 8 circuitos: sin canaletas (excepcion del RIC N°02, 6.1.16.1). Paso entre filas de 125 mm.",
+   "con_canaleta": "8 circuitos o mas: canaletas no metalicas en ambos costados y sobre y bajo cada fila. Seccion por defecto 40 mm; capacidad.por_canaleta trae 25, 40 y 60."
+  },
+  "formulas": {
+   "placa": "caja exterior - margen_placa por dimension",
+   "compacto": {
+    "largo_riel": "ancho_placa - 2 * (margen_lateral + holgura)",
+    "filas": "floor((alto_placa - 2 * margen_vertical + (paso_compacto - alto_modular)) / paso_compacto)"
+   },
+   "con_canaleta": {
+    "largo_riel": "ancho_placa - 2 * (margen_lateral + canaleta + holgura)",
+    "paso": "max(paso_minimo_con_canaleta, alto_modular + canaleta + 2 * holgura)",
+    "filas": "floor((alto_placa - altura_1) / paso) + 1, con altura_1 = 2 * (margen_vertical + canaleta + (paso - alto_modular - canaleta) / 2) + alto_modular"
+   },
+   "modulos_por_fila": "floor((largo_riel - 2 * tope_riel) / modulo)",
+   "modulos_max_con_reserva": "floor(filas * modulos_por_fila / (1 + reserva))",
+   "margenes": "margen_lateral y margen_vertical valen margen_borde_mm salvo que la caja traiga layout (cajas de fabricante): entonces se usa caja.layout"
+  },
+  "fuentes": [
+   "RIC N°02 (SEC), 6.1.16.1: cableado interno por bandejas no metalicas, maximo 50 % de ocupacion, salvo tableros de menos de 8 circuitos",
+   "RIC N°02 (SEC), 6.1.16.3: prever ampliacion del 25 % por tipo de servicio, con espacio en riel y barras",
+   "Paso entre filas de riel: 125 mm (modulos residenciales) y 150 mm (cuatro filas) en fabricantes de cuadros modulares"
+  ],
+  "estado": "Cajas con fabricante (Eldon ASR, Lerkenbox KT, DM y ARES): la placa sale del catalogo; los pernos solo en ASR. Cajas con referencial=true: medidas genericas sin verificar; margen, holgura y paso son propios. Los margenes dependen de la placa: el editor debe permitir cambiarlos por proyecto. Los valores por defecto sirven de referencia y de vectores de prueba."
+ },
+ "regla_sugerencia": "Elegir la caja mas chica cuya capacidad del modo elegido (modulos_max_con_reserva) contenga el dibujo, prefiriendo las de fabricante (referencial=false); permitir medida libre.",
+ "cajas": [
+  {
+   "id": "gabinete_medidor_prueba",
+   "nombre": "Gabinete para medidor (dato de prueba) 600 x 400 x 250",
+   "tipo": "metalica",
+   "montaje": "sobrepuesta",
+   "alto_mm": 600,
+   "ancho_mm": 400,
+   "fondo_mm": 250,
+   "svg": "gabinetes/gabinete_medidor_prueba.svg",
+   "placa": {
+    "x": 25,
+    "y": 25,
+    "ancho": 350,
+    "alto": 550
+   },
+   "modulos_por_fila": 0,
+   "filas_max_estimado": 0,
+   "rieles_incluidos": false,
+   "fabricante": "Prueba",
+   "serie": "MED",
+   "referencial": false,
+   "reemplazo_sugerido": null,
+   "puertas": 1,
+   "cierres": 2,
+   "bisagras": 2,
+   "notas": "Caja de prueba."
+  }
+ ]
+}

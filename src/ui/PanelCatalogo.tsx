@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { agruparPorCategoria, formatearMm } from '../core/biblioteca';
+import { agruparPorCategoria, formatearMm, rotuloCategoria } from '../core/biblioteca';
 import type { Componente } from '../core/tipos';
 import { urlBiblioteca } from '../store/biblioteca';
 import { useEditor } from '../store/editor';
@@ -21,10 +21,10 @@ function representante(lista: Componente[]): Componente | undefined {
  * Catálogo de componentes. Plegado (lo normal) es una franja angosta con una pieza por categoría; al pasar el mouse
  * o tocar, se despliega encima del dibujo sin quitarle ancho. "Fijar panel" lo deja desplegado a un costado.
  */
-export function PanelCatalogo({ componentes }: { componentes: Componente[] }) {
+export function PanelCatalogo({ componentes, categorias }: { componentes: Componente[]; categorias?: string[] }) {
   const fichaActiva = useEditor((s) => s.fichaActiva);
   const setFichaActiva = useEditor((s) => s.setFichaActiva);
-  const grupos = agruparPorCategoria(componentes);
+  const grupos = agruparPorCategoria(componentes, categorias);
   const [fijo, setFijo] = usePreferencia('tec.catalogoFijo', false);
   const [flotante, setFlotante] = useState(false);
   const enfoque = useRef<string | null>(null);
@@ -82,8 +82,8 @@ export function PanelCatalogo({ componentes }: { componentes: Componente[] }) {
               <button
                 key={categoria}
                 type="button"
-                title={`${categoria} (${lista.length})`}
-                aria-label={`${categoria}, ${lista.length} piezas`}
+                title={`${rotuloCategoria(categoria)} (${lista.length})`}
+                aria-label={`${rotuloCategoria(categoria)}, ${lista.length} piezas`}
                 onClick={() => {
                   if (flotante) {
                     llevarACategoria(categoria);
@@ -118,7 +118,7 @@ export function PanelCatalogo({ componentes }: { componentes: Componente[] }) {
           {grupos.map(({ categoria, componentes: lista }) => (
             <details key={categoria} id={`cat-${categoria}`} open className="grupo">
               <summary>
-                {categoria} <span className="cuenta">{lista.length}</span>
+                {rotuloCategoria(categoria)} <span className="cuenta">{lista.length}</span>
               </summary>
               <ul>
                 {lista.map((c) => {
