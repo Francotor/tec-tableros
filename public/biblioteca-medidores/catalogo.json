@@ -1,5 +1,5 @@
 {
-  "version": "1.1.2",
+  "version": "1.3",
   "unidad": "mm",
   "modulo": "medidores",
   "nota_reserva": "Este módulo NO aplica la reserva de 25% de RIC N°02 6.1.16.3 (esa norma aplica solo a tableros). No se usa en ningún cálculo de esta biblioteca.",
@@ -316,6 +316,329 @@
       "confianza": "referencial",
       "referencial": true,
       "fuente": "Búsqueda de catálogo técnico (no verificado por el usuario)"
+    },
+    {
+      "id": "automatico_1p",
+      "nombre": "Interruptor automático 1P (rieldín)",
+      "categoria": "Protecciones",
+      "svg": "componentes/automatico_1p.svg",
+      "ancho_mm": 18,
+      "alto_mm": 90,
+      "fondo_mm": 70,
+      "montaje": "riel",
+      "riel_y_mm": 45.0,
+      "snap": {
+        "tipo": "modular",
+        "paso_mm": 18
+      },
+      "modulos": 1,
+      "polos": 1,
+      "etiqueta": {
+        "x": 2.5,
+        "y": 15,
+        "w": 13.0,
+        "h": 17,
+        "lineas": [
+          "{polos}P Q{indice}",
+          "{curva}{amperaje}"
+        ],
+        "tamano_mm": 4.4
+      },
+      "campos": [
+        {
+          "id": "indice",
+          "rotulo": "N° de automático",
+          "tipo": "entero",
+          "defecto": 1
+        },
+        {
+          "id": "curva",
+          "rotulo": "Curva",
+          "tipo": "select",
+          "opciones": [
+            "B",
+            "C",
+            "D"
+          ],
+          "defecto": "C"
+        },
+        {
+          "id": "amperaje",
+          "rotulo": "Corriente (A)",
+          "tipo": "select",
+          "opciones": [
+            6,
+            10,
+            16,
+            20,
+            25,
+            32,
+            40,
+            50,
+            63
+          ],
+          "defecto": 40
+        }
+      ],
+      "atributos": {
+        "polos": 1
+      },
+      "bom": "Interruptor automático {polos}P Q{indice} {curva}{amperaje} A",
+      "notas": "Reutiliza el esquema real confirmado por Code para 'automatico_2p' de biblioteca-tableros (mismo montaje en riel, mismo paso modular de 18mm, misma altura de 90mm). Fondo de 70mm es un valor típico de automático modular genérico, no verificado con ficha propia — confirmar si se necesita exactitud en el fondo. Solo automáticos: no se incluyen diferenciales ni ningún otro tipo de protección en este módulo, por instrucción explícita del usuario.",
+      "confianza": "probable",
+      "referencial": true,
+      "fuente": "Esquema real de biblioteca-tableros (confirmado por Code) + dimensión modular DIN estándar (18mm/módulo, 90mm de alto)"
+    },
+    {
+      "id": "automatico_2p",
+      "nombre": "Interruptor automático 2P (rieldín)",
+      "categoria": "Protecciones",
+      "svg": "componentes/automatico_2p.svg",
+      "ancho_mm": 36,
+      "alto_mm": 90,
+      "fondo_mm": 70,
+      "montaje": "riel",
+      "riel_y_mm": 45.0,
+      "snap": {
+        "tipo": "modular",
+        "paso_mm": 18
+      },
+      "modulos": 2,
+      "polos": 2,
+      "etiqueta": {
+        "x": 2.5,
+        "y": 15,
+        "w": 31.0,
+        "h": 17,
+        "lineas": [
+          "{polos}P Q{indice}",
+          "{curva}{amperaje}"
+        ],
+        "tamano_mm": 4.4
+      },
+      "campos": [
+        {
+          "id": "indice",
+          "rotulo": "N° de automático",
+          "tipo": "entero",
+          "defecto": 1
+        },
+        {
+          "id": "curva",
+          "rotulo": "Curva",
+          "tipo": "select",
+          "opciones": [
+            "B",
+            "C",
+            "D"
+          ],
+          "defecto": "C"
+        },
+        {
+          "id": "amperaje",
+          "rotulo": "Corriente (A)",
+          "tipo": "select",
+          "opciones": [
+            6,
+            10,
+            16,
+            20,
+            25,
+            32,
+            40,
+            50,
+            63
+          ],
+          "defecto": 40
+        }
+      ],
+      "atributos": {
+        "polos": 2
+      },
+      "bom": "Interruptor automático {polos}P Q{indice} {curva}{amperaje} A",
+      "notas": "Reutiliza el esquema real confirmado por Code para 'automatico_2p' de biblioteca-tableros (mismo montaje en riel, mismo paso modular de 18mm, misma altura de 90mm). Fondo de 70mm es un valor típico de automático modular genérico, no verificado con ficha propia — confirmar si se necesita exactitud en el fondo. Solo automáticos: no se incluyen diferenciales ni ningún otro tipo de protección en este módulo, por instrucción explícita del usuario.",
+      "confianza": "probable",
+      "referencial": true,
+      "fuente": "Esquema real de biblioteca-tableros (confirmado por Code) + dimensión modular DIN estándar (18mm/módulo, 90mm de alto)"
+    },
+    {
+      "id": "automatico_3p",
+      "nombre": "Interruptor automático 3P (rieldín)",
+      "categoria": "Protecciones",
+      "svg": "componentes/automatico_3p.svg",
+      "ancho_mm": 54,
+      "alto_mm": 90,
+      "fondo_mm": 70,
+      "montaje": "riel",
+      "riel_y_mm": 45.0,
+      "snap": {
+        "tipo": "modular",
+        "paso_mm": 18
+      },
+      "modulos": 3,
+      "polos": 3,
+      "etiqueta": {
+        "x": 2.5,
+        "y": 15,
+        "w": 49.0,
+        "h": 17,
+        "lineas": [
+          "{polos}P Q{indice}",
+          "{curva}{amperaje}"
+        ],
+        "tamano_mm": 4.4
+      },
+      "campos": [
+        {
+          "id": "indice",
+          "rotulo": "N° de automático",
+          "tipo": "entero",
+          "defecto": 1
+        },
+        {
+          "id": "curva",
+          "rotulo": "Curva",
+          "tipo": "select",
+          "opciones": [
+            "B",
+            "C",
+            "D"
+          ],
+          "defecto": "C"
+        },
+        {
+          "id": "amperaje",
+          "rotulo": "Corriente (A)",
+          "tipo": "select",
+          "opciones": [
+            6,
+            10,
+            16,
+            20,
+            25,
+            32,
+            40,
+            50,
+            63
+          ],
+          "defecto": 40
+        }
+      ],
+      "atributos": {
+        "polos": 3
+      },
+      "bom": "Interruptor automático {polos}P Q{indice} {curva}{amperaje} A",
+      "notas": "Reutiliza el esquema real confirmado por Code para 'automatico_2p' de biblioteca-tableros (mismo montaje en riel, mismo paso modular de 18mm, misma altura de 90mm). Fondo de 70mm es un valor típico de automático modular genérico, no verificado con ficha propia — confirmar si se necesita exactitud en el fondo. Solo automáticos: no se incluyen diferenciales ni ningún otro tipo de protección en este módulo, por instrucción explícita del usuario.",
+      "confianza": "probable",
+      "referencial": true,
+      "fuente": "Esquema real de biblioteca-tableros (confirmado por Code) + dimensión modular DIN estándar (18mm/módulo, 90mm de alto)"
+    },
+    {
+      "id": "automatico_4p",
+      "nombre": "Interruptor automático 4P (rieldín)",
+      "categoria": "Protecciones",
+      "svg": "componentes/automatico_4p.svg",
+      "ancho_mm": 72,
+      "alto_mm": 90,
+      "fondo_mm": 70,
+      "montaje": "riel",
+      "riel_y_mm": 45.0,
+      "snap": {
+        "tipo": "modular",
+        "paso_mm": 18
+      },
+      "modulos": 4,
+      "polos": 4,
+      "etiqueta": {
+        "x": 2.5,
+        "y": 15,
+        "w": 67.0,
+        "h": 17,
+        "lineas": [
+          "{polos}P Q{indice}",
+          "{curva}{amperaje}"
+        ],
+        "tamano_mm": 4.4
+      },
+      "campos": [
+        {
+          "id": "indice",
+          "rotulo": "N° de automático",
+          "tipo": "entero",
+          "defecto": 1
+        },
+        {
+          "id": "curva",
+          "rotulo": "Curva",
+          "tipo": "select",
+          "opciones": [
+            "B",
+            "C",
+            "D"
+          ],
+          "defecto": "C"
+        },
+        {
+          "id": "amperaje",
+          "rotulo": "Corriente (A)",
+          "tipo": "select",
+          "opciones": [
+            6,
+            10,
+            16,
+            20,
+            25,
+            32,
+            40,
+            50,
+            63
+          ],
+          "defecto": 40
+        }
+      ],
+      "atributos": {
+        "polos": 4
+      },
+      "bom": "Interruptor automático {polos}P Q{indice} {curva}{amperaje} A",
+      "notas": "Reutiliza el esquema real confirmado por Code para 'automatico_2p' de biblioteca-tableros (mismo montaje en riel, mismo paso modular de 18mm, misma altura de 90mm). Fondo de 70mm es un valor típico de automático modular genérico, no verificado con ficha propia — confirmar si se necesita exactitud en el fondo. Solo automáticos: no se incluyen diferenciales ni ningún otro tipo de protección en este módulo, por instrucción explícita del usuario.",
+      "confianza": "probable",
+      "referencial": true,
+      "fuente": "Esquema real de biblioteca-tableros (confirmado por Code) + dimensión modular DIN estándar (18mm/módulo, 90mm de alto)"
+    },
+    {
+      "id": "riel_din",
+      "nombre": "Riel DIN 35 x 7,5",
+      "categoria": "Montaje",
+      "svg": "lineales/riel_din_muestra_180mm.svg",
+      "generador": "lineales.js -> rielSVG(largo_mm)",
+      "ancho_mm": null,
+      "alto_mm": 35,
+      "montaje": "lineal",
+      "eje": "x",
+      "largo_min_mm": 50,
+      "largo_max_mm": 2000,
+      "snap": {
+        "tipo": "libre",
+        "paso_mm": 1
+      },
+      "campos": [
+        {
+          "id": "largo",
+          "rotulo": "Largo (mm)",
+          "tipo": "entero",
+          "defecto": 400
+        }
+      ],
+      "accesorios_auto": [
+        {
+          "id": "tope_riel",
+          "cantidad": 2
+        }
+      ],
+      "bom": "Riel DIN 35 mm, corte de {largo} mm",
+      "notas": "Largo comercial habitual: 2 m.",
+      "confianza": "confirmado",
+      "fuente": "Entrada real de public/biblioteca/ (biblioteca-tableros), pasada completa por Code"
     }
   ]
 }

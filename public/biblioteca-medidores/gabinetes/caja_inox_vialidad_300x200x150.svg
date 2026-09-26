@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300mm" height="200mm">
-<rect x="0" y="0" width="300" height="200" rx="6" fill="#F2F3F4" stroke="#2A2A2A" stroke-width="1.5"/>
-<rect x="24.0" y="12.0" width="252.0" height="176.0" rx="2" fill="none" stroke="#8F9196" stroke-width="1" stroke-dasharray="4,3"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" width="200mm" height="300mm">
+<rect x="0" y="0" width="200" height="300" rx="6" fill="#F2F3F4" stroke="#2A2A2A" stroke-width="1.5"/>
+<rect x="16.0" y="18.0" width="168.0" height="264.0" rx="2" fill="none" stroke="#8F9196" stroke-width="1" stroke-dasharray="4,3"/>
 </svg>
