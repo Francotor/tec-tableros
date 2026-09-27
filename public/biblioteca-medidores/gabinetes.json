@@ -1,5 +1,5 @@
 {
-  "version": "1.3",
+  "version": "1.6",
   "unidad": "mm",
   "modulo": "medidores",
   "cajas": [
@@ -214,6 +214,59 @@
       "confianza": "probable",
       "reemplazo_sugerido": null,
       "notas": "Origen catálogo genérico STX/STXI, ya en alto x ancho x fondo (400 x 300 x 200 mm) — el usuario confirmó viendo la caja en el editor que la conversión de v1.1 la dejaba volteada; corregido en v1.2 sin invertir el dato de origen. Sin marca fija ni ficha de pernos de fijación específica: la placa interior es aproximada (margen de referencia, no posición de pernos verificada)."
+    },
+    {
+      "id": "caja_inox_vialidad_300x250x150",
+      "nombre": "Caja inoxidable genérica 300x250x150 (empalme en vialidad)",
+      "tipo": "inox",
+      "montaje": "sobrepuesta",
+      "fabricante": null,
+      "serie": null,
+      "ref_fabricante": null,
+      "alto_mm": 300,
+      "ancho_mm": 250,
+      "fondo_mm": 150,
+      "profundidad_util_mm": null,
+      "cierres": "1",
+      "svg": "gabinetes/caja_inox_vialidad_300x250x150.svg",
+      "placa": {
+        "x": 20.0,
+        "y": 18.0,
+        "ancho": 210.0,
+        "alto": 264.0
+      },
+      "fijaciones": [],
+      "layout": {
+        "margen_lateral_mm": 20.0,
+        "margen_vertical_mm": 18.0
+      },
+      "modulos_por_fila": 0,
+      "filas_max_estimado": 0,
+      "capacidad": {
+        "con_canaleta": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "compacto": {
+          "paso_filas_mm": 0,
+          "largo_riel_mm": 0,
+          "filas": 0,
+          "modulos_por_fila": 0,
+          "modulos_total": 0,
+          "modulos_max_con_reserva": 0
+        },
+        "por_canaleta": {},
+        "nota": "No aplica en este módulo: los gabinetes de medidor no usan riel/canaleta ni la reserva de 25% de RIC N°02 (esa reserva es exclusiva de tableros)."
+      },
+      "rieles_incluidos": false,
+      "referencial": false,
+      "confianza": "probable",
+      "reemplazo_sugerido": null,
+      "notas": "Origen catálogo genérico STX/STXI, ya en alto x ancho x fondo (300 x 250 x 150 mm) — el usuario confirmó viendo la caja en el editor que la conversión de v1.1 la dejaba volteada; corregido en v1.2 sin invertir el dato de origen. Sin marca fija ni ficha de pernos de fijación específica: la placa interior es aproximada (margen de referencia, no posición de pernos verificada)."
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "version": "1.3",
+  "version": "1.6",
   "unidad": "mm",
   "modulo": "medidores",
   "nota_reserva": "Este módulo NO aplica la reserva de 25% de RIC N°02 6.1.16.3 (esa norma aplica solo a tableros). No se usa en ningún cálculo de esta biblioteca.",
@@ -46,9 +46,9 @@
       "nombre": "Medidor trifásico compacto (genérico)",
       "categoria": "Medidores",
       "svg": "componentes/medidor_trifasico_compacto.svg",
-      "ancho_mm": 177,
-      "alto_mm": 281.5,
-      "fondo_mm": 75,
+      "ancho_mm": 173,
+      "alto_mm": 216,
+      "fondo_mm": 65,
       "montaje": "libre",
       "riel_y_mm": null,
       "snap": {
@@ -58,10 +58,10 @@
       "modulos": null,
       "polos": 3,
       "etiqueta": {
-        "x": 13.275000000000006,
-        "y": 219.57000000000002,
-        "w": 150.45,
-        "h": 45.04,
+        "x": 12.975000000000009,
+        "y": 168.48000000000002,
+        "w": 147.04999999999998,
+        "h": 34.56,
         "lineas": [
           "Medidor trifásico (compacto)"
         ],
@@ -72,9 +72,9 @@
         "fases": 3
       },
       "bom": "Medidor trifásico compacto (genérico)",
-      "notas": "Sin marca fija (el usuario compra según mejor oferta). Medidas de plano acotado confirmadas dimensionalmente.",
+      "notas": "Sin marca fija (el usuario compra según mejor oferta). Medida corregida en v1.4 directamente por el usuario tras notar que la versión anterior (177x281.5x75) lo hacía más alto que el ARES 8023 pese a llamarse 'compacto'.",
       "confianza": "confirmado",
-      "fuente": "Plano acotado aportado por el usuario"
+      "fuente": "Confirmado directamente por el usuario (v1.4)"
     },
     {
       "id": "medidor_monofasico",
@@ -323,10 +323,10 @@
       "categoria": "Protecciones",
       "svg": "componentes/automatico_1p.svg",
       "ancho_mm": 18,
-      "alto_mm": 90,
-      "fondo_mm": 70,
+      "alto_mm": 85,
+      "fondo_mm": 69,
       "montaje": "riel",
-      "riel_y_mm": 45.0,
+      "riel_y_mm": 42.5,
       "snap": {
         "tipo": "modular",
         "paso_mm": 18
@@ -384,10 +384,10 @@
         "polos": 1
       },
       "bom": "Interruptor automático {polos}P Q{indice} {curva}{amperaje} A",
-      "notas": "Reutiliza el esquema real confirmado por Code para 'automatico_2p' de biblioteca-tableros (mismo montaje en riel, mismo paso modular de 18mm, misma altura de 90mm). Fondo de 70mm es un valor típico de automático modular genérico, no verificado con ficha propia — confirmar si se necesita exactitud en el fondo. Solo automáticos: no se incluyen diferenciales ni ningún otro tipo de protección en este módulo, por instrucción explícita del usuario.",
+      "notas": "Sin marca fija por decisión explícita del usuario en v1.6 (prefiere un catálogo corto y ajustar en obra según lo que compre, en vez de 16 variantes por marca). Alto y fondo son el par COMPLETO de la ficha oficial ABB S200 (85 x 69mm), no un promedio entre marcas. Advertencia real, no hipotética: una marca con altura mayor (p.ej. Enerlux, 90mm) puede no calzar en una caja con poco margen — se comprobó en un caso real (caja 400x300x200 + ARES 8023, 88mm libres). Ancho por polo (18mm) es estándar de la norma EN 60715 de riel DIN, independiente de la marca.",
       "confianza": "probable",
       "referencial": true,
-      "fuente": "Esquema real de biblioteca-tableros (confirmado por Code) + dimensión modular DIN estándar (18mm/módulo, 90mm de alto)"
+      "fuente": "Ficha técnica oficial ABB S200MUC (alto+fondo+ancho de la misma marca, no mezclado): https://library.e.abb.com/public/53ac189cddb24a168c4ec4cbbb4c4632/1SXP403008B0202.pdf"
     },
     {
       "id": "automatico_2p",
@@ -395,10 +395,10 @@
       "categoria": "Protecciones",
       "svg": "componentes/automatico_2p.svg",
       "ancho_mm": 36,
-      "alto_mm": 90,
-      "fondo_mm": 70,
+      "alto_mm": 85,
+      "fondo_mm": 69,
       "montaje": "riel",
-      "riel_y_mm": 45.0,
+      "riel_y_mm": 42.5,
       "snap": {
         "tipo": "modular",
         "paso_mm": 18
@@ -456,10 +456,10 @@
         "polos": 2
       },
       "bom": "Interruptor automático {polos}P Q{indice} {curva}{amperaje} A",
-      "notas": "Reutiliza el esquema real confirmado por Code para 'automatico_2p' de biblioteca-tableros (mismo montaje en riel, mismo paso modular de 18mm, misma altura de 90mm). Fondo de 70mm es un valor típico de automático modular genérico, no verificado con ficha propia — confirmar si se necesita exactitud en el fondo. Solo automáticos: no se incluyen diferenciales ni ningún otro tipo de protección en este módulo, por instrucción explícita del usuario.",
+      "notas": "Sin marca fija por decisión explícita del usuario en v1.6 (prefiere un catálogo corto y ajustar en obra según lo que compre, en vez de 16 variantes por marca). Alto y fondo son el par COMPLETO de la ficha oficial ABB S200 (85 x 69mm), no un promedio entre marcas. Advertencia real, no hipotética: una marca con altura mayor (p.ej. Enerlux, 90mm) puede no calzar en una caja con poco margen — se comprobó en un caso real (caja 400x300x200 + ARES 8023, 88mm libres). Ancho por polo (18mm) es estándar de la norma EN 60715 de riel DIN, independiente de la marca.",
       "confianza": "probable",
       "referencial": true,
-      "fuente": "Esquema real de biblioteca-tableros (confirmado por Code) + dimensión modular DIN estándar (18mm/módulo, 90mm de alto)"
+      "fuente": "Ficha técnica oficial ABB S200MUC (alto+fondo+ancho de la misma marca, no mezclado): https://library.e.abb.com/public/53ac189cddb24a168c4ec4cbbb4c4632/1SXP403008B0202.pdf"
     },
     {
       "id": "automatico_3p",
@@ -467,10 +467,10 @@
       "categoria": "Protecciones",
       "svg": "componentes/automatico_3p.svg",
       "ancho_mm": 54,
-      "alto_mm": 90,
-      "fondo_mm": 70,
+      "alto_mm": 85,
+      "fondo_mm": 69,
       "montaje": "riel",
-      "riel_y_mm": 45.0,
+      "riel_y_mm": 42.5,
       "snap": {
         "tipo": "modular",
         "paso_mm": 18
@@ -528,10 +528,10 @@
         "polos": 3
       },
       "bom": "Interruptor automático {polos}P Q{indice} {curva}{amperaje} A",
-      "notas": "Reutiliza el esquema real confirmado por Code para 'automatico_2p' de biblioteca-tableros (mismo montaje en riel, mismo paso modular de 18mm, misma altura de 90mm). Fondo de 70mm es un valor típico de automático modular genérico, no verificado con ficha propia — confirmar si se necesita exactitud en el fondo. Solo automáticos: no se incluyen diferenciales ni ningún otro tipo de protección en este módulo, por instrucción explícita del usuario.",
+      "notas": "Sin marca fija por decisión explícita del usuario en v1.6 (prefiere un catálogo corto y ajustar en obra según lo que compre, en vez de 16 variantes por marca). Alto y fondo son el par COMPLETO de la ficha oficial ABB S200 (85 x 69mm), no un promedio entre marcas. Advertencia real, no hipotética: una marca con altura mayor (p.ej. Enerlux, 90mm) puede no calzar en una caja con poco margen — se comprobó en un caso real (caja 400x300x200 + ARES 8023, 88mm libres). Ancho por polo (18mm) es estándar de la norma EN 60715 de riel DIN, independiente de la marca.",
       "confianza": "probable",
       "referencial": true,
-      "fuente": "Esquema real de biblioteca-tableros (confirmado por Code) + dimensión modular DIN estándar (18mm/módulo, 90mm de alto)"
+      "fuente": "Ficha técnica oficial ABB S200MUC (alto+fondo+ancho de la misma marca, no mezclado): https://library.e.abb.com/public/53ac189cddb24a168c4ec4cbbb4c4632/1SXP403008B0202.pdf"
     },
     {
       "id": "automatico_4p",
@@ -539,10 +539,10 @@
       "categoria": "Protecciones",
       "svg": "componentes/automatico_4p.svg",
       "ancho_mm": 72,
-      "alto_mm": 90,
-      "fondo_mm": 70,
+      "alto_mm": 85,
+      "fondo_mm": 69,
       "montaje": "riel",
-      "riel_y_mm": 45.0,
+      "riel_y_mm": 42.5,
       "snap": {
         "tipo": "modular",
         "paso_mm": 18
@@ -600,10 +600,10 @@
         "polos": 4
       },
       "bom": "Interruptor automático {polos}P Q{indice} {curva}{amperaje} A",
-      "notas": "Reutiliza el esquema real confirmado por Code para 'automatico_2p' de biblioteca-tableros (mismo montaje en riel, mismo paso modular de 18mm, misma altura de 90mm). Fondo de 70mm es un valor típico de automático modular genérico, no verificado con ficha propia — confirmar si se necesita exactitud en el fondo. Solo automáticos: no se incluyen diferenciales ni ningún otro tipo de protección en este módulo, por instrucción explícita del usuario.",
+      "notas": "Sin marca fija por decisión explícita del usuario en v1.6 (prefiere un catálogo corto y ajustar en obra según lo que compre, en vez de 16 variantes por marca). Alto y fondo son el par COMPLETO de la ficha oficial ABB S200 (85 x 69mm), no un promedio entre marcas. Advertencia real, no hipotética: una marca con altura mayor (p.ej. Enerlux, 90mm) puede no calzar en una caja con poco margen — se comprobó en un caso real (caja 400x300x200 + ARES 8023, 88mm libres). Ancho por polo (18mm) es estándar de la norma EN 60715 de riel DIN, independiente de la marca.",
       "confianza": "probable",
       "referencial": true,
-      "fuente": "Esquema real de biblioteca-tableros (confirmado por Code) + dimensión modular DIN estándar (18mm/módulo, 90mm de alto)"
+      "fuente": "Ficha técnica oficial ABB S200MUC (alto+fondo+ancho de la misma marca, no mezclado): https://library.e.abb.com/public/53ac189cddb24a168c4ec4cbbb4c4632/1SXP403008B0202.pdf"
     },
     {
       "id": "riel_din",
