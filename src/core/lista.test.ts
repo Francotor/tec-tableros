@@ -45,7 +45,7 @@ describe('lista de materiales: referencia ejemplo_lista_materiales.csv', () => {
 
   it('agrupa líneas iguales (dos automáticos 1P C10 A, tres canaletas, cuatro topes)', () => {
     const c = (d: string) => lista.lineas.find((l) => l.descripcion === d)?.cantidad;
-    expect(c('Interruptor automatico 1P C10 A')).toBe(2);
+    expect(c('Interruptor automatico 1P C10 A, 6kA')).toBe(2);
     expect(c('Canaleta ranurada 25 x 25 mm, corte de 396 mm')).toBe(3);
     expect(c('Tope de riel DIN')).toBe(4);
   });
@@ -119,7 +119,7 @@ describe('lista de materiales: agrupar por circuito', () => {
 
     expect(sinCircuito?.lineas.map((l) => l.descripcion)).toContain('Caja metalica sobrepuesta 400 x 500 x 200 (placa 450 x 350 mm)');
     expect(sinCircuito?.lineas.some((l) => l.descripcion.startsWith('Riel DIN'))).toBe(true);
-    expect(grupoC1?.lineas).toEqual([{ descripcion: 'Interruptor automatico 1P C16 A', cantidad: 1, unidad: 'un' }]);
+    expect(grupoC1?.lineas).toEqual([{ descripcion: 'Interruptor automatico 1P C16 A, 6kA', cantidad: 1, unidad: 'un' }]);
   });
 
   it('los topes van al circuito del riel al que pertenecen', () => {
@@ -152,14 +152,14 @@ describe('lista de materiales: agrupar por circuito', () => {
 
     const grupos = generarListaPorCircuito(els, ctx, circuitos);
     expect(grupos.find((g) => g.circuito?.id === c1)?.lineas).toEqual([
-      { descripcion: 'Interruptor automatico 1P C16 A', cantidad: 1, unidad: 'un' },
+      { descripcion: 'Interruptor automatico 1P C16 A, 6kA', cantidad: 1, unidad: 'un' },
     ]);
     expect(grupos.find((g) => g.circuito?.id === c2)?.lineas).toEqual([
-      { descripcion: 'Interruptor automatico 1P C16 A', cantidad: 1, unidad: 'un' },
+      { descripcion: 'Interruptor automatico 1P C16 A, 6kA', cantidad: 1, unidad: 'un' },
     ]);
     // La suma de la lista sin agrupar sí los junta en una línea con cantidad 2.
     const sinAgrupar = generarLista(els, ctx);
-    expect(sinAgrupar.lineas.find((l) => l.descripcion === 'Interruptor automatico 1P C16 A')?.cantidad).toBe(2);
+    expect(sinAgrupar.lineas.find((l) => l.descripcion === 'Interruptor automatico 1P C16 A, 6kA')?.cantidad).toBe(2);
   });
 
   it('un circuito sin ningún elemento no aparece en los grupos', () => {
@@ -193,7 +193,7 @@ describe('lista de materiales: otros casos', () => {
     const ctx = ctxDe();
     let els = poner([], ctx, 'riel_din', 250, 100.5);
     els = poner(els, ctx, 'automatico_1p', 100, 100).map((e) => (e.componenteId === 'automatico_1p' ? { ...e, valores: {} } : e));
-    expect(generarLista(els, ctx).lineas.map((l) => l.descripcion)).toContain('Interruptor automatico 1P C16 A');
+    expect(generarLista(els, ctx).lineas.map((l) => l.descripcion)).toContain('Interruptor automatico 1P C16 A, 6kA');
   });
 
   it('escapa comas y comillas en el CSV', () => {

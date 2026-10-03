@@ -1,5 +1,5 @@
 {
- "version": "2.0",
+ "version": "2.1",
  "unidad": "mm",
  "origen": "arriba-izquierda, eje y hacia abajo",
  "modulo_din_mm": 18,
@@ -79,13 +79,26 @@
       63
      ],
      "defecto": 16
+    },
+    {
+     "id": "capacidad_ruptura",
+     "rotulo": "Capacidad de ruptura",
+     "tipo": "select",
+     "opciones": [
+      "4.5kA",
+      "6kA",
+      "10kA",
+      "15kA",
+      "25kA"
+     ],
+     "defecto": "6kA"
     }
    ],
    "atributos": {
     "polos": 1
    },
-   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A",
-   "notas": null
+   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A, {capacidad_ruptura}",
+   "notas": "Capacidad de ruptura agregada como campo seleccionable (no se dibuja en la etiqueta del SVG, que ya esta al limite de espacio con 4 lineas) — queda en la lista de materiales y en el panel de propiedades. 6kA por defecto (valor tipico residencial/comercial); se ajusta por proyecto."
   },
   {
    "id": "automatico_2p",
@@ -155,13 +168,26 @@
       63
      ],
      "defecto": 40
+    },
+    {
+     "id": "capacidad_ruptura",
+     "rotulo": "Capacidad de ruptura",
+     "tipo": "select",
+     "opciones": [
+      "4.5kA",
+      "6kA",
+      "10kA",
+      "15kA",
+      "25kA"
+     ],
+     "defecto": "6kA"
     }
    ],
    "atributos": {
     "polos": 2
    },
-   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A",
-   "notas": null
+   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A, {capacidad_ruptura}",
+   "notas": "Capacidad de ruptura agregada como campo seleccionable (no se dibuja en la etiqueta del SVG, que ya esta al limite de espacio con 4 lineas) — queda en la lista de materiales y en el panel de propiedades. 6kA por defecto (valor tipico residencial/comercial); se ajusta por proyecto."
   },
   {
    "id": "automatico_3p",
@@ -231,13 +257,26 @@
       63
      ],
      "defecto": 25
+    },
+    {
+     "id": "capacidad_ruptura",
+     "rotulo": "Capacidad de ruptura",
+     "tipo": "select",
+     "opciones": [
+      "4.5kA",
+      "6kA",
+      "10kA",
+      "15kA",
+      "25kA"
+     ],
+     "defecto": "6kA"
     }
    ],
    "atributos": {
     "polos": 3
    },
-   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A",
-   "notas": null
+   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A, {capacidad_ruptura}",
+   "notas": "Capacidad de ruptura agregada como campo seleccionable (no se dibuja en la etiqueta del SVG, que ya esta al limite de espacio con 4 lineas) — queda en la lista de materiales y en el panel de propiedades. 6kA por defecto (valor tipico residencial/comercial); se ajusta por proyecto."
   },
   {
    "id": "automatico_4p",
@@ -307,13 +346,26 @@
       63
      ],
      "defecto": 63
+    },
+    {
+     "id": "capacidad_ruptura",
+     "rotulo": "Capacidad de ruptura",
+     "tipo": "select",
+     "opciones": [
+      "4.5kA",
+      "6kA",
+      "10kA",
+      "15kA",
+      "25kA"
+     ],
+     "defecto": "6kA"
     }
    ],
    "atributos": {
     "polos": 4
    },
-   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A",
-   "notas": null
+   "bom": "Interruptor automatico {polos}P {curva}{amperaje} A, {capacidad_ruptura}",
+   "notas": "Capacidad de ruptura agregada como campo seleccionable (no se dibuja en la etiqueta del SVG, que ya esta al limite de espacio con 4 lineas) — queda en la lista de materiales y en el panel de propiedades. 6kA por defecto (valor tipico residencial/comercial); se ajusta por proyecto."
   },
   {
    "id": "diferencial_2p",
