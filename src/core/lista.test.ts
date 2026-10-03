@@ -467,3 +467,26 @@ describe('advertencia sobre los identificadores #n', () => {
     expect(listaATexto(generarLista(r2.elementos, ctx))).toContain(NOTA_IDENTIFICADOR);
   });
 });
+
+describe('regletas de conexión (montaje libre, paradas en su propio tramo de riel)', () => {
+  const ctx = ctxDe();
+  const ids = ['regleta_conexion_4v', 'regleta_conexion_6v', 'regleta_conexion_8v', 'regleta_conexion_10v', 'regleta_conexion_12v'];
+
+  it('son piezas libres: no necesitan riel ni quedan atadas a una fila', () => {
+    for (const id of ids) {
+      const comp = ctx.comps.get(id);
+      expect(comp?.montaje, id).toBe('libre');
+      expect(comp?.ancho_mm, id).toBe(10.5);
+    }
+    const sola = poner([], ctx, 'regleta_conexion_12v', 200, 250);
+    expect(sola).toHaveLength(1);
+  });
+
+  it('no suman a ninguna fila del aviso de capacidad ni cambian el aviso del ejemplo', () => {
+    const base = armarEjemplo(ctx);
+    const antes = calcularAvisos(base, ctx, null);
+    const con = poner(base, ctx, 'regleta_conexion_12v', 462, 180);
+    expect(con).toHaveLength(base.length + 1);
+    expect(calcularAvisos(con, ctx, null)).toEqual(antes);
+  });
+});

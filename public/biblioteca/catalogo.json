@@ -1,5 +1,5 @@
 {
- "version": "2.2",
+ "version": "2.4",
  "unidad": "mm",
  "origen": "arriba-izquierda, eje y hacia abajo",
  "modulo_din_mm": 18,
@@ -1151,10 +1151,10 @@
    "nombre": "Regleta de conexion 4 vias",
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_4v.svg",
-   "ancho_mm": 58,
-   "alto_mm": 28,
-   "montaje": "riel",
-   "riel_y_mm": 14.0,
+   "ancho_mm": 10.5,
+   "alto_mm": 58,
+   "montaje": "libre",
+   "riel_y_mm": null,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1169,21 +1169,22 @@
     "seccion_max_mm2": 4,
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
-    "fondo_mm": 10.5,
-    "ancho_superior_mm": 28
+    "fondo_mm": 28,
+    "largo_pernos_mm": 28,
+    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
    },
    "bom": "Regleta de conexion 4 vias",
-   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 58x28x28x10.5 mm, ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=58 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=28 mm (solo referencial en atributos.largo_pernos_mm), ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "regleta_conexion_6v",
    "nombre": "Regleta de conexion 6 vias",
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_6v.svg",
-   "ancho_mm": 58,
-   "alto_mm": 28,
-   "montaje": "riel",
-   "riel_y_mm": 14.0,
+   "ancho_mm": 10.5,
+   "alto_mm": 58,
+   "montaje": "libre",
+   "riel_y_mm": null,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1198,21 +1199,22 @@
     "seccion_max_mm2": 4,
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
-    "fondo_mm": 10.5,
-    "ancho_superior_mm": 41
+    "fondo_mm": 28,
+    "largo_pernos_mm": 41,
+    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
    },
    "bom": "Regleta de conexion 6 vias",
-   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 58x41x28x10.5 mm, ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=58 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=41 mm (solo referencial en atributos.largo_pernos_mm), ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "regleta_conexion_8v",
    "nombre": "Regleta de conexion 8 vias",
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_8v.svg",
-   "ancho_mm": 78.5,
-   "alto_mm": 28,
-   "montaje": "riel",
-   "riel_y_mm": 14.0,
+   "ancho_mm": 10.5,
+   "alto_mm": 78.5,
+   "montaje": "libre",
+   "riel_y_mm": null,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1227,21 +1229,22 @@
     "seccion_max_mm2": 4,
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
-    "fondo_mm": 10.5,
-    "ancho_superior_mm": 54
+    "fondo_mm": 28,
+    "largo_pernos_mm": 54,
+    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
    },
    "bom": "Regleta de conexion 8 vias",
-   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 78.5x54x28x10.5 mm, ficha tecnica aportada por el usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=78.5 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=54 mm (solo referencial en atributos.largo_pernos_mm), ficha tecnica aportada por el usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "regleta_conexion_10v",
    "nombre": "Regleta de conexion 10 vias",
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_10v.svg",
-   "ancho_mm": 89,
-   "alto_mm": 28,
-   "montaje": "riel",
-   "riel_y_mm": 14.0,
+   "ancho_mm": 10.5,
+   "alto_mm": 89,
+   "montaje": "libre",
+   "riel_y_mm": null,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1256,21 +1259,22 @@
     "seccion_max_mm2": 4,
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
-    "fondo_mm": 10.5,
-    "ancho_superior_mm": 67
+    "fondo_mm": 28,
+    "largo_pernos_mm": 67,
+    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
    },
    "bom": "Regleta de conexion 10 vias",
-   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 89x67x28x10.5 mm, ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=89 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=67 mm (solo referencial en atributos.largo_pernos_mm), ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "regleta_conexion_12v",
    "nombre": "Regleta de conexion 12 vias",
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_12v.svg",
-   "ancho_mm": 103,
-   "alto_mm": 28,
-   "montaje": "riel",
-   "riel_y_mm": 14.0,
+   "ancho_mm": 10.5,
+   "alto_mm": 103,
+   "montaje": "libre",
+   "riel_y_mm": null,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1285,11 +1289,12 @@
     "seccion_max_mm2": 4,
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
-    "fondo_mm": 10.5,
-    "ancho_superior_mm": 86
+    "fondo_mm": 28,
+    "largo_pernos_mm": 86,
+    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
    },
    "bom": "Regleta de conexion 12 vias",
-   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 103x86x28x10.5 mm, ficha tecnica aportada por el usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=103 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=86 mm (solo referencial en atributos.largo_pernos_mm), ficha tecnica aportada por el usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "portafusible_10x38_1p",
