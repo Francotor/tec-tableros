@@ -1,5 +1,5 @@
 {
- "version": "2.5",
+ "version": "2.6",
  "unidad": "mm",
  "origen": "arriba-izquierda, eje y hacia abajo",
  "modulo_din_mm": 18,
@@ -719,27 +719,6 @@
    "atributos": {},
    "bom": "Rele crepuscular de riel 2 modulos",
    "notas": null
-  },
-  {
-   "id": "fotocelda",
-   "nombre": "Fotocelda (sensor exterior)",
-   "categoria": "Control",
-   "svg": "componentes/fotocelda.svg",
-   "ancho_mm": 40,
-   "alto_mm": 40,
-   "montaje": "libre",
-   "riel_y_mm": null,
-   "snap": {
-    "tipo": "libre",
-    "paso_mm": 1
-   },
-   "modulos": null,
-   "polos": null,
-   "etiqueta": null,
-   "campos": [],
-   "atributos": {},
-   "bom": "Fotocelda (sensor crepuscular exterior)",
-   "notas": "No va sobre riel: se fija a la caja o a la placa."
   },
   {
    "id": "borne_4_gris",

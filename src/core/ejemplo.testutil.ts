@@ -20,9 +20,39 @@ export const RAIZ_BIBLIOTECA = join(process.cwd(), 'public', 'biblioteca');
 export const raizBiblioteca = (tipo: TipoProyecto = 'tablero'): string =>
   tipo === 'medidor' ? join(process.cwd(), 'src', 'core', 'fixtures', 'medidor-prueba') : join(process.cwd(), 'public', carpetaBiblioteca(tipo));
 
-export function cargarBiblioteca(tipo: TipoProyecto = 'tablero'): Biblioteca {
+/**
+ * Pieza de montaje "libre" (40 x 40 mm, se fija a la placa, no va sobre riel) para probar ese montaje: el catálogo de
+ * tableros ya no trae ninguna (la fotocelda se retiró en la v2.6). Es dato de prueba, no del catálogo.
+ */
+export const PIEZA_LIBRE_DE_PRUEBA = {
+  id: 'pieza_libre_prueba',
+  nombre: 'Pieza libre de prueba',
+  categoria: 'Control',
+  svg: 'componentes/pieza_libre_prueba.svg',
+  ancho_mm: 40,
+  alto_mm: 40,
+  montaje: 'libre',
+  riel_y_mm: null,
+  snap: { tipo: 'libre', paso_mm: 1 },
+  modulos: null,
+  polos: null,
+  etiqueta: null,
+  campos: [],
+  atributos: {},
+  bom: 'Pieza libre de prueba',
+  notas: 'No va sobre riel: se fija a la caja o a la placa.',
+};
+
+/** El catalogo.json (ya leído) con la pieza libre de prueba agregada. */
+export function conPiezaLibreDePrueba(catalogoCrudo: unknown): unknown {
+  const c = catalogoCrudo as { componentes: unknown[] };
+  return { ...c, componentes: [...c.componentes, PIEZA_LIBRE_DE_PRUEBA] };
+}
+
+export function cargarBiblioteca(tipo: TipoProyecto = 'tablero', opciones: { conPiezaLibre?: boolean } = {}): Biblioteca {
   const leer = (f: string): unknown => JSON.parse(readFileSync(join(raizBiblioteca(tipo), f), 'utf8'));
-  return parsearBiblioteca(leer('catalogo.json'), leer('gabinetes.json'));
+  const catalogo = leer('catalogo.json');
+  return parsearBiblioteca(opciones.conPiezaLibre ? conPiezaLibreDePrueba(catalogo) : catalogo, leer('gabinetes.json'));
 }
 
 /**

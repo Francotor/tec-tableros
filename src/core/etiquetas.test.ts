@@ -3,12 +3,13 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parsearCatalogo } from './biblioteca';
 import { validarLargo } from './colocacion';
+import { conPiezaLibreDePrueba } from './ejemplo.testutil';
 import { largoMaximoTexto, descripcionElemento, expandirPlantilla, interpretarValor, lineasEtiqueta, tamanoAjustado, valoresEfectivos } from './etiquetas';
 import { valoresPorDefecto } from './modelo';
 import type { Elemento } from './modelo';
 import type { Componente } from './tipos';
 
-const catalogo = parsearCatalogo(JSON.parse(readFileSync(join(process.cwd(), 'public', 'biblioteca', 'catalogo.json'), 'utf8')));
+const catalogo = parsearCatalogo(conPiezaLibreDePrueba(JSON.parse(readFileSync(join(process.cwd(), 'public', 'biblioteca', 'catalogo.json'), 'utf8'))));
 const comp = (id: string): Componente => {
   const c = catalogo.componentes.find((x) => x.id === id);
   if (!c) throw new Error(`falta ${id}`);
@@ -65,7 +66,7 @@ describe('lineasEtiqueta', () => {
   });
 
   it('piezas sin etiqueta devuelven una lista vacía', () => {
-    expect(lineasEtiqueta(comp('fotocelda'), elemento('fotocelda'))).toEqual([]);
+    expect(lineasEtiqueta(comp('pieza_libre_prueba'), elemento('pieza_libre_prueba'))).toEqual([]);
     expect(lineasEtiqueta(comp('riel_din'), elemento('riel_din'))).toEqual([]);
   });
 
@@ -155,7 +156,7 @@ describe('numeración de automáticos y diferenciales', () => {
 
   it('una pieza sin numeración conserva su nombre y su rótulo', () => {
     expect(descripcionElemento(comp('reloj_control'), { valores: {} })).toBe('Reloj control horario (RC1)');
-    expect(descripcionElemento(comp('fotocelda'), { valores: {} })).toBe('Fotocelda (sensor exterior)');
+    expect(descripcionElemento(comp('pieza_libre_prueba'), { valores: {} })).toBe('Pieza libre de prueba');
   });
 
   it('los datos guardados antes de este cambio (sin indice) se ven con el valor por defecto', () => {

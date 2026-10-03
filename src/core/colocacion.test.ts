@@ -24,13 +24,13 @@ import {
 } from './colocacion';
 import type { Contexto } from './colocacion';
 import { deshacer, historialVacio, LIMITE_HISTORIAL, rehacer, registrar } from './historial';
-import { armarEjemplo, crearContextoDe } from './ejemplo.testutil';
+import { armarEjemplo, conPiezaLibreDePrueba, crearContextoDe } from './ejemplo.testutil';
 import { nuevoUid, valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
 
 const RAIZ = join(process.cwd(), 'public', 'biblioteca');
 const leer = (f: string): unknown => JSON.parse(readFileSync(join(RAIZ, f), 'utf8'));
-const bib = parsearBiblioteca(leer('catalogo.json'), leer('gabinetes.json'));
+const bib = parsearBiblioteca(conPiezaLibreDePrueba(leer('catalogo.json')), leer('gabinetes.json'));
 
 function contexto(caja: CajaProyecto = { id: 'caja_metalica_400x500x200' }): Contexto {
   return crearContextoDe(bib, caja);
@@ -189,7 +189,7 @@ describe('límites', () => {
     // el aparato (90 mm) sube hasta y = 15,5: fuera de la placa (y >= 25)
     expect(soltar(els, ctx, 'automatico_1p', 60, 60)).toEqual({ ok: false, motivo: MOTIVOS.fueraArea });
     expect(soltar([], ctx, 'riel_din', 250, 10).ok).toBe(false);
-    expect(soltar([], ctx, 'fotocelda', 5, 5).ok).toBe(false);
+    expect(soltar([], ctx, 'pieza_libre_prueba', 5, 5).ok).toBe(false);
   });
 
   it('el riel por defecto tiene el largo de sus módulos completos (modulosPorFila x 18 mm)', () => {
@@ -400,12 +400,12 @@ describe('fijaciones (pernos de cajas de fabricante)', () => {
 
   it('rechaza soltar un aparato sobre un perno, con aviso', () => {
     const ctx = contexto({ id: CAJA_ASR });
-    expect(soltar([], ctx, 'fotocelda', 190, 40)).toEqual({ ok: false, motivo: MOTIVOS.fijacion });
+    expect(soltar([], ctx, 'pieza_libre_prueba', 190, 40)).toEqual({ ok: false, motivo: MOTIVOS.fijacion });
   });
 
   it('permite soltar lejos de los pernos', () => {
     const ctx = contexto({ id: CAJA_ASR });
-    expect(soltar([], ctx, 'fotocelda', 120, 90).ok).toBe(true);
+    expect(soltar([], ctx, 'pieza_libre_prueba', 120, 90).ok).toBe(true);
   });
 
   it('cajas sin fijaciones (la mayoría) nunca rechazan por este motivo', () => {

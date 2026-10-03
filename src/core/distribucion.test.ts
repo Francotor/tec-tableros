@@ -7,7 +7,7 @@ import { solapan } from './geometria';
 import { valoresPorDefecto } from './modelo';
 import type { Elemento } from './modelo';
 
-const bib = cargarBiblioteca();
+const bib = cargarBiblioteca('tablero', { conPiezaLibre: true });
 const AJUSTES = [
   { nombre: 'compacto', modo: 'compacto' as const, seccionCanaleta: 40 as const },
   { nombre: 'con canaleta 25', modo: 'con_canaleta' as const, seccionCanaleta: 25 as const },
@@ -178,8 +178,8 @@ describe('distribuir automáticamente: con aparatos ya colocados', () => {
 
   it('un aparato de montaje libre se queda donde está; si choca con la nueva distribución, se rechaza todo', () => {
     const ctx = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' }); // compacto: dos filas y espacio libre abajo
-    const foto = ctx.comps.get('fotocelda')!;
-    const libre: Elemento = { uid: 'f', componenteId: 'fotocelda', x_mm: 100, y_mm: 320, valores: valoresPorDefecto(foto) };
+    const foto = ctx.comps.get('pieza_libre_prueba')!;
+    const libre: Elemento = { uid: 'f', componenteId: 'pieza_libre_prueba', x_mm: 100, y_mm: 320, valores: valoresPorDefecto(foto) };
     const r = distribuirAutomaticamente([libre], ctx);
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.elementos.find((e) => e.uid === 'f')).toMatchObject({ x_mm: 100, y_mm: 320 });
