@@ -48,9 +48,9 @@ describe('categorías leídas del catálogo', () => {
     expect(grupos.map((g) => g.categoria)).toEqual(['interruptor_caja_moldeada', 'medidor']);
   });
 
-  it('el catálogo de tableros sigue mostrando sus 5 categorías en el orden de siempre', () => {
-    expect(agruparPorCategoria(tablero.catalogo.componentes).map((g) => g.categoria)).toEqual(['Protecciones', 'Comando', 'Control', 'Distribucion', 'Montaje']);
-    expect(agruparPorCategoria(tablero.catalogo.componentes).map((g) => g.componentes.length)).toEqual([10, 3, 8, 12, 5]);
+  it('el catálogo de tableros muestra sus 6 categorías (con Alimentacion) en el orden del catálogo', () => {
+    expect(agruparPorCategoria(tablero.catalogo.componentes).map((g) => g.categoria)).toEqual(['Protecciones', 'Comando', 'Control', 'Distribucion', 'Alimentacion', 'Montaje']);
+    expect(agruparPorCategoria(tablero.catalogo.componentes).map((g) => g.componentes.length)).toEqual([10, 3, 8, 17, 1, 5]);
   });
 
   it('el nombre para mostrar se arma del identificador', () => {

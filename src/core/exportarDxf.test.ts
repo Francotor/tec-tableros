@@ -6,7 +6,7 @@ import type { Contexto } from './colocacion';
 import { leerDxf, nums } from './dxf.testutil';
 import { cargarBiblioteca, cargarLinealesDeBiblioteca, crearContextoDe, RAIZ_BIBLIOTECA } from './ejemplo.testutil';
 import { lineasEtiqueta, tamanoAjustado } from './etiquetas';
-import { CAPAS_DXF, EscritorDxf, generarDxf, SEPARACION_FRONTAL_MM, svgsNecesarios, tramosLibres } from './exportarDxf';
+import { capasDxf, EscritorDxf, generarDxf, SEPARACION_FRONTAL_MM, svgsNecesarios, tramosLibres } from './exportarDxf';
 import { leerFormasSvg } from './lectorSvg';
 import { valoresPorDefecto } from './modelo';
 import type { Elemento } from './modelo';
@@ -181,7 +181,8 @@ describe.each(CAJAS)('DXF del tablero — caja $nombre', ({ id }) => {
     expect(d.version).toBe('AC1009');
     expect(d.insunits).toBe(4);
     expect(d.terminaEnEof).toBe(true);
-    expect(d.capas.map((c) => c.nombre)).toEqual(CAPAS_DXF.map((c) => c.nombre));
+    expect(d.capas.map((c) => c.nombre)).toEqual(capasDxf([...new Set([...ctx.comps.values()].map((c) => c.categoria))]).map((c) => c.nombre));
+    expect(d.capas.map((c) => c.nombre)).toContain('Alimentacion');
     expect(esAscii(texto)).toBe(true);
   });
 
@@ -224,7 +225,7 @@ describe.each(CAJAS)('DXF del tablero — caja $nombre', ({ id }) => {
     expect(porCapa('Montaje')).toBeGreaterThan(0); // riel (tramos libres) y topes
     expect(porCapa('Caja')).toBeGreaterThan(0);
     const capasUsadas = new Set(d.entidades.map((e) => e.capa));
-    for (const c of capasUsadas) expect(CAPAS_DXF.map((x) => x.nombre)).toContain(c);
+    for (const c of capasUsadas) expect(d.capas.map((x) => x.nombre)).toContain(c);
   });
 
   it('los rótulos son TEXT en la capa Texto, con las mismas líneas y el tamano_mm de la ficha', () => {

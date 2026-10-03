@@ -1,5 +1,5 @@
 {
- "version": "1.6",
+ "version": "1.9",
  "unidad": "mm",
  "origen": "arriba-izquierda, eje y hacia abajo",
  "modulo_din_mm": 18,
@@ -33,15 +33,22 @@
     "w": 13,
     "h": 17,
     "lineas": [
+     "{etiqueta}",
      "Q{indice}",
      "{curva}{amperaje}"
     ],
-    "tamano_mm": 4.4
+    "tamano_mm": 3.6
    },
    "campos": [
     {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
+    {
      "id": "indice",
-     "rotulo": "N° de automático",
+     "rotulo": "N° de circuito",
      "tipo": "entero",
      "defecto": 1
     },
@@ -101,15 +108,23 @@
     "w": 31,
     "h": 17,
     "lineas": [
-     "{polos}P Q{indice}",
+     "{etiqueta}",
+     "Q{indice}",
+     "{polos}P",
      "{curva}{amperaje}"
     ],
-    "tamano_mm": 4.4
+    "tamano_mm": 3.6
    },
    "campos": [
     {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
+    {
      "id": "indice",
-     "rotulo": "N° de automático",
+     "rotulo": "N° de circuito",
      "tipo": "entero",
      "defecto": 1
     },
@@ -169,15 +184,23 @@
     "w": 49,
     "h": 17,
     "lineas": [
-     "{polos}P Q{indice}",
+     "{etiqueta}",
+     "Q{indice}",
+     "{polos}P",
      "{curva}{amperaje}"
     ],
-    "tamano_mm": 4.4
+    "tamano_mm": 3.6
    },
    "campos": [
     {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
+    {
      "id": "indice",
-     "rotulo": "N° de automático",
+     "rotulo": "N° de circuito",
      "tipo": "entero",
      "defecto": 1
     },
@@ -237,15 +260,23 @@
     "w": 67,
     "h": 17,
     "lineas": [
-     "{polos}P Q{indice}",
+     "{etiqueta}",
+     "Q{indice}",
+     "{polos}P",
      "{curva}{amperaje}"
     ],
-    "tamano_mm": 4.4
+    "tamano_mm": 3.6
    },
    "campos": [
     {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
+    {
      "id": "indice",
-     "rotulo": "N° de automático",
+     "rotulo": "N° de circuito",
      "tipo": "entero",
      "defecto": 1
     },
@@ -305,15 +336,23 @@
     "w": 31,
     "h": 17,
     "lineas": [
-     "QD{indice} {amperaje}A",
+     "{etiqueta}",
+     "QD{indice}",
+     "{amperaje}A",
      "{sensibilidad}"
     ],
     "tamano_mm": 4.2
    },
    "campos": [
     {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
+    {
      "id": "indice",
-     "rotulo": "N° de diferencial",
+     "rotulo": "N° de circuito",
      "tipo": "entero",
      "defecto": 1
     },
@@ -367,15 +406,23 @@
     "w": 67,
     "h": 17,
     "lineas": [
-     "QD{indice} {amperaje}A",
+     "{etiqueta}",
+     "QD{indice}",
+     "{amperaje}A",
      "{sensibilidad}"
     ],
     "tamano_mm": 4.2
    },
    "campos": [
     {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
+    {
      "id": "indice",
-     "rotulo": "N° de diferencial",
+     "rotulo": "N° de circuito",
      "tipo": "entero",
      "defecto": 1
     },
@@ -429,12 +476,19 @@
     "w": 30,
     "h": 30,
     "lineas": [
+     "{etiqueta}",
      "K{indice}",
      "{corriente}A"
     ],
     "tamano_mm": 4.4
    },
    "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
     {
      "id": "indice",
      "rotulo": "N° de contactor",
@@ -491,12 +545,19 @@
     "w": 39,
     "h": 26,
     "lineas": [
+     "{etiqueta}",
      "K{indice}",
      "{corriente}A"
     ],
     "tamano_mm": 4.4
    },
    "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
     {
      "id": "indice",
      "rotulo": "N° de contactor",
@@ -649,11 +710,18 @@
     "w": 50,
     "h": 10,
     "lineas": [
+     "{etiqueta}",
      "{funcion}"
     ],
-    "tamano_mm": 4
+    "tamano_mm": 3.4
    },
    "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
     {
      "id": "funcion",
      "rotulo": "Funcion",
@@ -693,11 +761,18 @@
     "w": 104,
     "h": 10,
     "lineas": [
+     "{etiqueta}",
      "{funcion}"
     ],
-    "tamano_mm": 4
+    "tamano_mm": 3.4
    },
    "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
     {
      "id": "funcion",
      "rotulo": "Funcion",
@@ -942,6 +1017,186 @@
    "notas": "Ancho segun seccion; medidas aproximadas [supuesto], ajustar a la marca usada."
   },
   {
+   "id": "fuente_mdr60",
+   "nombre": "Fuente de poder DIN 60W (Mean Well MDR-60)",
+   "categoria": "Alimentacion",
+   "svg": "componentes/fuente_mdr60.svg",
+   "ancho_mm": 40,
+   "alto_mm": 90,
+   "montaje": "riel",
+   "riel_y_mm": 45.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": {
+    "x": 3,
+    "y": 36.0,
+    "w": 34,
+    "h": 18,
+    "lineas": [
+     "{etiqueta}",
+     "MDR-60-{modelo}"
+    ],
+    "tamano_mm": 3.0
+   },
+   "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
+    {
+     "id": "modelo",
+     "rotulo": "Modelo (voltaje de salida)",
+     "tipo": "select",
+     "opciones": [
+      "5",
+      "12",
+      "24",
+      "48"
+     ],
+     "defecto": "24"
+    }
+   ],
+   "atributos": {
+    "potencia_w": 60,
+    "fabricante": "Mean Well",
+    "serie": "MDR-60",
+    "fondo_mm": 100
+   },
+   "bom": "Fuente de poder DIN 60W Mean Well MDR-60-{modelo}",
+   "notas": "Dimension 40 ancho x 90 alto confirmada en ficha tecnica oficial Mean Well MDR-60 (Case No.962A, 'Mechanical Specification'), unica para las 4 variantes de voltaje de salida (5/12/24/48V). Fondo de 100 mm de la misma ficha, guardado solo en atributos (este esquema no trae fondo_mm en componentes). Riel_y_mm = centro vertical, convencion del catalogo. snap 'libre' (no modular) igual que contactor_3p: bloque de ancho fijo que se ubica libremente en el riel, no una pieza de paso 18mm."
+  },
+  {
+   "id": "barra_repartidora_tetrapolar_100a_7puestos",
+   "nombre": "Barra repartidora tetrapolar 100A (7 puestos)",
+   "categoria": "Distribucion",
+   "svg": "componentes/barra_repartidora_tetrapolar_100a_7puestos.svg",
+   "ancho_mm": 68,
+   "alto_mm": 82,
+   "montaje": "riel",
+   "riel_y_mm": 41.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": 4,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 100,
+    "puestos": 7,
+    "fondo_mm": 50
+   },
+   "bom": "Barra repartidora tetrapolar 100A (7 puestos)",
+   "notas": "Dimensiones de ficha tecnica aportada por el usuario (vista lateral: alto 82mm, fondo 50mm, guardado solo en atributos ya que este esquema no trae fondo_mm en componentes; vista frontal: ancho 68mm, crece con la cantidad de puestos). Montaje en riel DIN, no modular de 18mm -> snap 'libre', mismo precedente que contactor_3p/fuente_mdr60. Las marcas '35/84' (tetrapolares) y '12/35' (bipolares) de la vista lateral de la ficha NO se usaron como fondo: se interpretaron como referencias del enganche a riel/tapa abatible."
+  },
+  {
+   "id": "barra_repartidora_tetrapolar_125a_15puestos",
+   "nombre": "Barra repartidora tetrapolar 125A (15 puestos)",
+   "categoria": "Distribucion",
+   "svg": "componentes/barra_repartidora_tetrapolar_125a_15puestos.svg",
+   "ancho_mm": 137,
+   "alto_mm": 82,
+   "montaje": "riel",
+   "riel_y_mm": 41.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": 4,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 125,
+    "puestos": 15,
+    "fondo_mm": 50
+   },
+   "bom": "Barra repartidora tetrapolar 125A (15 puestos)",
+   "notas": "Dimensiones de ficha tecnica aportada por el usuario (vista lateral: alto 82mm, fondo 50mm, guardado solo en atributos ya que este esquema no trae fondo_mm en componentes; vista frontal: ancho 137mm, crece con la cantidad de puestos). Montaje en riel DIN, no modular de 18mm -> snap 'libre', mismo precedente que contactor_3p/fuente_mdr60. Las marcas '35/84' (tetrapolares) y '12/35' (bipolares) de la vista lateral de la ficha NO se usaron como fondo: se interpretaron como referencias del enganche a riel/tapa abatible."
+  },
+  {
+   "id": "barra_repartidora_tetrapolar_125a_11puestos",
+   "nombre": "Barra repartidora tetrapolar 125A (11 puestos)",
+   "categoria": "Distribucion",
+   "svg": "componentes/barra_repartidora_tetrapolar_125a_11puestos.svg",
+   "ancho_mm": 105,
+   "alto_mm": 82,
+   "montaje": "riel",
+   "riel_y_mm": 41.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": 4,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 125,
+    "puestos": 11,
+    "fondo_mm": 50
+   },
+   "bom": "Barra repartidora tetrapolar 125A (11 puestos)",
+   "notas": "Dimensiones de ficha tecnica aportada por el usuario (vista lateral: alto 82mm, fondo 50mm, guardado solo en atributos ya que este esquema no trae fondo_mm en componentes; vista frontal: ancho 105mm, crece con la cantidad de puestos). Montaje en riel DIN, no modular de 18mm -> snap 'libre', mismo precedente que contactor_3p/fuente_mdr60. Las marcas '35/84' (tetrapolares) y '12/35' (bipolares) de la vista lateral de la ficha NO se usaron como fondo: se interpretaron como referencias del enganche a riel/tapa abatible."
+  },
+  {
+   "id": "barra_repartidora_bipolar_80a_16puestos",
+   "nombre": "Barra repartidora bipolar 80A (16 puestos)",
+   "categoria": "Distribucion",
+   "svg": "componentes/barra_repartidora_bipolar_80a_16puestos.svg",
+   "ancho_mm": 125,
+   "alto_mm": 46,
+   "montaje": "riel",
+   "riel_y_mm": 23.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": 2,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 80,
+    "puestos": 16,
+    "fondo_mm": 44
+   },
+   "bom": "Barra repartidora bipolar 80A (16 puestos)",
+   "notas": "Dimensiones de ficha tecnica aportada por el usuario (vista lateral: alto 46mm, fondo 44mm, guardado solo en atributos ya que este esquema no trae fondo_mm en componentes; vista frontal: ancho 125mm, crece con la cantidad de puestos). Montaje en riel DIN, no modular de 18mm -> snap 'libre', mismo precedente que contactor_3p/fuente_mdr60. Las marcas '35/84' (tetrapolares) y '12/35' (bipolares) de la vista lateral de la ficha NO se usaron como fondo: se interpretaron como referencias del enganche a riel/tapa abatible."
+  },
+  {
+   "id": "barra_repartidora_bipolar_80a_8puestos",
+   "nombre": "Barra repartidora bipolar 80A (8 puestos)",
+   "categoria": "Distribucion",
+   "svg": "componentes/barra_repartidora_bipolar_80a_8puestos.svg",
+   "ancho_mm": 80,
+   "alto_mm": 46,
+   "montaje": "riel",
+   "riel_y_mm": 23.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": 2,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 80,
+    "puestos": 8,
+    "fondo_mm": 44
+   },
+   "bom": "Barra repartidora bipolar 80A (8 puestos)",
+   "notas": "Dimensiones de ficha tecnica aportada por el usuario (vista lateral: alto 46mm, fondo 44mm, guardado solo en atributos ya que este esquema no trae fondo_mm en componentes; vista frontal: ancho 80mm, crece con la cantidad de puestos). Montaje en riel DIN, no modular de 18mm -> snap 'libre', mismo precedente que contactor_3p/fuente_mdr60. Las marcas '35/84' (tetrapolares) y '12/35' (bipolares) de la vista lateral de la ficha NO se usaron como fondo: se interpretaron como referencias del enganche a riel/tapa abatible."
+  },
+  {
    "id": "portafusible_10x38_1p",
    "nombre": "Portafusible de riel 10 x 38 1P",
    "categoria": "Protecciones",
@@ -962,11 +1217,18 @@
     "w": 13,
     "h": 14,
     "lineas": [
+     "{etiqueta}",
      "{calibre}A"
     ],
-    "tamano_mm": 4.4
+    "tamano_mm": 4
    },
    "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
     {
      "id": "tipo",
      "rotulo": "Tipo de fusible",
@@ -1022,11 +1284,18 @@
     "w": 31,
     "h": 14,
     "lineas": [
+     "{etiqueta}",
      "{calibre}A"
     ],
-    "tamano_mm": 4.4
+    "tamano_mm": 4
    },
    "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
     {
      "id": "tipo",
      "rotulo": "Tipo de fusible",
@@ -1082,11 +1351,18 @@
     "w": 49,
     "h": 14,
     "lineas": [
+     "{etiqueta}",
      "{calibre}A"
     ],
-    "tamano_mm": 4.4
+    "tamano_mm": 4
    },
    "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
     {
      "id": "tipo",
      "rotulo": "Tipo de fusible",
@@ -1142,11 +1418,18 @@
     "w": 67,
     "h": 14,
     "lineas": [
+     "{etiqueta}",
      "{calibre}A"
     ],
-    "tamano_mm": 4.4
+    "tamano_mm": 4
    },
    "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
     {
      "id": "tipo",
      "rotulo": "Tipo de fusible",
@@ -1487,12 +1770,19 @@
     "w": 13,
     "h": 20,
     "lineas": [
+     "{etiqueta}",
      "K{indice}",
      "{corriente}A"
     ],
-    "tamano_mm": 4.2
+    "tamano_mm": 3.6
    },
    "campos": [
+    {
+     "id": "etiqueta",
+     "rotulo": "Rotulo",
+     "tipo": "texto",
+     "defecto": ""
+    },
     {
      "id": "indice",
      "rotulo": "N° de contactor",

@@ -38,7 +38,7 @@ describe('biblioteca: SVG de las cajas', () => {
 describe('biblioteca: estructura', () => {
   it('agrupa por categoría en el orden pedido', () => {
     const grupos = agruparPorCategoria(catalogo.componentes).map((g) => g.categoria);
-    expect(grupos).toEqual(['Protecciones', 'Comando', 'Control', 'Distribucion', 'Montaje']);
+    expect(grupos).toEqual(['Protecciones', 'Comando', 'Control', 'Distribucion', 'Alimentacion', 'Montaje']);
   });
 
   it('las cajas plásticas traen rieles y las metálicas/inox una placa', () => {
