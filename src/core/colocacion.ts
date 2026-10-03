@@ -215,10 +215,14 @@ export function listarPiezas(elementos: readonly Elemento[], ctx: Contexto): Pie
   return piezas;
 }
 
-/** Un aparato puede solaparse con su propio riel; con cualquier otra cosa, no. */
+/**
+ * Un aparato puede solaparse con su propio riel; una pieza libre (p. ej. una regleta de conexión, que se clipa sobre un tramo
+ * corto de riel) con cualquier riel, porque el riel es solo la franja donde se engancha; con cualquier otra cosa, no.
+ */
 function solapePermitido(a: Pieza, b: Pieza): boolean {
-  const par = (p: Pieza, q: Pieza): boolean => p.clase === 'aparato' && q.clase === 'riel' && p.rielUid === q.uid;
-  return par(a, b) || par(b, a);
+  const aparatoEnSuRiel = (p: Pieza, q: Pieza): boolean => p.clase === 'aparato' && q.clase === 'riel' && p.rielUid === q.uid;
+  const libreSobreRiel = (p: Pieza, q: Pieza): boolean => p.clase === 'libre' && q.clase === 'riel';
+  return aparatoEnSuRiel(a, b) || aparatoEnSuRiel(b, a) || libreSobreRiel(a, b) || libreSobreRiel(b, a);
 }
 
 export function buscarColision(cand: Pieza, otras: readonly Pieza[], excluir: ReadonlySet<string>): Pieza | undefined {
