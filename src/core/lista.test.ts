@@ -6,7 +6,7 @@ import { agregarElemento, resolverColocacion } from './colocacion';
 import type { Contexto } from './colocacion';
 import { armarEjemplo, cargarBiblioteca, crearContextoDe, RAIZ_BIBLIOTECA } from './ejemplo.testutil';
 import { formatearMetros, generarConexiones, generarLista, generarListaPorCircuito, listaACsv, listaATexto } from './lista';
-import { agregarCircuito, asignarCircuito, fijarAccionadoPor, fijarAlimentadoPor } from './conexion';
+import { agregarCircuito, asignarCircuito, descripcionesDistinguidas, fijarAccionadoPor, fijarAlimentadoPor, identificadorDePieza } from './conexion';
 import { nuevoUid, valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
 import { extensionDelDibujo, sugerirCaja, trasladar } from './sugerencia';
@@ -378,5 +378,64 @@ describe('tabla de conexiones (Accionado por / Alimentado por)', () => {
     const csv = listaACsv(lista);
     expect(csv).toMatch(/\r\n\r\npieza,accionado_por,alimentado_por\r\n/);
     expect(csv.split('\r\n').at(-2)).toMatch(/^"?Contactor .*,"?Reloj .*,$/);
+  });
+});
+
+describe('piezas con la misma descripción en la tabla de conexiones', () => {
+  const ctx = ctxDe();
+  const dosContactores = (): { els: Elemento[]; a: Elemento; b: Elemento; reloj: Elemento } => {
+    let els = armarEjemplo(ctx);
+    els = poner(els, ctx, 'contactor_3p', 363, 111 + 16);
+    const contactores = els.filter((e) => e.componenteId === 'contactor_3p');
+    const [a, b] = contactores;
+    const reloj = els.find((e) => e.componenteId === 'reloj_control');
+    if (!a || !b || !reloj) throw new Error('faltan piezas');
+    return { els, a, b, reloj };
+  };
+
+  it('solo las piezas que chocan llevan identificador (el ejemplo repite dos automáticos 1P C10 y dos C16; el resto queda limpio)', () => {
+    const els = armarEjemplo(ctx);
+    const nombres = descripcionesDistinguidas(els, ctx);
+    const conId = [...nombres.values()].filter((n) => n.includes('#'));
+    expect(conId).toHaveLength(4);
+    expect(conId.every((n) => n.startsWith('Interruptor automatico 1P'))).toBe(true);
+    const reloj = els.find((e) => e.componenteId === 'reloj_control')!;
+    expect(nombres.get(reloj.uid)).not.toContain('#');
+    expect(identificadorDePieza(els, ctx, reloj.uid)).toBeNull();
+  });
+
+  it('dos contactores iguales (mismo N° por defecto) se distinguen con #1 y #2, en el orden de colocación', () => {
+    const { els, a, b } = dosContactores();
+    expect(a.valores.indice).toBe(b.valores.indice);
+    const nombres = descripcionesDistinguidas(els, ctx);
+    expect(nombres.get(a.uid)).toMatch(/ · #1$/);
+    expect(nombres.get(b.uid)).toMatch(/ · #2$/);
+    expect(identificadorDePieza(els, ctx, b.uid)).toEqual({ n: 2, de: 2 });
+  });
+
+  it('la tabla los separa y el padre que choca también lleva su identificador; las demás piezas no', () => {
+    const { els, a, b, reloj } = dosContactores();
+    const r1 = fijarAccionadoPor(els, ctx, a.uid, reloj.uid);
+    if (!r1.ok) throw new Error(r1.motivo);
+    const r2 = fijarAccionadoPor(r1.elementos, ctx, b.uid, reloj.uid);
+    if (!r2.ok) throw new Error(r2.motivo);
+    const r3 = fijarAlimentadoPor(r2.elementos, ctx, reloj.uid, b.uid);
+    if (!r3.ok) throw new Error(r3.motivo);
+    const filas = generarConexiones(r3.elementos, ctx);
+    const contactores = filas.filter((f) => f.pieza.startsWith('Contactor'));
+    expect(contactores.map((f) => f.pieza.split(' · ').at(-1))).toEqual(['#1', '#2']);
+    expect(new Set(filas.map((f) => f.pieza)).size).toBe(filas.length);
+    const delReloj = filas.find((f) => f.pieza.startsWith('Reloj'));
+    expect(delReloj?.pieza).not.toContain('#');
+    expect(delReloj?.alimentadoPor).toMatch(/ · #2$/);
+  });
+
+  it('numerar una de las dos quita el choque y el identificador desaparece', () => {
+    const { els, a, b } = dosContactores();
+    const numerado = els.map((e) => (e.uid === b.uid ? { ...e, valores: { ...e.valores, indice: 2 } } : e));
+    const nombres = descripcionesDistinguidas(numerado, ctx);
+    expect(nombres.get(a.uid)).not.toContain('#');
+    expect(nombres.get(b.uid)).not.toContain('#');
+    expect(identificadorDePieza(numerado, ctx, a.uid)).toBeNull();
   });
 });

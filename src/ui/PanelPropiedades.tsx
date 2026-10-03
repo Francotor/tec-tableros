@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { esCanaleta, huella, validarLargo } from '../core/colocacion';
 import { formatearMm } from '../core/biblioteca';
-import { candidatosPadre, puedeConectarse } from '../core/conexion';
+import { candidatosPadre, descripcionesDistinguidas, identificadorDePieza, puedeConectarse } from '../core/conexion';
 import type { Relacion } from '../core/conexion';
-import { descripcionElemento, largoMaximoTexto, valoresEfectivos, interpretarValor } from '../core/etiquetas';
+import { largoMaximoTexto, valoresEfectivos, interpretarValor } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Campo, Componente } from '../core/tipos';
 import { usaCircuitos } from '../core/tipoProyecto';
@@ -27,10 +27,8 @@ function CampoRelacion({ el, relacion }: { el: Elemento; relacion: Relacion }) {
   const { rotulo, sinPadre, ayuda } = TEXTOS_RELACION[relacion];
   const fijar = relacion === 'alimentadoPor' ? alimentarDesde : accionarDesde;
   const candidatos = candidatosPadre(elementos, ctx, el.uid, relacion);
-  const textoElemento = (c: Elemento): string => {
-    const comp = ctx.comps.get(c.componenteId);
-    return comp ? descripcionElemento(comp, c) : c.componenteId;
-  };
+  const nombres = descripcionesDistinguidas(elementos, ctx);
+  const textoElemento = (c: Elemento): string => nombres.get(c.uid) ?? c.componenteId;
 
   return (
     <label className="campo" htmlFor={id}>
@@ -244,9 +242,21 @@ function AccionesElemento({ el, comp }: { el: Elemento; comp: Componente }) {
   );
 }
 
+/** Solo si otra pieza tiene la misma descripción: el "#n" con que se distingue en los selectores y en la tabla de conexiones. */
+function Identificador({ elementos, ctx, uid }: { elementos: readonly Elemento[]; ctx: NonNullable<ReturnType<typeof useContexto>>; uid: string }) {
+  const id = identificadorDePieza(elementos, ctx, uid);
+  if (!id) return null;
+  return (
+    <p className="sub" title="Hay piezas con la misma descripción; este número las distingue en 'Alimentado por', 'Accionado por' y la tabla de conexiones. Para cambiarlo, numera o rotula la pieza.">
+      Identificador: #{id.n} de {id.de} piezas iguales
+    </p>
+  );
+}
+
 export function PanelPropiedades() {
   const ctx = useContexto();
   const el = useEditor((s) => s.proyecto.elementos.find((e) => e.uid === s.seleccion));
+  const elementos = useEditor((s) => s.proyecto.elementos);
   const comp = el && ctx?.comps.get(el.componenteId);
 
   if (!el || !comp) {
@@ -270,6 +280,7 @@ export function PanelPropiedades() {
     // (lo que producía un <select> "Alimentado por" fantasma del elemento anterior).
     <div key={el.uid}>
       <h2>{comp.nombre}</h2>
+      {conCircuitos && ctx && <Identificador elementos={elementos} ctx={ctx} uid={el.uid} />}
       <AccionesElemento el={el} comp={comp} />
       {comp.notas && <p className="sub">{comp.notas}</p>}
       {/* La clave incluye el uid para reiniciar el estado local al cambiar de selección. */}

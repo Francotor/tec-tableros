@@ -1,4 +1,5 @@
 import type { Cambio, Contexto } from './colocacion';
+import { descripcionElemento } from './etiquetas';
 import { nuevoUid } from './modelo';
 import type { Circuito, Elemento } from './modelo';
 import type { Componente } from './tipos';
@@ -135,4 +136,42 @@ export function asignarCircuito(elementos: readonly Elemento[], uid: string, cir
     if (e.uid !== uid) return e;
     return circuitoId === null ? quitarCircuito(e) : { ...e, circuitoId };
   });
+}
+
+// ------------------------------------------------- descripciones que no se repiten
+
+/**
+ * Descripción de cada pieza conectable (la del selector de Propiedades), con un identificador "#n" solo cuando dos o más
+ * piezas tendrían exactamente la misma descripción (p. ej. dos contactores en N°1, el valor por defecto). El n es el orden
+ * en que se colocaron entre las piezas idénticas; las que no chocan con ninguna quedan sin identificador. Clave: uid.
+ */
+export function descripcionesDistinguidas(elementos: readonly Elemento[], ctx: Contexto): Map<string, string> {
+  const base = new Map<string, string>();
+  const grupos = new Map<string, string[]>();
+  for (const el of elementos) {
+    const comp = ctx.comps.get(el.componenteId);
+    if (!comp || !puedeConectarse(comp)) continue;
+    const d = descripcionElemento(comp, el);
+    base.set(el.uid, d);
+    grupos.set(d, [...(grupos.get(d) ?? []), el.uid]);
+  }
+  const resultado = new Map<string, string>();
+  for (const [uid, d] of base) {
+    const grupo = grupos.get(d) ?? [];
+    resultado.set(uid, grupo.length > 1 ? `${d} · #${grupo.indexOf(uid) + 1}` : d);
+  }
+  return resultado;
+}
+
+/** "#n" de una pieza dentro de las que tienen su misma descripción, o null si ninguna otra la comparte. */
+export function identificadorDePieza(elementos: readonly Elemento[], ctx: Contexto, uid: string): { n: number; de: number } | null {
+  const el = elementos.find((e) => e.uid === uid);
+  const comp = el && ctx.comps.get(el.componenteId);
+  if (!el || !comp || !puedeConectarse(comp)) return null;
+  const d = descripcionElemento(comp, el);
+  const iguales = elementos.filter((e) => {
+    const c = ctx.comps.get(e.componenteId);
+    return c !== undefined && puedeConectarse(c) && descripcionElemento(c, e) === d;
+  });
+  return iguales.length > 1 ? { n: iguales.findIndex((e) => e.uid === uid) + 1, de: iguales.length } : null;
 }

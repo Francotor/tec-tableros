@@ -1,7 +1,7 @@
 import { calcularTopes, esCanaleta, esRiel, listarRieles, TOPE_ID } from './colocacion';
 import type { Contexto } from './colocacion';
-import { puedeConectarse } from './conexion';
-import { descripcionElemento, expandirPlantilla, valoresEfectivos } from './etiquetas';
+import { descripcionesDistinguidas, puedeConectarse } from './conexion';
+import { expandirPlantilla, valoresEfectivos } from './etiquetas';
 import type { Circuito, Elemento } from './modelo';
 import { muestraTotalesDeRielYCanaleta, usaCircuitos } from './tipoProyecto';
 
@@ -83,15 +83,8 @@ export function generarLista(elementos: readonly Elemento[], ctx: Contexto): Lis
  */
 export function generarConexiones(elementos: readonly Elemento[], ctx: Contexto): FilaConexion[] {
   if (!usaCircuitos(ctx.tipo)) return [];
-  const descripcion = (el: Elemento): string | null => {
-    const comp = ctx.comps.get(el.componenteId);
-    return comp ? descripcionElemento(comp, el) : null;
-  };
-  const porUid = new Map(elementos.map((e) => [e.uid, e]));
-  const de = (uid: string | undefined): string | null => {
-    const padre = uid ? porUid.get(uid) : undefined;
-    return padre ? descripcion(padre) : null;
-  };
+  const nombres = descripcionesDistinguidas(elementos, ctx);
+  const de = (uid: string | undefined): string | null => (uid ? (nombres.get(uid) ?? null) : null);
   const filas: FilaConexion[] = [];
   for (const el of elementos) {
     const comp = ctx.comps.get(el.componenteId);
@@ -99,7 +92,7 @@ export function generarConexiones(elementos: readonly Elemento[], ctx: Contexto)
     const accionadoPor = de(el.accionadoPor);
     const alimentadoPor = de(el.alimentadoPor);
     if (accionadoPor === null && alimentadoPor === null) continue;
-    filas.push({ pieza: descripcionElemento(comp, el), accionadoPor, alimentadoPor });
+    filas.push({ pieza: nombres.get(el.uid) ?? comp.nombre, accionadoPor, alimentadoPor });
   }
   return filas.sort((a, b) => (a.pieza < b.pieza ? -1 : a.pieza > b.pieza ? 1 : 0));
 }
