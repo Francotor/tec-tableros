@@ -33,10 +33,7 @@ const normalizar = (s: string): string[] => s.replace(/\r\n/g, '\n').trim().spli
 describe('lista de materiales: referencia ejemplo_lista_materiales.csv', () => {
   const ctx = ctxDe();
   const lista = generarLista(armarEjemplo(ctx), ctx);
-  // El CSV de referencia de la biblioteca aún nombra la barra de 12 vías (retirada en la v2.0); el ejemplo usa ahora la de 11 puestos.
-  const esperado = normalizar(readFileSync(join(RAIZ_BIBLIOTECA, 'ejemplo_lista_materiales.csv'), 'utf8')).map((l) =>
-    l.replace('Barra repartidora 12 vias', 'Barra repartidora tetrapolar 125A (11 puestos)'),
-  );
+  const esperado = normalizar(readFileSync(join(RAIZ_BIBLIOTECA, 'ejemplo_lista_materiales.csv'), 'utf8'));
 
   it('coincide línea por línea, con las mismas cantidades', () => {
     expect(normalizar(listaACsv(lista, { conTotales: false }))).toEqual(esperado);
@@ -272,12 +269,12 @@ describe('avisos', () => {
     expect(calcularAvisos(els, ctx, sugerirCaja(els, ctx, bib.gabinetes))).toEqual([]);
   });
 
-  it('con el margen por defecto, la caja referencial 400x500x200 sí avisa (fila muy justa)', () => {
-    const ctx = ctxDe();
-    const els = armarEjemplo(ctx);
-    const avisos = calcularAvisos(els, ctx, null);
+  it('la caja referencial 400x500x200 avisa cuando una fila supera su capacidad (modo con canaleta: 16 módulos por fila)', () => {
+    // El ejemplo de la biblioteca deja la fila 2 justo bajo el límite del modo compacto (20): en con canaleta la pasa.
+    const ctx = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' }, { modo: 'con_canaleta' });
+    const avisos = calcularAvisos(armarEjemplo(ctx), ctx, null);
     expect(avisos).toHaveLength(1);
-    expect(avisos[0]?.texto).toMatch(/La fila 2 ocupa 21 módulos/);
+    expect(avisos[0]?.texto).toMatch(/La fila 2 ocupa 19 módulos y la caja admite 16 por fila/);
   });
 
   it('avisa de elementos fuera de la caja', () => {
