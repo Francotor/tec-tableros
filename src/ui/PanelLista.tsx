@@ -3,7 +3,7 @@ import { usaCircuitos } from '../core/tipoProyecto';
 import { calcularAvisos } from '../core/avisos';
 import type { AvisoLista } from '../core/avisos';
 import { formatearMm } from '../core/biblioteca';
-import { formatearMetros, generarLista, generarListaPorCircuito, lineasTotales, listaACsv, listaATexto } from '../core/lista';
+import { formatearMetros, generarLista, generarListaPorCircuito, lineasTotales, listaACsv, listaATexto, SIN_DEFINIR } from '../core/lista';
 import type { GrupoLista, ListaMateriales } from '../core/lista';
 import { sugerirCaja } from '../core/sugerencia';
 import type { Sugerencia } from '../core/sugerencia';
@@ -176,6 +176,30 @@ export function PanelLista() {
               </tr>
             ))}
           </tfoot>
+        </table>
+      )}
+
+      {lista.conexiones.length > 0 && (
+        <table className="tabla-lista tabla-conexiones">
+          <caption>
+            <strong>Conexiones</strong>
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Pieza</th>
+              <th scope="col">Accionado por</th>
+              <th scope="col">Alimentado por</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lista.conexiones.map((c, i) => (
+              <tr key={`${c.pieza}:${i}`}>
+                <td>{c.pieza}</td>
+                <td>{c.accionadoPor ?? SIN_DEFINIR}</td>
+                <td>{c.alimentadoPor ?? SIN_DEFINIR}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       )}
 

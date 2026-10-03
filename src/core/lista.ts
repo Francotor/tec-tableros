@@ -1,13 +1,21 @@
 import { calcularTopes, esCanaleta, esRiel, listarRieles, TOPE_ID } from './colocacion';
 import type { Contexto } from './colocacion';
-import { expandirPlantilla, valoresEfectivos } from './etiquetas';
+import { puedeConectarse } from './conexion';
+import { descripcionElemento, expandirPlantilla, valoresEfectivos } from './etiquetas';
 import type { Circuito, Elemento } from './modelo';
-import { muestraTotalesDeRielYCanaleta } from './tipoProyecto';
+import { muestraTotalesDeRielYCanaleta, usaCircuitos } from './tipoProyecto';
 
 export interface LineaLista {
   descripcion: string;
   cantidad: number;
   unidad: string;
+}
+
+/** Una fila de la tabla de conexiones: una pieza y de quién recibe mando y potencia (null = sin definir). */
+export interface FilaConexion {
+  pieza: string;
+  accionadoPor: string | null;
+  alimentadoPor: string | null;
 }
 
 export interface ListaMateriales {
@@ -18,9 +26,13 @@ export interface ListaMateriales {
   metrosCanaleta: number;
   /** false en un medidor: no hay riel ni canaleta, así que no se agregan las líneas "Total riel DIN" y "Total canaleta". */
   conTotales: boolean;
+  /** Piezas con "Accionado por" o "Alimentado por" definido (las que no tienen ninguno no salen). Vacía en un medidor. */
+  conexiones: FilaConexion[];
 }
 
 const UNIDAD = 'un';
+/** Lo que se escribe en la tabla de conexiones cuando una de las dos relaciones no está definida. */
+export const SIN_DEFINIR = '—';
 
 function descripcionCaja(ctx: Contexto): string {
   const { caja } = ctx;
@@ -61,7 +73,35 @@ export function generarLista(elementos: readonly Elemento[], ctx: Contexto): Lis
     metrosRiel: mmRiel / 1000,
     metrosCanaleta: mmCanaleta / 1000,
     conTotales: muestraTotalesDeRielYCanaleta(ctx.tipo),
+    conexiones: generarConexiones(elementos, ctx),
   };
+}
+
+/**
+ * Tabla de conexiones: cada pieza que tenga "Accionado por" o "Alimentado por", con la misma descripción que el selector de
+ * Propiedades. Una referencia a una pieza que ya no existe cuenta como sin definir. En el orden de la lista (por descripción).
+ */
+export function generarConexiones(elementos: readonly Elemento[], ctx: Contexto): FilaConexion[] {
+  if (!usaCircuitos(ctx.tipo)) return [];
+  const descripcion = (el: Elemento): string | null => {
+    const comp = ctx.comps.get(el.componenteId);
+    return comp ? descripcionElemento(comp, el) : null;
+  };
+  const porUid = new Map(elementos.map((e) => [e.uid, e]));
+  const de = (uid: string | undefined): string | null => {
+    const padre = uid ? porUid.get(uid) : undefined;
+    return padre ? descripcion(padre) : null;
+  };
+  const filas: FilaConexion[] = [];
+  for (const el of elementos) {
+    const comp = ctx.comps.get(el.componenteId);
+    if (!comp || !puedeConectarse(comp)) continue;
+    const accionadoPor = de(el.accionadoPor);
+    const alimentadoPor = de(el.alimentadoPor);
+    if (accionadoPor === null && alimentadoPor === null) continue;
+    filas.push({ pieza: descripcionElemento(comp, el), accionadoPor, alimentadoPor });
+  }
+  return filas.sort((a, b) => (a.pieza < b.pieza ? -1 : a.pieza > b.pieza ? 1 : 0));
 }
 
 function ordenarLineas(cuenta: ReadonlyMap<string, number>): LineaLista[] {
@@ -137,7 +177,8 @@ export function lineasTotales(lista: ListaMateriales): LineaLista[] {
 export function listaATexto(lista: ListaMateriales): string {
   const materiales = lista.lineas.map((l) => `${l.cantidad} x ${l.descripcion}`);
   const totales = lineasTotales(lista).map((t) => `${t.descripcion}: ${formatearMetros(t.cantidad)} m`);
-  return (totales.length > 0 ? [...materiales, '', ...totales] : materiales).join('\n');
+  const conexiones = lista.conexiones.length > 0 ? ['', 'Conexiones:', ...lista.conexiones.map((c) => `${c.pieza} | Accionado por: ${c.accionadoPor ?? SIN_DEFINIR} | Alimentado por: ${c.alimentadoPor ?? SIN_DEFINIR}`)] : [];
+  return [...materiales, ...(totales.length > 0 ? ['', ...totales] : []), ...conexiones].join('\n');
 }
 
 function campoCsv(v: string): string {
@@ -149,5 +190,10 @@ export function listaACsv(lista: ListaMateriales, opciones: { conTotales?: boole
   const filas: LineaLista[] = [...lista.lineas];
   if (opciones.conTotales ?? true) filas.push(...lineasTotales(lista));
   const cuerpo = filas.map((l) => `${campoCsv(l.descripcion)},${String(l.cantidad).replace(',', '.')},${l.unidad}`);
-  return ['descripcion,cantidad,unidad', ...cuerpo].join('\r\n') + '\r\n';
+  // Las conexiones van en un segundo bloque (otra cabecera) después de una línea en blanco; sin conexiones el CSV es el de siempre.
+  const conexiones =
+    lista.conexiones.length > 0
+      ? ['', 'pieza,accionado_por,alimentado_por', ...lista.conexiones.map((c) => [c.pieza, c.accionadoPor ?? '', c.alimentadoPor ?? ''].map(campoCsv).join(','))]
+      : [];
+  return ['descripcion,cantidad,unidad', ...cuerpo, ...conexiones].join('\r\n') + '\r\n';
 }

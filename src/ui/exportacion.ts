@@ -1,6 +1,6 @@
 import { generarDxf, svgsNecesarios } from '../core/exportarDxf';
 import type { GeneradoresLineales } from '../core/exportarDxf';
-import { formatearMetros, generarLista, lineasTotales } from '../core/lista';
+import { formatearMetros, generarLista, lineasTotales, SIN_DEFINIR } from '../core/lista';
 import { nombreSeguro } from '../core/proyectos';
 import { calcularVistaFrontal, datosFrontalDeCaja } from '../core/vistaFrontal';
 import { useBiblioteca } from '../store/biblioteca';
@@ -8,7 +8,7 @@ import { contextoActual, useEditor } from '../store/editor';
 import { descargarDataUrl, descargar } from './descarga';
 import { cargarLineales, textoDeBiblioteca } from './imagenes';
 import type { FilaLista } from './pdfLista';
-import { dibujarListaPaginada, numerarPaginas } from './pdfLista';
+import { dibujarConexionesPaginada, dibujarListaPaginada, numerarPaginas } from './pdfLista';
 import { dibujarVistaFrontal } from './pdfVistas';
 
 /** El lienzo registra aquí cómo dibujar el tablero limpio (sin rejilla ni selección). */
@@ -179,7 +179,13 @@ export async function generarPdf(): Promise<Blob> {
     ...lista.lineas.map((l) => ({ cant: `${l.cantidad} ${l.unidad}`, texto: l.descripcion, total: false })),
     ...totales.map((t) => ({ cant: `${formatearMetros(t.cantidad)} m`, texto: t.descripcion, total: true })),
   ];
-  dibujarListaPaginada(doc, filas, { margen: MARGEN, anchoPagina: A4_ANCHO, altoPagina: A4_ALTO, pie: PIE_MM });
+  const opLista = { margen: MARGEN, anchoPagina: A4_ANCHO, altoPagina: A4_ALTO, pie: PIE_MM };
+  const colocadas = dibujarListaPaginada(doc, filas, opLista);
+  const ultima = colocadas[colocadas.length - 1];
+  if (ultima && lista.conexiones.length > 0) {
+    const conexiones = lista.conexiones.map((c) => ({ pieza: c.pieza, accionadoPor: c.accionadoPor ?? SIN_DEFINIR, alimentadoPor: c.alimentadoPor ?? SIN_DEFINIR }));
+    dibujarConexionesPaginada(doc, conexiones, opLista, { pagina: ultima.pagina, y: ultima.y + ultima.alto });
+  }
   numerarPaginas(doc, proyecto.nombre || 'Tablero eléctrico', A4_ANCHO, A4_ALTO, MARGEN);
 
   return doc.output('blob');

@@ -5,8 +5,8 @@ import { calcularAvisos } from './avisos';
 import { agregarElemento, resolverColocacion } from './colocacion';
 import type { Contexto } from './colocacion';
 import { armarEjemplo, cargarBiblioteca, crearContextoDe, RAIZ_BIBLIOTECA } from './ejemplo.testutil';
-import { formatearMetros, generarLista, generarListaPorCircuito, listaACsv, listaATexto } from './lista';
-import { agregarCircuito, asignarCircuito } from './conexion';
+import { formatearMetros, generarConexiones, generarLista, generarListaPorCircuito, listaACsv, listaATexto } from './lista';
+import { agregarCircuito, asignarCircuito, fijarAccionadoPor, fijarAlimentadoPor } from './conexion';
 import { nuevoUid, valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
 import { extensionDelDibujo, sugerirCaja, trasladar } from './sugerencia';
@@ -197,7 +197,7 @@ describe('lista de materiales: otros casos', () => {
   });
 
   it('escapa comas y comillas en el CSV', () => {
-    const lista = { lineas: [{ descripcion: 'a, "b"', cantidad: 1, unidad: 'un' }], metrosRiel: 0, metrosCanaleta: 0, conTotales: true };
+    const lista = { lineas: [{ descripcion: 'a, "b"', cantidad: 1, unidad: 'un' }], metrosRiel: 0, metrosCanaleta: 0, conTotales: true, conexiones: [] };
     expect(listaACsv(lista, { conTotales: false })).toContain('"a, ""b""",1,un');
   });
 
@@ -309,5 +309,74 @@ describe('avisos', () => {
     let els = poner([], ctx, 'riel_din', 250, 100.5, 400); // riel de 400 mm: x 50..450
     els = poner(els, ctx, 'automatico_1p', 60, 100); // pegado al inicio del riel: el tope queda fuera
     expect(calcularAvisos(els, ctx, null).some((a) => a.id === 'topes')).toBe(true);
+  });
+});
+
+describe('tabla de conexiones (Accionado por / Alimentado por)', () => {
+  const ctx = ctxDe();
+  const porId = (els: Elemento[], id: string): Elemento => {
+    const el = els.find((e) => e.componenteId === id);
+    if (!el) throw new Error(`no hay ${id}`);
+    return el;
+  };
+  const conectar = (els: Elemento[], hijo: string, padre: string, rel: 'alimentado' | 'accionado'): Elemento[] => {
+    const r = (rel === 'alimentado' ? fijarAlimentadoPor : fijarAccionadoPor)(els, ctx, hijo, padre);
+    if (!r.ok) throw new Error(r.motivo);
+    return r.elementos;
+  };
+
+  it('el ejemplo sin relaciones no tiene filas (las piezas con las dos en "sin definir" no salen)', () => {
+    expect(generarConexiones(armarEjemplo(ctx), ctx)).toEqual([]);
+    expect(generarLista(armarEjemplo(ctx), ctx).conexiones).toEqual([]);
+  });
+
+  it('solo salen las piezas con al menos una relación, con la descripción del selector de Propiedades', () => {
+    let els = armarEjemplo(ctx);
+    const contactor = porId(els, 'contactor_3p');
+    const reloj = porId(els, 'reloj_control');
+    const diferencial = porId(els, 'diferencial_4p');
+    els = conectar(els, contactor.uid, reloj.uid, 'accionado');
+    els = conectar(els, contactor.uid, diferencial.uid, 'alimentado');
+    const sola = porId(els, 'rele_crepuscular');
+    els = conectar(els, sola.uid, reloj.uid, 'accionado');
+    const filas = generarConexiones(els, ctx);
+    expect(filas).toHaveLength(2);
+    const fila = filas.find((f) => f.pieza.startsWith('Contactor'));
+    expect(fila?.accionadoPor).toMatch(/^Reloj/);
+    expect(fila?.alimentadoPor).toMatch(/^Interruptor diferencial/);
+    // Solo una de las dos relaciones: la otra queda null (se muestra como "—").
+    const soloMando = filas.find((f) => f.pieza.startsWith('Rel'));
+    expect(soloMando).toMatchObject({ alimentadoPor: null });
+    expect(soloMando?.accionadoPor).toMatch(/^Reloj/);
+  });
+
+  it('una referencia a una pieza que ya no existe cuenta como sin definir', () => {
+    const els = armarEjemplo(ctx);
+    const a = porId(els, 'automatico_3p');
+    const huerfano = els.map((e) => (e.uid === a.uid ? { ...e, alimentadoPor: 'borrado', accionadoPor: 'borrado' } : e));
+    expect(generarConexiones(huerfano, ctx)).toEqual([]);
+  });
+
+  it('las piezas de montaje no salen y un medidor no tiene tabla', () => {
+    const els = armarEjemplo(ctx);
+    const riel = porId(els, 'riel_din');
+    const forzado = els.map((e) => (e.uid === riel.uid ? { ...e, alimentadoPor: porId(els, 'contactor_3p').uid } : e));
+    expect(generarConexiones(forzado, ctx)).toEqual([]);
+    expect(generarConexiones(forzado, { ...ctx, tipo: 'medidor' })).toEqual([]);
+  });
+
+  it('va al final del texto y del CSV, y sin filas ni el texto ni el CSV cambian', () => {
+    const base = generarLista(armarEjemplo(ctx), ctx);
+    expect(listaATexto(base)).not.toContain('Conexiones');
+    expect(listaACsv(base)).not.toContain('accionado_por');
+    let els = armarEjemplo(ctx);
+    els = conectar(els, porId(els, 'contactor_3p').uid, porId(els, 'reloj_control').uid, 'accionado');
+    const lista = generarLista(els, ctx);
+    const texto = listaATexto(lista);
+    expect(texto).toMatch(/\nConexiones:\nContactor .* \| Accionado por: Reloj .* \| Alimentado por: —$/);
+    expect(texto.indexOf('Total canaleta')).toBeLessThan(texto.indexOf('Conexiones:'));
+    const csv = listaACsv(lista);
+    expect(csv).toMatch(/\r\n\r\npieza,accionado_por,alimentado_por\r\n/);
+    expect(csv.split('\r\n').at(-2)).toMatch(/^"?Contactor .*,"?Reloj .*,$/);
   });
 });

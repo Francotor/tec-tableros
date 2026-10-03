@@ -102,3 +102,81 @@ export function numerarPaginas(doc: jsPDF, texto: string, anchoPagina: number, a
     doc.text(`${texto} — Página ${p} de ${total}`, anchoPagina / 2, altoPagina - margen + 4, { align: 'center' });
   }
 }
+
+export interface FilaConexionPdf {
+  pieza: string;
+  accionadoPor: string;
+  alimentadoPor: string;
+}
+
+/**
+ * Tabla de conexiones (pieza | accionado por | alimentado por), a continuación de la lista de materiales: parte debajo de
+ * la última fila si cabe un título y una fila (si no, en una página nueva) y, como la lista, nunca parte una fila ni deja
+ * de repetir la cabecera al cambiar de página. `desde` es dónde terminó la lista (devuelta por dibujarListaPaginada).
+ */
+export function dibujarConexionesPaginada(
+  doc: jsPDF,
+  filas: readonly FilaConexionPdf[],
+  op: OpcionesLista,
+  desde: { pagina: number; y: number },
+): FilaColocada[] {
+  const tamano = op.tamano ?? 9;
+  const altoLinea = op.altoLinea ?? 4.4;
+  const anchoUtil = op.anchoPagina - 2 * op.margen;
+  const yMax = op.altoPagina - op.margen - op.pie;
+  const anchos = [anchoUtil * 0.4, anchoUtil * 0.3, anchoUtil * 0.3];
+  const xs = [op.margen, op.margen + anchos[0]!, op.margen + anchos[0]! + anchos[1]!];
+  const colocadas: FilaColocada[] = [];
+
+  const cabecera = (y: number, continuacion: boolean): number => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...NAVY);
+    doc.text(continuacion ? 'Conexiones (continuación)' : 'Conexiones', op.margen, y);
+    y += 5;
+    doc.setFontSize(tamano);
+    doc.text('Pieza', xs[0]!, y);
+    doc.text('Accionado por', xs[1]!, y);
+    doc.text('Alimentado por', xs[2]!, y);
+    doc.setDrawColor(...NAVY);
+    doc.setLineWidth(0.3);
+    doc.line(op.margen, y + 1.5, op.margen + anchoUtil, y + 1.5);
+    return y + 1.5 + altoLinea;
+  };
+  const altoCabecera = 5 + 1.5 + altoLinea;
+  const altoMinimoConPrimeraFila = (pieza: string[]): number => altoCabecera + Math.max(1, pieza.length) * altoLinea + RELLENO_FILA;
+
+  doc.setPage(desde.pagina);
+  doc.setFontSize(tamano);
+  doc.setFont('helvetica', 'normal');
+  const primera = filas[0] ? (doc.splitTextToSize(filas[0].pieza, anchos[0]! - 3) as string[]) : [];
+  let y = desde.y + 8; // aire entre la lista y el título
+  if (y + altoMinimoConPrimeraFila(primera) > yMax) {
+    doc.addPage();
+    y = op.margen + 6;
+  }
+  y = cabecera(y, false);
+
+  filas.forEach((f, i) => {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(tamano);
+    const columnas = [
+      doc.splitTextToSize(f.pieza, anchos[0]! - 3) as string[],
+      doc.splitTextToSize(f.accionadoPor, anchos[1]! - 3) as string[],
+      doc.splitTextToSize(f.alimentadoPor, anchos[2]! - 3) as string[],
+    ];
+    const lineas = Math.max(1, ...columnas.map((c) => c.length));
+    const alto = lineas * altoLinea + RELLENO_FILA;
+    if (y - altoLinea + 1 + alto > yMax) {
+      doc.addPage();
+      y = cabecera(op.margen + 6, true);
+    }
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(tamano);
+    doc.setTextColor(...GRAFITO);
+    columnas.forEach((c, k) => doc.text(c, xs[k]!, y));
+    colocadas.push({ fila: i, pagina: doc.getCurrentPageInfo().pageNumber, y: y - altoLinea + 1, alto });
+    y += alto;
+  });
+  return colocadas;
+}

@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { describe, expect, it } from 'vitest';
-import { dibujarListaPaginada, numerarPaginas } from './pdfLista';
+import { dibujarConexionesPaginada, dibujarListaPaginada, numerarPaginas } from './pdfLista';
 import type { FilaLista } from './pdfLista';
 
 const A4 = { ancho: 210, alto: 297 };
@@ -88,5 +88,51 @@ describe('lista de materiales paginada en el PDF', () => {
     const total = doc.getNumberOfPages();
     const texto = contenidoPdf(doc);
     for (let p = 1; p <= total; p++) expect(texto).toContain(`gina ${p} de ${total}`);
+  });
+});
+
+describe('tabla de conexiones en el PDF', () => {
+  const conexiones = (n: number, pieza = 'Contactor 3P N°1 (K1)') =>
+    Array.from({ length: n }, (_, i) => ({ pieza: `${pieza} ${i + 1}`, accionadoPor: 'Reloj control horario (RC1)', alimentadoPor: i % 2 === 0 ? '—' : 'Interruptor automatico 1P N°3 (C16)' }));
+  const finDeLista = (doc: jsPDF, n: number) => {
+    const puestas = dibujarListaPaginada(doc, filas(n), OP);
+    const u = puestas[puestas.length - 1]!;
+    return { pagina: u.pagina, y: u.y + u.alto };
+  };
+
+  it('con pocas filas parte debajo de la lista, en la misma página', () => {
+    const doc = nuevoDoc();
+    const desde = finDeLista(doc, 6);
+    const puestas = dibujarConexionesPaginada(doc, conexiones(4), OP, desde);
+    expect(puestas).toHaveLength(4);
+    expect(doc.getNumberOfPages()).toBe(2);
+    expect(puestas.every((p) => p.pagina === desde.pagina && p.y > desde.y)).toBe(true);
+    const pdf = contenidoPdf(doc);
+    expect(pdf).toContain('Conexiones');
+    expect(pdf).toContain('Alimentado por');
+  });
+
+  it('si la lista llegó al pie, la tabla empieza en una página nueva', () => {
+    const doc = nuevoDoc();
+    const desde = finDeLista(doc, 52);
+    const paginasAntes = doc.getNumberOfPages();
+    const puestas = dibujarConexionesPaginada(doc, conexiones(3), OP, desde);
+    expect(puestas[0]!.pagina).toBeGreaterThanOrEqual(desde.pagina);
+    expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(paginasAntes);
+    for (const p of puestas) expect(p.y + p.alto).toBeLessThanOrEqual(LIMITE_INFERIOR + 0.01);
+  });
+
+  it('con muchas filas pagina sin partir ninguna, repite la cabecera y no se sale del margen', () => {
+    const doc = nuevoDoc();
+    const desde = finDeLista(doc, 10);
+    const puestas = dibujarConexionesPaginada(doc, conexiones(90, 'Interruptor diferencial 4P N°2 (QD2, 63A, 300 mA, circuito de alumbrado exterior)'), OP, desde);
+    expect(puestas).toHaveLength(90);
+    expect(new Set(puestas.map((p) => p.pagina)).size).toBeGreaterThan(1);
+    for (const p of puestas) {
+      expect(p.y).toBeGreaterThanOrEqual(OP.margen - 0.01);
+      expect(p.y + p.alto).toBeLessThanOrEqual(LIMITE_INFERIOR + 0.01);
+    }
+    const texto = contenidoPdf(doc);
+    expect(texto.split('continuaci').length - 1).toBeGreaterThan(0); // en el PDF los paréntesis van escapados: se busca solo la palabra
   });
 });
