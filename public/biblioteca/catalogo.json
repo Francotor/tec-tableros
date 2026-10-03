@@ -1,5 +1,5 @@
 {
- "version": "2.1",
+ "version": "2.2",
  "unidad": "mm",
  "origen": "arriba-izquierda, eje y hacia abajo",
  "modulo_din_mm": 18,
@@ -1145,6 +1145,151 @@
    },
    "bom": "Barra repartidora bipolar 80A (8 puestos)",
    "notas": "Dimensiones de ficha tecnica aportada por el usuario (vista lateral: alto 46mm, fondo 44mm, guardado solo en atributos ya que este esquema no trae fondo_mm en componentes; vista frontal: ancho 80mm, crece con la cantidad de puestos). Montaje en riel DIN, no modular de 18mm -> snap 'libre', mismo precedente que contactor_3p/fuente_mdr60. Las marcas '35/84' (tetrapolares) y '12/35' (bipolares) de la vista lateral de la ficha NO se usaron como fondo: se interpretaron como referencias del enganche a riel/tapa abatible."
+  },
+  {
+   "id": "regleta_conexion_4v",
+   "nombre": "Regleta de conexion 4 vias",
+   "categoria": "Distribucion",
+   "svg": "componentes/regleta_conexion_4v.svg",
+   "ancho_mm": 58,
+   "alto_mm": 28,
+   "montaje": "riel",
+   "riel_y_mm": 14.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 63,
+    "vias": 4,
+    "seccion_max_mm2": 4,
+    "color": "azul",
+    "material": "termoplastico polipropileno y bronce",
+    "fondo_mm": 10.5,
+    "ancho_superior_mm": 28
+   },
+   "bom": "Regleta de conexion 4 vias",
+   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 58x28x28x10.5 mm, ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+  },
+  {
+   "id": "regleta_conexion_6v",
+   "nombre": "Regleta de conexion 6 vias",
+   "categoria": "Distribucion",
+   "svg": "componentes/regleta_conexion_6v.svg",
+   "ancho_mm": 58,
+   "alto_mm": 28,
+   "montaje": "riel",
+   "riel_y_mm": 14.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 63,
+    "vias": 6,
+    "seccion_max_mm2": 4,
+    "color": "azul",
+    "material": "termoplastico polipropileno y bronce",
+    "fondo_mm": 10.5,
+    "ancho_superior_mm": 41
+   },
+   "bom": "Regleta de conexion 6 vias",
+   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 58x41x28x10.5 mm, ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+  },
+  {
+   "id": "regleta_conexion_8v",
+   "nombre": "Regleta de conexion 8 vias",
+   "categoria": "Distribucion",
+   "svg": "componentes/regleta_conexion_8v.svg",
+   "ancho_mm": 78.5,
+   "alto_mm": 28,
+   "montaje": "riel",
+   "riel_y_mm": 14.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 63,
+    "vias": 8,
+    "seccion_max_mm2": 4,
+    "color": "azul",
+    "material": "termoplastico polipropileno y bronce",
+    "fondo_mm": 10.5,
+    "ancho_superior_mm": 54
+   },
+   "bom": "Regleta de conexion 8 vias",
+   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 78.5x54x28x10.5 mm, ficha tecnica aportada por el usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+  },
+  {
+   "id": "regleta_conexion_10v",
+   "nombre": "Regleta de conexion 10 vias",
+   "categoria": "Distribucion",
+   "svg": "componentes/regleta_conexion_10v.svg",
+   "ancho_mm": 89,
+   "alto_mm": 28,
+   "montaje": "riel",
+   "riel_y_mm": 14.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 63,
+    "vias": 10,
+    "seccion_max_mm2": 4,
+    "color": "azul",
+    "material": "termoplastico polipropileno y bronce",
+    "fondo_mm": 10.5,
+    "ancho_superior_mm": 67
+   },
+   "bom": "Regleta de conexion 10 vias",
+   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 89x67x28x10.5 mm, ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+  },
+  {
+   "id": "regleta_conexion_12v",
+   "nombre": "Regleta de conexion 12 vias",
+   "categoria": "Distribucion",
+   "svg": "componentes/regleta_conexion_12v.svg",
+   "ancho_mm": 103,
+   "alto_mm": 28,
+   "montaje": "riel",
+   "riel_y_mm": 14.0,
+   "snap": {
+    "tipo": "libre",
+    "paso_mm": 1
+   },
+   "modulos": null,
+   "polos": null,
+   "etiqueta": null,
+   "campos": [],
+   "atributos": {
+    "corriente_nominal_a": 63,
+    "vias": 12,
+    "seccion_max_mm2": 4,
+    "color": "azul",
+    "material": "termoplastico polipropileno y bronce",
+    "fondo_mm": 10.5,
+    "ancho_superior_mm": 86
+   },
+   "bom": "Regleta de conexion 12 vias",
+   "notas": "Dimensiones L1(ancho)xL2(ancho superior)xHxW(fondo) = 103x86x28x10.5 mm, ficha tecnica aportada por el usuario. Ancho_mm usa L1 (base, define el espacio ocupado en el riel); L2 queda solo en atributos.ancho_superior_mm (cuerpo trapezoidal visto de lado, no afecta el dibujo 2D). Fondo (W=10.5 mm, constante en toda la familia) en atributos.fondo_mm, igual que barra_repartidora/fuente_mdr60 (este esquema no trae fondo_mm en componentes). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Montable en riel DIN o en placa; se registra como montaje='riel' igual que el resto de las piezas de riel. Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "portafusible_10x38_1p",
