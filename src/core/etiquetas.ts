@@ -52,6 +52,16 @@ export function interpretarValor(campo: Campo, texto: string): ValorCampo | null
   return campo.opciones.find((o) => String(o) === texto) ?? null;
 }
 
+/** Zona de rótulo angosta (13 mm: automático 1P, portafusible 1P, contactor 1M...): ahí un texto largo se achicaría hasta no leerse. */
+const ANCHO_ZONA_ANGOSTA_MM = 20;
+const LARGO_TEXTO_ANGOSTO = 6;
+const LARGO_TEXTO = 12;
+
+/** Largo máximo de un campo de texto libre: 6 caracteres si la zona del rótulo es angosta, 12 en las demás. */
+export function largoMaximoTexto(comp: Componente): number {
+  return comp.montaje !== 'lineal' && comp.etiqueta && comp.etiqueta.w < ANCHO_ZONA_ANGOSTA_MM ? LARGO_TEXTO_ANGOSTO : LARGO_TEXTO;
+}
+
 const ANCHO_CARACTER = 0.62; // ancho medio de un carácter en negrita, en múltiplos del tamaño de letra
 
 /** Tamaño de letra que hace caber la línea en el ancho de la zona (nunca mayor al de la ficha). */

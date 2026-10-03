@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parsearCatalogo } from './biblioteca';
 import { validarLargo } from './colocacion';
-import { descripcionElemento, expandirPlantilla, interpretarValor, lineasEtiqueta, tamanoAjustado, valoresEfectivos } from './etiquetas';
+import { largoMaximoTexto, descripcionElemento, expandirPlantilla, interpretarValor, lineasEtiqueta, tamanoAjustado, valoresEfectivos } from './etiquetas';
 import { valoresPorDefecto } from './modelo';
 import type { Elemento } from './modelo';
 import type { Componente } from './tipos';
@@ -160,5 +160,14 @@ describe('numeración de automáticos y diferenciales', () => {
 
   it('los datos guardados antes de este cambio (sin indice) se ven con el valor por defecto', () => {
     expect(lineasEtiqueta(comp('automatico_1p'), { valores: { curva: 'B', amperaje: 10 } })).toEqual(['Q1', 'B10']);
+  });
+});
+
+describe('largo máximo del texto libre', () => {
+  it('6 caracteres en las zonas de rótulo angostas (13 mm) y 12 en las demás', () => {
+    for (const id of ['automatico_1p', 'contactor_1m', 'portafusible_10x38_1p']) expect(largoMaximoTexto(comp(id)), id).toBe(6);
+    for (const id of ['automatico_2p', 'automatico_4p', 'diferencial_2p', 'portafusible_10x38_2p', 'contactor_2p_modular', 'contactor_3p', 'fuente_mdr60', 'barra_repartidora_6v', 'barra_repartidora_12v']) {
+      expect(largoMaximoTexto(comp(id)), id).toBe(12);
+    }
   });
 });

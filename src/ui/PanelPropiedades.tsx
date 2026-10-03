@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { esCanaleta, huella, validarLargo } from '../core/colocacion';
 import { formatearMm } from '../core/biblioteca';
 import { candidatosPadre, puedeConectarse } from '../core/conexion';
-import { descripcionElemento, valoresEfectivos, interpretarValor } from '../core/etiquetas';
+import { descripcionElemento, largoMaximoTexto, valoresEfectivos, interpretarValor } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Campo, Componente } from '../core/tipos';
 import { usaCircuitos } from '../core/tipoProyecto';
@@ -71,9 +71,10 @@ interface CampoProps {
   uid: string;
   campo: Campo;
   valor: string | number;
+  largoMaximo: number;
 }
 
-function CampoEditable({ uid, campo, valor }: CampoProps) {
+function CampoEditable({ uid, campo, valor, largoMaximo }: CampoProps) {
   const cambiarValor = useEditor((s) => s.cambiarValor);
   const id = `campo-${uid}-${campo.id}`;
   const [texto, setTexto] = useState(String(valor));
@@ -104,7 +105,7 @@ function CampoEditable({ uid, campo, valor }: CampoProps) {
     return (
       <label className="campo" htmlFor={id}>
         {campo.rotulo}
-        <input id={id} type="text" maxLength={12} value={String(valor)} onChange={(e) => cambiarValor(uid, campo.id, e.target.value)} />
+        <input id={id} type="text" maxLength={largoMaximo} value={String(valor)} onChange={(e) => cambiarValor(uid, campo.id, e.target.value)} />
       </label>
     );
   }
@@ -274,7 +275,7 @@ export function PanelPropiedades() {
         </>
       )}
       {editables.map((c) => (
-        <CampoEditable key={`${el.uid}:${c.id}`} uid={el.uid} campo={c} valor={valores[c.id] ?? c.defecto} />
+        <CampoEditable key={`${el.uid}:${c.id}`} uid={el.uid} campo={c} valor={valores[c.id] ?? c.defecto} largoMaximo={largoMaximoTexto(comp)} />
       ))}
       {editables.length === 0 && comp.montaje !== 'lineal' && <p className="vacio">Esta pieza no tiene datos editables.</p>}
       {conCircuitos && puedeConectarse(comp) && <CampoAlimentadoPor key={`${el.uid}:${el.alimentadoPor ?? ''}`} el={el} />}

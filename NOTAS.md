@@ -266,3 +266,6 @@
 - **Verificado en navegador (biblioteca real con `riel_din`)**: en Medidor, sin riel el automático 2P se rechaza; con un `riel_din` de 240 mm sobre la caja CGE y dos automáticos 2P no hay error. Lista: caja, automático, riel de 240 mm, sin totales. PDF: riel con ranuras y los dos automáticos. DXF: capas Medidores/Interruptor_caja_moldeada/Protecciones/Montaje/Caja/Caja_Frontal/Texto, riel real en Montaje.
 - **Arreglo de `cargarLineales`**: el respaldo a tableros ahora también actúa si el archivo descargado no es un módulo válido (sin `rielSVG`/`canaletaSVG`). Causa: un servidor de sitio de una sola página responde con `index.html` (código 200) en vez de 404 cuando falta `lineales.js`.
 - **Cajas de vialidad** (sin conversión): 300×200×150 se ve vertical 200×300 mm y 400×300×200 vertical 300×400 mm (alto > ancho), orientadas bien en pantalla.
+
+## Largo máximo del campo de texto libre ("Rótulo")
+- `largoMaximoTexto(comp)` (en `etiquetas.ts`): 6 caracteres si la zona del rótulo mide menos de 20 mm de ancho (13 mm: automático 1P, portafusible 1P, contactor 1M y las 5 luces piloto), 12 en las demás. El panel de Propiedades lo usa como `maxLength` de los campos de texto; el tamaño de letra sigue ajustándose al ancho (`tamanoAjustado`). Un valor ya guardado más largo no se recorta.
