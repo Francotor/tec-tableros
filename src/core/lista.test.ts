@@ -274,7 +274,7 @@ describe('avisos', () => {
     const ctx = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' }, { modo: 'con_canaleta' });
     const avisos = calcularAvisos(armarEjemplo(ctx), ctx, null);
     expect(avisos).toHaveLength(1);
-    expect(avisos[0]?.texto).toMatch(/La fila 2 ocupa 19 módulos y la caja admite 16 por fila/);
+    expect(avisos[0]?.texto).toMatch(/La fila 2 ocupa 19 módulos; con el margen y el modo actuales entran 16 por fila/);
   });
 
   it('avisa de elementos fuera de la caja', () => {

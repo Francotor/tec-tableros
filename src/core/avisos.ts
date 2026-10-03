@@ -38,7 +38,10 @@ export function calcularAvisos(elementos: readonly Elemento[], ctx: Contexto, su
     if (modulos > limiteModulos + 1e-9) {
       avisos.push({
         id: `fila:${r.uid}`,
-        texto: `La fila ${i + 1} ocupa ${Math.ceil(modulos)} módulos y la caja admite ${limiteModulos} por fila.`,
+        // Metálicas e inox: el límite depende del margen, el modo y la sección de canaleta del proyecto, no es físico. Las plásticas tienen un valor fijo.
+        texto: ctx.capacidad
+          ? `La fila ${i + 1} ocupa ${Math.ceil(modulos)} módulos; con el margen y el modo actuales entran ${limiteModulos} por fila.`
+          : `La fila ${i + 1} ocupa ${Math.ceil(modulos)} módulos y la caja admite ${limiteModulos} por fila.`,
       });
     }
   });
