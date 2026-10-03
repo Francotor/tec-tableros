@@ -177,41 +177,6 @@ describe('colisión', () => {
   });
 });
 
-describe('piezas libres sobre un riel (regleta de conexión clipada en un tramo corto)', () => {
-  it('una pieza libre sí puede solaparse con un riel', () => {
-    const ctx = contexto();
-    const r = soltar(conRiel(ctx), ctx, 'regleta_conexion_4v', 250, 100.5);
-    expect(r.ok).toBe(true);
-    const sola = poner(conRiel(ctx), ctx, 'regleta_conexion_12v', 300, 100.5);
-    expect(sola.filter((e) => e.componenteId === 'regleta_conexion_12v')).toHaveLength(1);
-  });
-
-  it('pero sigue chocando con aparatos, canaletas y otras piezas libres', () => {
-    const ctx = contexto();
-    const conAparato = poner(conRiel(ctx), ctx, 'automatico_1p', 60, 100); // x 60..78
-    expect(soltar(conAparato, ctx, 'regleta_conexion_4v', 69, 100.5)).toEqual({ ok: false, motivo: MOTIVOS.colision });
-    const conRegleta = poner(conRiel(ctx), ctx, 'regleta_conexion_4v', 250, 100.5);
-    expect(soltar(conRegleta, ctx, 'regleta_conexion_4v', 252, 100.5)).toEqual({ ok: false, motivo: MOTIVOS.colision });
-    const conCanaleta = ponerLineal(conRiel(ctx), ctx, 'canaleta_25', 400, 250, 100, 90);
-    const choca = soltar(conCanaleta, ctx, 'regleta_conexion_4v', 400, 250);
-    expect(choca).toEqual({ ok: false, motivo: MOTIVOS.colision });
-  });
-
-  it('un aparato no se puede poner encima de una regleta, aunque ella esté sobre su riel', () => {
-    const ctx = contexto();
-    const conRegleta = poner(conRiel(ctx), ctx, 'regleta_conexion_4v', 250, 100.5);
-    expect(soltar(conRegleta, ctx, 'automatico_1p', 250, 100)).toEqual({ ok: false, motivo: MOTIVOS.colision });
-  });
-
-  it('el riel se puede mover o cambiar de largo con una regleta encima', () => {
-    const ctx = contexto();
-    const conRegleta = poner(conRiel(ctx), ctx, 'regleta_conexion_4v', 250, 100.5);
-    const riel = conRegleta.find((e) => e.componenteId === 'riel_din')!;
-    expect(cambiarLargo(conRegleta, ctx, riel.uid, 300).ok).toBe(true);
-    expect(moverX(conRegleta, ctx, riel.uid, riel.x_mm + 10).ok).toBe(true);
-  });
-});
-
 describe('límites', () => {
   it('rechaza un aparato que sobrepasa el final del riel', () => {
     const ctx = contexto();

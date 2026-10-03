@@ -183,11 +183,7 @@ describe('distribuir automáticamente: con aparatos ya colocados', () => {
     const r = distribuirAutomaticamente([libre], ctx);
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.elementos.find((e) => e.uid === 'f')).toMatchObject({ x_mm: 100, y_mm: 320 });
-    // Sobre la franja de un riel nuevo sí puede quedar (una pieza libre se clipa en un tramo de riel); sobre una canaleta, no.
-    const conCanaletas = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' }, { modo: 'con_canaleta' });
-    const sobreRiel = distribuirAutomaticamente([{ ...libre, y_mm: ctx.caja.area.y + ctx.margenes.vertical + 20 }], ctx);
-    expect(sobreRiel.ok).toBe(true);
-    const encima = distribuirAutomaticamente([{ ...libre, x_mm: conCanaletas.caja.area.x + conCanaletas.margenes.lateral + 2, y_mm: conCanaletas.caja.area.y + 100 }], conCanaletas);
+    const encima = distribuirAutomaticamente([{ ...libre, y_mm: ctx.caja.area.y + ctx.margenes.vertical + 20 }], ctx);
     expect(encima.ok).toBe(false);
     if (!encima.ok) expect(encima.motivo).toMatch(/No se pudo distribuir.*No se cambió nada/);
   });
