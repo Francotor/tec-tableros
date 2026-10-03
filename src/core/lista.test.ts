@@ -468,25 +468,39 @@ describe('advertencia sobre los identificadores #n', () => {
   });
 });
 
-describe('regletas de conexión (montaje libre, paradas en su propio tramo de riel)', () => {
+describe('regletas de conexión (montaje en riel, de pie sobre un tramo corto)', () => {
   const ctx = ctxDe();
   const ids = ['regleta_conexion_4v', 'regleta_conexion_6v', 'regleta_conexion_8v', 'regleta_conexion_10v', 'regleta_conexion_12v'];
 
-  it('son piezas libres: no necesitan riel ni quedan atadas a una fila', () => {
+  it('son piezas de riel como las demás: 10,5 mm de ancho, alto de modular o menos y centro en la mitad del alto', () => {
     for (const id of ids) {
       const comp = ctx.comps.get(id);
-      expect(comp?.montaje, id).toBe('libre');
-      expect(comp?.ancho_mm, id).toBe(10.5);
+      expect(comp?.montaje, id).toBe('riel');
+      if (comp?.montaje !== 'riel') continue;
+      expect(comp.ancho_mm, id).toBe(10.5);
+      expect(comp.alto_mm, id).toBeLessThanOrEqual(90);
+      expect(comp.riel_y_mm, id).toBe(comp.alto_mm / 2);
     }
-    const sola = poner([], ctx, 'regleta_conexion_12v', 200, 250);
-    expect(sola).toHaveLength(1);
   });
 
-  it('no suman a ninguna fila del aviso de capacidad ni cambian el aviso del ejemplo', () => {
+  it('necesitan un riel y se colocan sobre él, sin pisar a un aparato', () => {
     const base = armarEjemplo(ctx);
-    const antes = calcularAvisos(base, ctx, null);
-    const con = poner(base, ctx, 'regleta_conexion_12v', 462, 180);
-    expect(con).toHaveLength(base.length + 1);
-    expect(calcularAvisos(con, ctx, null)).toEqual(antes);
+    expect(() => poner([], ctx, 'regleta_conexion_12v', 200, 250)).toThrow(/riel/i);
+    // Fila 1: riel centrado en y = 111, con espacio libre al final.
+    const con = poner(base, ctx, 'regleta_conexion_12v', 400, 111);
+    const regleta = con.find((e) => e.componenteId === 'regleta_conexion_12v')!;
+    expect(regleta.y_mm + (ctx.comps.get('regleta_conexion_12v') as { riel_y_mm: number }).riel_y_mm).toBeCloseTo(111, 1);
+    expect(() => poner(con, ctx, 'automatico_1p', 400, 111)).toThrow(/superpone/i);
+  });
+
+  it('como cualquier aparato de riel, cuentan en la capacidad de la fila (10,5 mm de riel cada una)', () => {
+    const ctxCanaleta = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' }, { modo: 'con_canaleta' });
+    const base = armarEjemplo(ctxCanaleta);
+    const antes = calcularAvisos(base, ctxCanaleta, null)[0]?.texto ?? '';
+    // Fila 2: hueco de 33 mm entre las borneras y la barra.
+    const con = poner(base, ctxCanaleta, 'regleta_conexion_12v', 343, 242);
+    const despues = calcularAvisos(con, ctxCanaleta, null)[0]?.texto ?? '';
+    expect(antes).toMatch(/La fila 2 ocupa 19 módulos/);
+    expect(despues).toMatch(/La fila 2 ocupa 20 módulos/);
   });
 });

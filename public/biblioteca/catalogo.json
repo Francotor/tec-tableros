@@ -1,5 +1,5 @@
 {
- "version": "2.4",
+ "version": "2.5",
  "unidad": "mm",
  "origen": "arriba-izquierda, eje y hacia abajo",
  "modulo_din_mm": 18,
@@ -1152,9 +1152,9 @@
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_4v.svg",
    "ancho_mm": 10.5,
-   "alto_mm": 58,
-   "montaje": "libre",
-   "riel_y_mm": null,
+   "alto_mm": 28,
+   "montaje": "riel",
+   "riel_y_mm": 14.0,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1170,11 +1170,11 @@
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
     "fondo_mm": 28,
-    "largo_pernos_mm": 28,
-    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
+    "largo_total_mm": 58,
+    "instalacion": "parada (vertical), en tramo propio de riel, normalmente al costado de las filas de automaticos"
    },
    "bom": "Regleta de conexion 4 vias",
-   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=58 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=28 mm (solo referencial en atributos.largo_pernos_mm), ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo total(parado, vertical, incluye orejas de fijacion a placa en los extremos)=58 mm, tramo que ocupan los pernos sobre el riel (usado como alto_mm)=28 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido). v2.4 uso montaje='libre' para que no compitiera por espacio en una fila, pero eso le impedia al usuario colocarla superpuesta al riel en el editor ('se superpone con otro elemento'); v2.5 vuelve a montaje='riel' usando L2 (menor a 90 mm en las 5 medidas, entra sin excepcion en la regla de alto de un modular) en vez de L1 -> el largo total real (L1) queda solo de referencia en atributos.largo_total_mm. Con esto puede quedar incluida en el calculo de capacidad de la fila y moverse con 'Distribuir automaticamente' igual que cualquier pieza de riel -- pendiente de ver en la practica si eso genera resultados raros al estar fuera de la fila de automaticos. Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "regleta_conexion_6v",
@@ -1182,9 +1182,9 @@
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_6v.svg",
    "ancho_mm": 10.5,
-   "alto_mm": 58,
-   "montaje": "libre",
-   "riel_y_mm": null,
+   "alto_mm": 41,
+   "montaje": "riel",
+   "riel_y_mm": 20.5,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1200,11 +1200,11 @@
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
     "fondo_mm": 28,
-    "largo_pernos_mm": 41,
-    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
+    "largo_total_mm": 58,
+    "instalacion": "parada (vertical), en tramo propio de riel, normalmente al costado de las filas de automaticos"
    },
    "bom": "Regleta de conexion 6 vias",
-   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=58 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=41 mm (solo referencial en atributos.largo_pernos_mm), ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo total(parado, vertical, incluye orejas de fijacion a placa en los extremos)=58 mm, tramo que ocupan los pernos sobre el riel (usado como alto_mm)=41 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido). v2.4 uso montaje='libre' para que no compitiera por espacio en una fila, pero eso le impedia al usuario colocarla superpuesta al riel en el editor ('se superpone con otro elemento'); v2.5 vuelve a montaje='riel' usando L2 (menor a 90 mm en las 5 medidas, entra sin excepcion en la regla de alto de un modular) en vez de L1 -> el largo total real (L1) queda solo de referencia en atributos.largo_total_mm. Con esto puede quedar incluida en el calculo de capacidad de la fila y moverse con 'Distribuir automaticamente' igual que cualquier pieza de riel -- pendiente de ver en la practica si eso genera resultados raros al estar fuera de la fila de automaticos. Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "regleta_conexion_8v",
@@ -1212,9 +1212,9 @@
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_8v.svg",
    "ancho_mm": 10.5,
-   "alto_mm": 78.5,
-   "montaje": "libre",
-   "riel_y_mm": null,
+   "alto_mm": 54,
+   "montaje": "riel",
+   "riel_y_mm": 27.0,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1230,11 +1230,11 @@
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
     "fondo_mm": 28,
-    "largo_pernos_mm": 54,
-    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
+    "largo_total_mm": 78.5,
+    "instalacion": "parada (vertical), en tramo propio de riel, normalmente al costado de las filas de automaticos"
    },
    "bom": "Regleta de conexion 8 vias",
-   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=78.5 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=54 mm (solo referencial en atributos.largo_pernos_mm), ficha tecnica aportada por el usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo total(parado, vertical, incluye orejas de fijacion a placa en los extremos)=78.5 mm, tramo que ocupan los pernos sobre el riel (usado como alto_mm)=54 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, ficha tecnica aportada por el usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido). v2.4 uso montaje='libre' para que no compitiera por espacio en una fila, pero eso le impedia al usuario colocarla superpuesta al riel en el editor ('se superpone con otro elemento'); v2.5 vuelve a montaje='riel' usando L2 (menor a 90 mm en las 5 medidas, entra sin excepcion en la regla de alto de un modular) en vez de L1 -> el largo total real (L1) queda solo de referencia en atributos.largo_total_mm. Con esto puede quedar incluida en el calculo de capacidad de la fila y moverse con 'Distribuir automaticamente' igual que cualquier pieza de riel -- pendiente de ver en la practica si eso genera resultados raros al estar fuera de la fila de automaticos. Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "regleta_conexion_10v",
@@ -1242,9 +1242,9 @@
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_10v.svg",
    "ancho_mm": 10.5,
-   "alto_mm": 89,
-   "montaje": "libre",
-   "riel_y_mm": null,
+   "alto_mm": 67,
+   "montaje": "riel",
+   "riel_y_mm": 33.5,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1260,11 +1260,11 @@
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
     "fondo_mm": 28,
-    "largo_pernos_mm": 67,
-    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
+    "largo_total_mm": 89,
+    "instalacion": "parada (vertical), en tramo propio de riel, normalmente al costado de las filas de automaticos"
    },
    "bom": "Regleta de conexion 10 vias",
-   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=89 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=67 mm (solo referencial en atributos.largo_pernos_mm), ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo total(parado, vertical, incluye orejas de fijacion a placa en los extremos)=89 mm, tramo que ocupan los pernos sobre el riel (usado como alto_mm)=67 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, ficha publica de distribuidor (diartek.cl), familia CJF69xx; coincide con el formato y los valores de 8/12 vias de la ficha del usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido). v2.4 uso montaje='libre' para que no compitiera por espacio en una fila, pero eso le impedia al usuario colocarla superpuesta al riel en el editor ('se superpone con otro elemento'); v2.5 vuelve a montaje='riel' usando L2 (menor a 90 mm en las 5 medidas, entra sin excepcion en la regla de alto de un modular) en vez de L1 -> el largo total real (L1) queda solo de referencia en atributos.largo_total_mm. Con esto puede quedar incluida en el calculo de capacidad de la fila y moverse con 'Distribuir automaticamente' igual que cualquier pieza de riel -- pendiente de ver en la practica si eso genera resultados raros al estar fuera de la fila de automaticos. Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "regleta_conexion_12v",
@@ -1272,9 +1272,9 @@
    "categoria": "Distribucion",
    "svg": "componentes/regleta_conexion_12v.svg",
    "ancho_mm": 10.5,
-   "alto_mm": 103,
-   "montaje": "libre",
-   "riel_y_mm": null,
+   "alto_mm": 86,
+   "montaje": "riel",
+   "riel_y_mm": 43.0,
    "snap": {
     "tipo": "libre",
     "paso_mm": 1
@@ -1290,11 +1290,11 @@
     "color": "azul",
     "material": "termoplastico polipropileno y bronce",
     "fondo_mm": 28,
-    "largo_pernos_mm": 86,
-    "instalacion": "parada (vertical), en tramo propio de riel o atornillada a la placa"
+    "largo_total_mm": 103,
+    "instalacion": "parada (vertical), en tramo propio de riel, normalmente al costado de las filas de automaticos"
    },
    "bom": "Regleta de conexion 12 vias",
-   "notas": "Dimensiones reales de ficha: largo(parado, vertical)=103 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, tramo de pernos dentro del largo=86 mm (solo referencial en atributos.largo_pernos_mm), ficha tecnica aportada por el usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido) o atornillada directo a la placa -> montaje='libre', no 'riel': no compite por espacio en ninguna fila ni la mueve 'Distribuir automaticamente' (corregido 2026-10-03 con foto de tablero real del usuario y confirmacion de Code de que el editor solo modela rieles horizontales compartidos). Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
+   "notas": "Dimensiones reales de ficha: largo total(parado, vertical, incluye orejas de fijacion a placa en los extremos)=103 mm, tramo que ocupan los pernos sobre el riel (usado como alto_mm)=86 mm, ancho(angosto, de frente)=10.5 mm, fondo=28 mm, ficha tecnica aportada por el usuario. Se instala parada, igual que una bornera, normalmente al costado de las filas de automaticos, en un tramo de riel propio (corto, no compartido). v2.4 uso montaje='libre' para que no compitiera por espacio en una fila, pero eso le impedia al usuario colocarla superpuesta al riel en el editor ('se superpone con otro elemento'); v2.5 vuelve a montaje='riel' usando L2 (menor a 90 mm en las 5 medidas, entra sin excepcion en la regla de alto de un modular) en vez de L1 -> el largo total real (L1) queda solo de referencia en atributos.largo_total_mm. Con esto puede quedar incluida en el calculo de capacidad de la fila y moverse con 'Distribuir automaticamente' igual que cualquier pieza de riel -- pendiente de ver en la practica si eso genera resultados raros al estar fuera de la fila de automaticos. Corriente 63 A segun dato del usuario (no listada en las fichas de distribuidor encontradas en la web). Nombre sin la palabra 'neutro' por pedido explicito del usuario, aunque la ficha original la use."
   },
   {
    "id": "portafusible_10x38_1p",
