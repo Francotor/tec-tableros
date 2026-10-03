@@ -33,7 +33,10 @@ const normalizar = (s: string): string[] => s.replace(/\r\n/g, '\n').trim().spli
 describe('lista de materiales: referencia ejemplo_lista_materiales.csv', () => {
   const ctx = ctxDe();
   const lista = generarLista(armarEjemplo(ctx), ctx);
-  const esperado = normalizar(readFileSync(join(RAIZ_BIBLIOTECA, 'ejemplo_lista_materiales.csv'), 'utf8'));
+  // El CSV de referencia de la biblioteca aún nombra la barra de 12 vías (retirada en la v2.0); el ejemplo usa ahora la de 11 puestos.
+  const esperado = normalizar(readFileSync(join(RAIZ_BIBLIOTECA, 'ejemplo_lista_materiales.csv'), 'utf8')).map((l) =>
+    l.replace('Barra repartidora 12 vias', 'Barra repartidora tetrapolar 125A (11 puestos)'),
+  );
 
   it('coincide línea por línea, con las mismas cantidades', () => {
     expect(normalizar(listaACsv(lista, { conTotales: false }))).toEqual(esperado);

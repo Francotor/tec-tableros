@@ -166,7 +166,7 @@ describe('numeración de automáticos y diferenciales', () => {
 describe('largo máximo del texto libre', () => {
   it('6 caracteres en las zonas de rótulo angostas (13 mm) y 12 en las demás', () => {
     for (const id of ['automatico_1p', 'contactor_1m', 'portafusible_10x38_1p']) expect(largoMaximoTexto(comp(id)), id).toBe(6);
-    for (const id of ['automatico_2p', 'automatico_4p', 'diferencial_2p', 'portafusible_10x38_2p', 'contactor_2p_modular', 'contactor_3p', 'fuente_mdr60', 'barra_repartidora_6v', 'barra_repartidora_12v']) {
+    for (const id of ['automatico_2p', 'automatico_4p', 'diferencial_2p', 'portafusible_10x38_2p', 'contactor_2p_modular', 'contactor_3p', 'fuente_mdr60']) {
       expect(largoMaximoTexto(comp(id)), id).toBe(12);
     }
   });

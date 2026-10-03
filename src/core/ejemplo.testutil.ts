@@ -103,7 +103,7 @@ export function armarEjemplo(ctx: Contexto): Elemento[] {
     ['borne_16_gris', {}, 5],
     ['borne_16_azul'],
     ['borne_16_tierra'],
-    ['barra_repartidora_12v', { funcion: 'N' }, 5],
+    ['barra_repartidora_tetrapolar_125a_11puestos', {}, 5],
   ]);
   return els;
 }

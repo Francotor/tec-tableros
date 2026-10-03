@@ -1,5 +1,5 @@
 {
- "version": "1.9",
+ "version": "2.0",
  "unidad": "mm",
  "origen": "arriba-izquierda, eje y hacia abajo",
  "modulo_din_mm": 18,
@@ -688,108 +688,6 @@
    "atributos": {},
    "bom": "Fotocelda (sensor crepuscular exterior)",
    "notas": "No va sobre riel: se fija a la caja o a la placa."
-  },
-  {
-   "id": "barra_repartidora_6v",
-   "nombre": "Barra repartidora 6 vias",
-   "categoria": "Distribucion",
-   "svg": "componentes/barra_repartidora_6v.svg",
-   "ancho_mm": 54,
-   "alto_mm": 60,
-   "montaje": "riel",
-   "riel_y_mm": 30,
-   "snap": {
-    "tipo": "modular",
-    "paso_mm": 18
-   },
-   "modulos": 3,
-   "polos": null,
-   "etiqueta": {
-    "x": 2,
-    "y": 3,
-    "w": 50,
-    "h": 10,
-    "lineas": [
-     "{etiqueta}",
-     "{funcion}"
-    ],
-    "tamano_mm": 3.4
-   },
-   "campos": [
-    {
-     "id": "etiqueta",
-     "rotulo": "Rotulo",
-     "tipo": "texto",
-     "defecto": ""
-    },
-    {
-     "id": "funcion",
-     "rotulo": "Funcion",
-     "tipo": "select",
-     "opciones": [
-      "N",
-      "T",
-      "F"
-     ],
-     "defecto": "N"
-    }
-   ],
-   "atributos": {
-    "vias": 6
-   },
-   "bom": "Barra repartidora {vias} vias",
-   "notas": "Ancho de 9 mm por via [supuesto]; ajustar al modelo real."
-  },
-  {
-   "id": "barra_repartidora_12v",
-   "nombre": "Barra repartidora 12 vias",
-   "categoria": "Distribucion",
-   "svg": "componentes/barra_repartidora_12v.svg",
-   "ancho_mm": 108,
-   "alto_mm": 60,
-   "montaje": "riel",
-   "riel_y_mm": 30,
-   "snap": {
-    "tipo": "modular",
-    "paso_mm": 18
-   },
-   "modulos": 6,
-   "polos": null,
-   "etiqueta": {
-    "x": 2,
-    "y": 3,
-    "w": 104,
-    "h": 10,
-    "lineas": [
-     "{etiqueta}",
-     "{funcion}"
-    ],
-    "tamano_mm": 3.4
-   },
-   "campos": [
-    {
-     "id": "etiqueta",
-     "rotulo": "Rotulo",
-     "tipo": "texto",
-     "defecto": ""
-    },
-    {
-     "id": "funcion",
-     "rotulo": "Funcion",
-     "tipo": "select",
-     "opciones": [
-      "N",
-      "T",
-      "F"
-     ],
-     "defecto": "N"
-    }
-   ],
-   "atributos": {
-    "vias": 12
-   },
-   "bom": "Barra repartidora {vias} vias",
-   "notas": "Ancho de 9 mm por via [supuesto]; ajustar al modelo real."
   },
   {
    "id": "borne_4_gris",
