@@ -136,3 +136,26 @@ describe('tabla de conexiones en el PDF', () => {
     expect(texto.split('continuaci').length - 1).toBeGreaterThan(0); // en el PDF los paréntesis van escapados: se busca solo la palabra
   });
 });
+
+describe('advertencia al pie de la tabla de conexiones', () => {
+  const filasCon = [{ pieza: 'Contactor 3P N°1 (25A) · #1', accionadoPor: 'Reloj control horario (RC1)', alimentadoPor: '—' }];
+  const NOTA = 'Los identificadores #n son relativos a esta versión del diseño y pueden cambiar si se agregan o borran piezas; no son permanentes.';
+
+  it('se dibuja solo si se pasa, y queda dentro de los márgenes', () => {
+    const sin = nuevoDoc();
+    dibujarConexionesPaginada(sin, filasCon, OP, { pagina: 2, y: 100 });
+    const con = nuevoDoc();
+    dibujarConexionesPaginada(con, filasCon, OP, { pagina: 2, y: 100 }, NOTA);
+    expect(contenidoPdf(con).split('permanentes').length - 1).toBe(1);
+    expect(contenidoPdf(sin)).not.toContain('permanentes');
+    expect(con.getNumberOfPages()).toBe(2);
+  });
+
+  it('si la tabla termina al pie de la página, la nota pasa a la siguiente en vez de salirse del margen', () => {
+    const doc = nuevoDoc();
+    const muchas = Array.from({ length: 58 }, (_, i) => ({ ...filasCon[0]!, pieza: `Contactor 3P N°1 (25A) · #${i + 1}` }));
+    dibujarConexionesPaginada(doc, muchas, OP, { pagina: 2, y: 20 }, NOTA);
+    expect(contenidoPdf(doc)).toContain('permanentes');
+    expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(3);
+  });
+});

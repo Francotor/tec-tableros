@@ -1,6 +1,6 @@
 import { generarDxf, svgsNecesarios } from '../core/exportarDxf';
 import type { GeneradoresLineales } from '../core/exportarDxf';
-import { formatearMetros, generarLista, lineasTotales, SIN_DEFINIR } from '../core/lista';
+import { conexionesConIdentificador, formatearMetros, generarLista, lineasTotales, NOTA_IDENTIFICADOR, SIN_DEFINIR } from '../core/lista';
 import { nombreSeguro } from '../core/proyectos';
 import { calcularVistaFrontal, datosFrontalDeCaja } from '../core/vistaFrontal';
 import { useBiblioteca } from '../store/biblioteca';
@@ -184,7 +184,7 @@ export async function generarPdf(): Promise<Blob> {
   const ultima = colocadas[colocadas.length - 1];
   if (ultima && lista.conexiones.length > 0) {
     const conexiones = lista.conexiones.map((c) => ({ pieza: c.pieza, accionadoPor: c.accionadoPor ?? SIN_DEFINIR, alimentadoPor: c.alimentadoPor ?? SIN_DEFINIR }));
-    dibujarConexionesPaginada(doc, conexiones, opLista, { pagina: ultima.pagina, y: ultima.y + ultima.alto });
+    dibujarConexionesPaginada(doc, conexiones, opLista, { pagina: ultima.pagina, y: ultima.y + ultima.alto }, conexionesConIdentificador(lista.conexiones) ? NOTA_IDENTIFICADOR : undefined);
   }
   numerarPaginas(doc, proyecto.nombre || 'Tablero eléctrico', A4_ANCHO, A4_ALTO, MARGEN);
 

@@ -119,6 +119,7 @@ export function dibujarConexionesPaginada(
   filas: readonly FilaConexionPdf[],
   op: OpcionesLista,
   desde: { pagina: number; y: number },
+  nota?: string,
 ): FilaColocada[] {
   const tamano = op.tamano ?? 9;
   const altoLinea = op.altoLinea ?? 4.4;
@@ -178,5 +179,18 @@ export function dibujarConexionesPaginada(
     colocadas.push({ fila: i, pagina: doc.getCurrentPageInfo().pageNumber, y: y - altoLinea + 1, alto });
     y += alto;
   });
+  if (nota) {
+    // Advertencia al pie de la tabla, en letra chica y gris; pasa entera a otra página si no cabe.
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(8);
+    const partes = doc.splitTextToSize(nota, anchoUtil) as string[];
+    const alto = partes.length * 3.6 + 1;
+    if (y + alto > yMax) {
+      doc.addPage();
+      y = op.margen + 6;
+    }
+    doc.setTextColor(90, 90, 90);
+    doc.text(partes, op.margen, y + 1);
+  }
   return colocadas;
 }

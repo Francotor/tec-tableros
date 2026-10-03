@@ -3,7 +3,7 @@ import { usaCircuitos } from '../core/tipoProyecto';
 import { calcularAvisos } from '../core/avisos';
 import type { AvisoLista } from '../core/avisos';
 import { formatearMm } from '../core/biblioteca';
-import { formatearMetros, generarLista, generarListaPorCircuito, lineasTotales, listaACsv, listaATexto, SIN_DEFINIR } from '../core/lista';
+import { conexionesConIdentificador, formatearMetros, generarLista, generarListaPorCircuito, lineasTotales, listaACsv, listaATexto, NOTA_IDENTIFICADOR, SIN_DEFINIR } from '../core/lista';
 import type { GrupoLista, ListaMateriales } from '../core/lista';
 import { sugerirCaja } from '../core/sugerencia';
 import type { Sugerencia } from '../core/sugerencia';
@@ -202,6 +202,7 @@ export function PanelLista() {
           </tbody>
         </table>
       )}
+      {conexionesConIdentificador(lista.conexiones) && <p className="ayuda">{NOTA_IDENTIFICADOR}</p>}
 
       <div className="acciones-lista">
         <button type="button" onClick={() => void copiar()}>

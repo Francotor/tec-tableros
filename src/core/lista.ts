@@ -34,6 +34,14 @@ const UNIDAD = 'un';
 /** Lo que se escribe en la tabla de conexiones cuando una de las dos relaciones no está definida. */
 export const SIN_DEFINIR = '—';
 
+/** Advertencia que acompaña a la tabla de conexiones cuando alguna pieza lleva un "#n" (ver `descripcionesDistinguidas`). */
+export const NOTA_IDENTIFICADOR = 'Los identificadores #n son relativos a esta versión del diseño y pueden cambiar si se agregan o borran piezas; no son permanentes.';
+
+/** true si alguna fila lleva un "#n" para distinguir piezas iguales: solo entonces se muestra la advertencia. */
+export function conexionesConIdentificador(conexiones: readonly FilaConexion[]): boolean {
+  return conexiones.some((c) => [c.pieza, c.accionadoPor ?? '', c.alimentadoPor ?? ''].some((t) => / · #\d+$/.test(t)));
+}
+
 function descripcionCaja(ctx: Contexto): string {
   const { caja } = ctx;
   return caja.permiteRieles ? `${caja.nombre} (placa ${caja.area.w} x ${caja.area.h} mm)` : caja.nombre;
@@ -170,7 +178,7 @@ export function lineasTotales(lista: ListaMateriales): LineaLista[] {
 export function listaATexto(lista: ListaMateriales): string {
   const materiales = lista.lineas.map((l) => `${l.cantidad} x ${l.descripcion}`);
   const totales = lineasTotales(lista).map((t) => `${t.descripcion}: ${formatearMetros(t.cantidad)} m`);
-  const conexiones = lista.conexiones.length > 0 ? ['', 'Conexiones:', ...lista.conexiones.map((c) => `${c.pieza} | Accionado por: ${c.accionadoPor ?? SIN_DEFINIR} | Alimentado por: ${c.alimentadoPor ?? SIN_DEFINIR}`)] : [];
+  const conexiones = lista.conexiones.length > 0 ? ['', 'Conexiones:', ...lista.conexiones.map((c) => `${c.pieza} | Accionado por: ${c.accionadoPor ?? SIN_DEFINIR} | Alimentado por: ${c.alimentadoPor ?? SIN_DEFINIR}`), ...(conexionesConIdentificador(lista.conexiones) ? [NOTA_IDENTIFICADOR] : [])] : [];
   return [...materiales, ...(totales.length > 0 ? ['', ...totales] : []), ...conexiones].join('\n');
 }
 

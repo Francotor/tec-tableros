@@ -5,7 +5,7 @@ import { calcularAvisos } from './avisos';
 import { agregarElemento, resolverColocacion } from './colocacion';
 import type { Contexto } from './colocacion';
 import { armarEjemplo, cargarBiblioteca, crearContextoDe, RAIZ_BIBLIOTECA } from './ejemplo.testutil';
-import { formatearMetros, generarConexiones, generarLista, generarListaPorCircuito, listaACsv, listaATexto } from './lista';
+import { conexionesConIdentificador, formatearMetros, generarConexiones, generarLista, generarListaPorCircuito, listaACsv, listaATexto, NOTA_IDENTIFICADOR } from './lista';
 import { agregarCircuito, asignarCircuito, descripcionesDistinguidas, fijarAccionadoPor, fijarAlimentadoPor, identificadorDePieza } from './conexion';
 import { nuevoUid, valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
@@ -437,5 +437,33 @@ describe('piezas con la misma descripción en la tabla de conexiones', () => {
     expect(nombres.get(a.uid)).not.toContain('#');
     expect(nombres.get(b.uid)).not.toContain('#');
     expect(identificadorDePieza(numerado, ctx, a.uid)).toBeNull();
+  });
+});
+
+describe('advertencia sobre los identificadores #n', () => {
+  const fila = (pieza: string, a: string | null = null, b: string | null = null) => ({ pieza, accionadoPor: a, alimentadoPor: b });
+
+  it('solo se muestra si alguna fila lleva un #n (en la pieza o en un padre)', () => {
+    expect(conexionesConIdentificador([fila('Contactor 3P N°1 (25A)', 'Reloj control horario (RC1)')])).toBe(false);
+    expect(conexionesConIdentificador([fila('Contactor 3P N°1 (25A) · #2', 'Reloj control horario (RC1)')])).toBe(true);
+    expect(conexionesConIdentificador([fila('Reloj control horario (RC1)', null, 'Contactor 3P N°1 (25A) · #1')])).toBe(true);
+    expect(conexionesConIdentificador([])).toBe(false);
+  });
+
+  it('una descripción que solo menciona "#" en el medio no cuenta, y el texto copiable la lleva solo cuando corresponde', () => {
+    expect(conexionesConIdentificador([fila('Pieza #3 especial')])).toBe(false);
+    const ctx = ctxDe();
+    let els = armarEjemplo(ctx);
+    const reloj = els.find((e) => e.componenteId === 'reloj_control')!;
+    const cont = els.find((e) => e.componenteId === 'contactor_3p')!;
+    const r = fijarAccionadoPor(els, ctx, cont.uid, reloj.uid);
+    if (!r.ok) throw new Error(r.motivo);
+    els = r.elementos;
+    expect(listaATexto(generarLista(els, ctx))).not.toContain(NOTA_IDENTIFICADOR);
+    els = poner(els, ctx, 'contactor_3p', 363, 111 + 16);
+    const doble = els.filter((e) => e.componenteId === 'contactor_3p')[1]!;
+    const r2 = fijarAccionadoPor(els, ctx, doble.uid, reloj.uid);
+    if (!r2.ok) throw new Error(r2.motivo);
+    expect(listaATexto(generarLista(r2.elementos, ctx))).toContain(NOTA_IDENTIFICADOR);
   });
 });
