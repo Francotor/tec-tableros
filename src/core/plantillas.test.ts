@@ -83,6 +83,13 @@ describe('plantillaDesdeProyecto', () => {
     const p = plantillaDesdeProyecto(orig, 'X');
     expect(p.elementos[1]?.alimentadoPor).toBe('a');
   });
+
+  it('sí copia accionadoPor (también es una relación interna del dibujo)', () => {
+    const orig = proyecto();
+    orig.elementos[1] = { ...(orig.elementos[1] as Proyecto['elementos'][number]), accionadoPor: 'a' };
+    const p = plantillaDesdeProyecto(orig, 'X');
+    expect(p.elementos[1]?.accionadoPor).toBe('a');
+  });
 });
 
 describe('proyectoDesdePlantilla', () => {

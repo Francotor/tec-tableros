@@ -66,10 +66,11 @@ function validarElemento(e: unknown): Elemento {
   };
   if (e.rotacion === 0 || e.rotacion === 90) el.rotacion = e.rotacion;
   if (typeof e.largo_mm === 'number') el.largo_mm = e.largo_mm;
-  // alimentadoPor es una relación interna del dibujo (por uid, que se conserva al instanciar la
+  // alimentadoPor y accionadoPor son relaciones internas del dibujo (por uid, que se conserva al instanciar la
   // plantilla) y sí se guarda; circuitoId no, porque los circuitos son propios de cada proyecto
   // (la plantilla no trae circuitos) y se perdería la referencia.
   if (typeof e.alimentadoPor === 'string') el.alimentadoPor = e.alimentadoPor;
+  if (typeof e.accionadoPor === 'string') el.accionadoPor = e.accionadoPor;
   return el;
 }
 

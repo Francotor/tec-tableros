@@ -17,6 +17,8 @@ export interface Elemento {
   largo_mm?: number;
   /** uid del elemento que lo alimenta. Ni el padre ni el hijo pueden ser un riel, una canaleta o un tope. */
   alimentadoPor?: string;
+  /** uid del elemento que lo acciona (p. ej. el reloj o el relé que energiza la bobina de un contactor). Mismas reglas que `alimentadoPor`, pero es otra relación: la de mando, no la de potencia. */
+  accionadoPor?: string;
   /** Circuito al que pertenece (ver Circuito, en este mismo archivo). */
   circuitoId?: string;
   valores: Record<string, ValorCampo>;

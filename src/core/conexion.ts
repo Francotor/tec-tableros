@@ -9,6 +9,9 @@ const fallo = (motivo: string): { ok: false; motivo: string } => ({ ok: false, m
  * Un elemento de la categoría "Montaje" (riel DIN, canaleta o tope) no participa de la conexión
  * eléctrica: no puede alimentar a otro ni ser alimentado (son piezas de montaje, no aparatos).
  */
+/** Las dos relaciones entre piezas: la de potencia (quién las alimenta) y la de mando (quién las acciona). */
+export type Relacion = 'alimentadoPor' | 'accionadoPor';
+
 export function puedeConectarse(comp: Componente): boolean {
   return comp.categoria !== 'Montaje';
 }
@@ -17,13 +20,13 @@ export function puedeConectarse(comp: Componente): boolean {
  * Cadena de padres de un elemento hasta la raíz (sin incluirlo a él mismo): [padre, abuelo, ...].
  * Se corta si encuentra un ciclo ya presente en los datos, en vez de colgarse.
  */
-export function cadenaDePadres(elementos: readonly Elemento[], uid: string): Elemento[] {
+export function cadenaDePadres(elementos: readonly Elemento[], uid: string, relacion: Relacion = 'alimentadoPor'): Elemento[] {
   const porUid = new Map(elementos.map((e) => [e.uid, e]));
   const cadena: Elemento[] = [];
   const visitados = new Set<string>([uid]);
   let actual = porUid.get(uid);
-  while (actual?.alimentadoPor) {
-    const padre = porUid.get(actual.alimentadoPor);
+  while (actual?.[relacion]) {
+    const padre = porUid.get(actual[relacion] as string);
     if (!padre || visitados.has(padre.uid)) break;
     cadena.push(padre);
     visitados.add(padre.uid);
@@ -40,19 +43,23 @@ export const MOTIVOS_CONEXION = {
 };
 
 /** Cambia a quién alimenta un elemento (`alimentadoPor`); `null` lo deja sin padre. Valida ciclos y montaje. */
-export function fijarAlimentadoPor(
-  elementos: readonly Elemento[],
-  ctx: Contexto,
-  hijoUid: string,
-  padreUid: string | null,
-): Cambio {
+export function fijarAlimentadoPor(elementos: readonly Elemento[], ctx: Contexto, hijoUid: string, padreUid: string | null): Cambio {
+  return fijarRelacion(elementos, ctx, hijoUid, padreUid, 'alimentadoPor');
+}
+
+/** Cambia quién acciona a un elemento (`accionadoPor`); `null` lo deja sin padre. Mismas validaciones, sobre su propia cadena. */
+export function fijarAccionadoPor(elementos: readonly Elemento[], ctx: Contexto, hijoUid: string, padreUid: string | null): Cambio {
+  return fijarRelacion(elementos, ctx, hijoUid, padreUid, 'accionadoPor');
+}
+
+function fijarRelacion(elementos: readonly Elemento[], ctx: Contexto, hijoUid: string, padreUid: string | null, relacion: Relacion): Cambio {
   const hijo = elementos.find((e) => e.uid === hijoUid);
   if (!hijo) return fallo(MOTIVOS_CONEXION.noEncontrado);
   if (padreUid === null) {
-    if (hijo.alimentadoPor === undefined) return { ok: true, elementos: [...elementos], uid: hijoUid };
+    if (hijo[relacion] === undefined) return { ok: true, elementos: [...elementos], uid: hijoUid };
     return {
       ok: true,
-      elementos: elementos.map((e) => (e.uid === hijoUid ? quitarAlimentadoPor(e) : e)),
+      elementos: elementos.map((e) => (e.uid === hijoUid ? quitarRelacion(e, relacion) : e)),
       uid: hijoUid,
     };
   }
@@ -63,22 +70,22 @@ export function fijarAlimentadoPor(
   const compPadre = ctx.comps.get(padre.componenteId);
   if (!compHijo || !compPadre) return fallo(MOTIVOS_CONEXION.noEncontrado);
   if (!puedeConectarse(compHijo) || !puedeConectarse(compPadre)) return fallo(MOTIVOS_CONEXION.montaje);
-  if (cadenaDePadres(elementos, padreUid).some((a) => a.uid === hijoUid)) return fallo(MOTIVOS_CONEXION.ciclo);
+  if (cadenaDePadres(elementos, padreUid, relacion).some((a) => a.uid === hijoUid)) return fallo(MOTIVOS_CONEXION.ciclo);
   return {
     ok: true,
-    elementos: elementos.map((e) => (e.uid === hijoUid ? { ...e, alimentadoPor: padreUid } : e)),
+    elementos: elementos.map((e) => (e.uid === hijoUid ? { ...e, [relacion]: padreUid } : e)),
     uid: hijoUid,
   };
 }
 
-function quitarAlimentadoPor(e: Elemento): Elemento {
-  const { alimentadoPor: _alimentadoPor, ...resto } = e;
-  void _alimentadoPor;
+function quitarRelacion(e: Elemento, relacion: Relacion): Elemento {
+  const resto = { ...e };
+  delete resto[relacion];
   return resto;
 }
 
-/** Elementos que podrían alimentar a `hijoUid`: cualquier otro que pueda conectarse y no genere un ciclo. */
-export function candidatosPadre(elementos: readonly Elemento[], ctx: Contexto, hijoUid: string): Elemento[] {
+/** Elementos que podrían alimentar (o accionar, según `relacion`) a `hijoUid`: cualquier otro que pueda conectarse y no genere un ciclo. */
+export function candidatosPadre(elementos: readonly Elemento[], ctx: Contexto, hijoUid: string, relacion: Relacion = 'alimentadoPor'): Elemento[] {
   const hijo = elementos.find((e) => e.uid === hijoUid);
   const compHijo = hijo && ctx.comps.get(hijo.componenteId);
   if (!hijo || !compHijo || !puedeConectarse(compHijo)) return [];
@@ -86,7 +93,7 @@ export function candidatosPadre(elementos: readonly Elemento[], ctx: Contexto, h
     if (e.uid === hijoUid) return false;
     const comp = ctx.comps.get(e.componenteId);
     if (!comp || !puedeConectarse(comp)) return false;
-    return !cadenaDePadres(elementos, e.uid).some((a) => a.uid === hijoUid);
+    return !cadenaDePadres(elementos, e.uid, relacion).some((a) => a.uid === hijoUid);
   });
 }
 

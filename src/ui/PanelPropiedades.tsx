@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { esCanaleta, huella, validarLargo } from '../core/colocacion';
 import { formatearMm } from '../core/biblioteca';
 import { candidatosPadre, puedeConectarse } from '../core/conexion';
+import type { Relacion } from '../core/conexion';
 import { descripcionElemento, largoMaximoTexto, valoresEfectivos, interpretarValor } from '../core/etiquetas';
 import type { Elemento } from '../core/modelo';
 import type { Campo, Componente } from '../core/tipos';
@@ -11,13 +12,21 @@ import { useContexto, useEditor } from '../store/editor';
 const SIN_PADRE = '__sin_padre__';
 const SIN_CIRCUITO = '__sin_circuito__';
 
-function CampoAlimentadoPor({ el }: { el: Elemento }) {
+const TEXTOS_RELACION: Record<Relacion, { rotulo: string; sinPadre: string; ayuda?: string }> = {
+  alimentadoPor: { rotulo: 'Alimentado por', sinPadre: 'Sin alimentación (raíz)' },
+  accionadoPor: { rotulo: 'Accionado por', sinPadre: 'Sin mando', ayuda: 'Quién energiza su bobina o su mando (p. ej. un reloj), aparte de quién lo alimenta.' },
+};
+
+function CampoRelacion({ el, relacion }: { el: Elemento; relacion: Relacion }) {
   const ctx = useContexto();
   const elementos = useEditor((s) => s.proyecto.elementos);
   const alimentarDesde = useEditor((s) => s.alimentarDesde);
-  const id = `campo-${el.uid}-alimentado-por`;
+  const accionarDesde = useEditor((s) => s.accionarDesde);
+  const id = `campo-${el.uid}-${relacion}`;
   if (!ctx) return null;
-  const candidatos = candidatosPadre(elementos, ctx, el.uid);
+  const { rotulo, sinPadre, ayuda } = TEXTOS_RELACION[relacion];
+  const fijar = relacion === 'alimentadoPor' ? alimentarDesde : accionarDesde;
+  const candidatos = candidatosPadre(elementos, ctx, el.uid, relacion);
   const textoElemento = (c: Elemento): string => {
     const comp = ctx.comps.get(c.componenteId);
     return comp ? descripcionElemento(comp, c) : c.componenteId;
@@ -25,19 +34,16 @@ function CampoAlimentadoPor({ el }: { el: Elemento }) {
 
   return (
     <label className="campo" htmlFor={id}>
-      Alimentado por
-      <select
-        id={id}
-        value={el.alimentadoPor ?? SIN_PADRE}
-        onChange={(e) => alimentarDesde(el.uid, e.target.value === SIN_PADRE ? null : e.target.value)}
-      >
-        <option value={SIN_PADRE}>Sin alimentación (raíz)</option>
+      {rotulo}
+      <select id={id} value={el[relacion] ?? SIN_PADRE} onChange={(e) => fijar(el.uid, e.target.value === SIN_PADRE ? null : e.target.value)}>
+        <option value={SIN_PADRE}>{sinPadre}</option>
         {candidatos.map((c) => (
           <option key={c.uid} value={c.uid}>
             {textoElemento(c)}
           </option>
         ))}
       </select>
+      {ayuda && <span className="ayuda">{ayuda}</span>}
     </label>
   );
 }
@@ -278,7 +284,8 @@ export function PanelPropiedades() {
         <CampoEditable key={`${el.uid}:${c.id}`} uid={el.uid} campo={c} valor={valores[c.id] ?? c.defecto} largoMaximo={largoMaximoTexto(comp)} />
       ))}
       {editables.length === 0 && comp.montaje !== 'lineal' && <p className="vacio">Esta pieza no tiene datos editables.</p>}
-      {conCircuitos && puedeConectarse(comp) && <CampoAlimentadoPor key={`${el.uid}:${el.alimentadoPor ?? ''}`} el={el} />}
+      {conCircuitos && puedeConectarse(comp) && <CampoRelacion key={`${el.uid}:alim:${el.alimentadoPor ?? ''}`} el={el} relacion="alimentadoPor" />}
+      {conCircuitos && puedeConectarse(comp) && <CampoRelacion key={`${el.uid}:acc:${el.accionadoPor ?? ''}`} el={el} relacion="accionadoPor" />}
       {conCircuitos && <CampoCircuito key={`${el.uid}:${el.circuitoId ?? ''}`} el={el} />}
     </div>
   );

@@ -5,6 +5,7 @@ import {
   borrarCircuito,
   cadenaDePadres,
   candidatosPadre,
+  fijarAccionadoPor,
   fijarAlimentadoPor,
   MOTIVOS_CONEXION,
   puedeConectarse,
@@ -206,5 +207,52 @@ describe('circuitos', () => {
     const final = actuales.find((e) => e.uid === a.uid);
     expect(final?.circuitoId).toBeUndefined();
     expect('circuitoId' in (final ?? {})).toBe(false);
+  });
+});
+
+describe('fijarAccionadoPor (mando: quién energiza la bobina)', () => {
+  it('un reloj acciona a varios contactores, y es independiente de quién los alimenta', () => {
+    let els = base();
+    const reloj = porComponente(els, 'reloj_control');
+    const contactor = porComponente(els, 'contactor_3p');
+    const auto = porComponente(els, 'automatico_1p');
+    const r1 = fijarAlimentadoPor(els, ctx, contactor.uid, auto.uid);
+    if (!r1.ok) throw new Error(r1.motivo);
+    const r2 = fijarAccionadoPor(r1.elementos, ctx, contactor.uid, reloj.uid);
+    if (!r2.ok) throw new Error(r2.motivo);
+    els = r2.elementos;
+    const c = els.find((e) => e.uid === contactor.uid);
+    expect(c?.alimentadoPor).toBe(auto.uid);
+    expect(c?.accionadoPor).toBe(reloj.uid);
+    // quitar el mando no toca la alimentación
+    const r3 = fijarAccionadoPor(els, ctx, contactor.uid, null);
+    if (!r3.ok) throw new Error(r3.motivo);
+    const sin = r3.elementos.find((e) => e.uid === contactor.uid);
+    expect(sin?.accionadoPor).toBeUndefined();
+    expect('accionadoPor' in (sin ?? {})).toBe(false);
+    expect(sin?.alimentadoPor).toBe(auto.uid);
+  });
+
+  it('los ciclos se miran solo dentro de la propia relación', () => {
+    const els = base();
+    const a = porComponente(els, 'automatico_1p');
+    const b = porComponente(els, 'contactor_3p');
+    const r1 = fijarAccionadoPor(els, ctx, a.uid, b.uid);
+    if (!r1.ok) throw new Error(r1.motivo);
+    const ciclo = fijarAccionadoPor(r1.elementos, ctx, b.uid, a.uid);
+    expect(ciclo).toEqual({ ok: false, motivo: MOTIVOS_CONEXION.ciclo });
+    // pero A puede alimentar a B aunque B ya acciona a A: son relaciones distintas
+    expect(fijarAlimentadoPor(r1.elementos, ctx, b.uid, a.uid).ok).toBe(true);
+    expect(candidatosPadre(r1.elementos, ctx, b.uid, 'accionadoPor').some((e) => e.uid === a.uid)).toBe(false);
+    expect(candidatosPadre(r1.elementos, ctx, b.uid).some((e) => e.uid === a.uid)).toBe(true);
+  });
+
+  it('rechaza a sí mismo, montaje y elementos inexistentes', () => {
+    const els = base();
+    const a = porComponente(els, 'automatico_1p');
+    const riel = porComponente(els, 'riel_din');
+    expect(fijarAccionadoPor(els, ctx, a.uid, a.uid)).toEqual({ ok: false, motivo: MOTIVOS_CONEXION.simismo });
+    expect(fijarAccionadoPor(els, ctx, a.uid, riel.uid)).toEqual({ ok: false, motivo: MOTIVOS_CONEXION.montaje });
+    expect(fijarAccionadoPor(els, ctx, a.uid, 'no-existe')).toEqual({ ok: false, motivo: MOTIVOS_CONEXION.noEncontrado });
   });
 });

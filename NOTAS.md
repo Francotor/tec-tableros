@@ -269,3 +269,8 @@
 
 ## Largo máximo del campo de texto libre ("Rótulo")
 - `largoMaximoTexto(comp)` (en `etiquetas.ts`): 6 caracteres si la zona del rótulo mide menos de 20 mm de ancho (13 mm: automático 1P, portafusible 1P, contactor 1M y las 5 luces piloto), 12 en las demás. El panel de Propiedades lo usa como `maxLength` de los campos de texto; el tamaño de letra sigue ajustándose al ancho (`tamanoAjustado`). Un valor ya guardado más largo no se recorta.
+
+## "Accionado por": segunda relación entre piezas (mando)
+- `Elemento.accionadoPor?: string` (uid del padre), aparte de `alimentadoPor`: la potencia y el mando son relaciones distintas (p. ej. un reloj que energiza la bobina de cuatro contactores, mientras cada contactor se alimenta de su automático). Un padre puede tener varios hijos; cada pieza tiene un solo padre por relación.
+- `conexion.ts`: `fijarAccionadoPor` (mismas reglas que `fijarAlimentadoPor`: no a sí mismo, no piezas de Montaje, sin ciclos) y `cadenaDePadres`/`candidatosPadre` reciben la relación. Los ciclos se miran solo dentro de cada relación: A puede alimentar a B aunque B accione a A.
+- Se guarda en proyectos, respaldos y plantillas (como `alimentadoPor`, por uid). Selector "Accionado por" bajo "Alimentado por" en Propiedades, solo en proyectos de tablero. Como `alimentadoPor`, hoy no se dibuja ni sale en PDF, DXF o lista: es dato de documentación.

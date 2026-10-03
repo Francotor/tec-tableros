@@ -21,6 +21,7 @@ import {
   agregarCircuito as agregarCircuitoCore,
   asignarCircuito as asignarCircuitoCore,
   borrarCircuito as borrarCircuitoCore,
+  fijarAccionadoPor,
   fijarAlimentadoPor,
   renombrarCircuito as renombrarCircuitoCore,
 } from '../core/conexion';
@@ -105,6 +106,7 @@ interface EstadoEditor {
   cambiarValor: (uid: string, campoId: string, valor: ValorCampo) => void;
   /** Fija (o, con null, quita) quién alimenta a un elemento. Valida ciclos y montaje. */
   alimentarDesde: (hijoUid: string, padreUid: string | null) => boolean;
+  accionarDesde: (hijoUid: string, padreUid: string | null) => boolean;
   /** Crea un circuito y devuelve su id. */
   crearCircuito: (numero: string, nombre: string) => string;
   renombrarCircuito: (id: string, cambios: Partial<Pick<Circuito, 'numero' | 'nombre'>>) => void;
@@ -388,6 +390,11 @@ export const useEditor = create<EstadoEditor>((set, get) => {
     alimentarDesde: (hijoUid, padreUid) => {
       const ctx = contexto();
       return ctx ? aplicar(fijarAlimentadoPor(get().proyecto.elementos, ctx, hijoUid, padreUid)) : false;
+    },
+
+    accionarDesde: (hijoUid, padreUid) => {
+      const ctx = contexto();
+      return ctx ? aplicar(fijarAccionadoPor(get().proyecto.elementos, ctx, hijoUid, padreUid)) : false;
     },
 
     crearCircuito: (numero, nombre) => {

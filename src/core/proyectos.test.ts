@@ -40,6 +40,12 @@ describe('respaldo', () => {
     expect(parsearRespaldo(texto)).toEqual({ proyectos: originales, plantillas: [] });
   });
 
+  it('conserva alimentadoPor y accionadoPor', () => {
+    const p = proyecto('p1');
+    p.elementos[1] = { ...(p.elementos[1] as Proyecto['elementos'][number]), alimentadoPor: 'a', accionadoPor: 'c' };
+    expect(parsearRespaldo(JSON.stringify(crearRespaldo([p]))).proyectos[0]?.elementos[1]).toMatchObject({ alimentadoPor: 'a', accionadoPor: 'c' });
+  });
+
   it('incluye las plantillas en el mismo respaldo', () => {
     const plantillas = [plantillaDesdeProyecto(proyecto('p1'), 'Domiciliario tipo A')];
     const texto = JSON.stringify(crearRespaldo([proyecto('p1')], plantillas));

@@ -59,6 +59,7 @@ function validarElemento(e: unknown): Elemento {
   if (e.rotacion === 0 || e.rotacion === 90) el.rotacion = e.rotacion;
   if (typeof e.largo_mm === 'number') el.largo_mm = e.largo_mm;
   if (typeof e.alimentadoPor === 'string') el.alimentadoPor = e.alimentadoPor;
+  if (typeof e.accionadoPor === 'string') el.accionadoPor = e.accionadoPor;
   if (typeof e.circuitoId === 'string') el.circuitoId = e.circuitoId;
   return el;
 }
