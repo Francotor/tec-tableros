@@ -25,7 +25,7 @@ const finDeLista = (doc: jsPDF, n: number) => {
 const fila = (nombre: string, estado = 'Dentro del máximo', total = false): FilaOcupacionTabla => ({
   fila: nombre,
   modulos: '12 de 20',
-  maximo: '15',
+  maximo: '75 %',
   porcentaje: '60 %',
   estado,
   color: [46, 125, 50],
@@ -49,10 +49,9 @@ describe('filas de la tabla "Ocupación de riel" del PDF', () => {
     }
   });
 
-  it('los números son los del panel: el ejemplo ocupa 40 módulos de capacidad con un máximo de 30', () => {
+  it('los números son los del panel: el ejemplo tiene 40 módulos de capacidad y el máximo es el 75 %', () => {
     expect(filas[0]!.modulos.endsWith(' de 40')).toBe(true);
-    expect(filas[0]!.maximo).toBe('30');
-    expect(filas[1]!.maximo).toBe('15');
+    expect(filas.every((f) => f.maximo === '75 %')).toBe(true);
     expect(filas[0]!.estado).toBe('Sin reserva del 25 %');
   });
 

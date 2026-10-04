@@ -13,7 +13,7 @@ export interface OcupacionNivel {
   modulos: number;
   /** Módulos que caben (por fila o en todo el tablero). */
   capacidad: number;
-  /** Máximo de módulos que deja la reserva: capacidad × (1 − reserva), redondeado hacia abajo. */
+  /** Cuántos módulos enteros caben dentro de la reserva: capacidad × (1 − reserva) hacia abajo. Es informativo: el estado sale del porcentaje. */
   limite: number;
   /** modulos / capacidad, en %. */
   porcentaje: number;
@@ -69,8 +69,15 @@ export function filasDeRiel(elementos: readonly Elemento[], ctx: Contexto): Fila
 
 const EPS = 1e-9;
 
-function nivel(modulos: number, capacidad: number, limite: number): OcupacionNivel {
-  const estado: EstadoOcupacion = modulos > capacidad + EPS ? 'excede' : modulos > limite + EPS ? 'sin_reserva' : 'ok';
+/**
+ * Estado y porcentaje de un nivel. El estado compara el porcentaje real contra el máximo de la reserva (75 %), no los módulos
+ * decimales contra el `limite` entero: ese límite está redondeado hacia abajo (sirve para decir cuántos módulos enteros
+ * caben) y marcaría "sin reserva" a quien está bajo el 75 % por una fracción de módulo (12,2 de 17 es 71,8 %, no 75 %).
+ */
+export function nivelDeOcupacion(modulos: number, capacidad: number, reserva: number): OcupacionNivel {
+  const limite = Math.floor(capacidad * (1 - reserva) + EPS);
+  const estado: EstadoOcupacion =
+    modulos > capacidad + EPS ? 'excede' : capacidad > 0 && modulos / capacidad > 1 - reserva + EPS ? 'sin_reserva' : 'ok';
   return { modulos, capacidad, limite, porcentaje: capacidad > 0 ? (modulos / capacidad) * 100 : 0, estado };
 }
 
@@ -84,16 +91,14 @@ export function calcularOcupacion(elementos: readonly Elemento[], ctx: Contexto)
   if (filas.length === 0) return null;
   const { reserva } = ctx;
   const porFila = ctx.capacidad ? ctx.capacidad.modulosPorFila : ctx.caja.modulosPorFila;
-  const limiteFila = Math.floor(porFila * (1 - reserva) + EPS);
   // Total: todas las filas que caben en la caja (metálicas/inox) o las que traen las plásticas.
   const capacidadTotal = ctx.capacidad ? ctx.capacidad.modulosTotal : filas.length * porFila;
-  const limiteTotal = ctx.capacidad ? ctx.capacidad.modulosMaxConReserva : Math.floor(capacidadTotal * (1 - reserva) + EPS);
   return {
-    filas: filas.map((f) => ({ ...f, ...nivel(f.modulos, porFila, limiteFila) })),
-    total: nivel(
+    filas: filas.map((f) => ({ ...f, ...nivelDeOcupacion(f.modulos, porFila, reserva) })),
+    total: nivelDeOcupacion(
       filas.reduce((s, f) => s + f.modulos, 0),
       capacidadTotal,
-      limiteTotal,
+      reserva,
     ),
     reserva,
     limitePorcentaje: Math.round((1 - reserva) * 100),

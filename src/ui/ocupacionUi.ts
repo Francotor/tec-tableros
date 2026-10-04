@@ -46,10 +46,11 @@ const rgb = (hex: string): [number, number, number] => [parseInt(hex.slice(1, 3)
 
 /** Filas del PDF: el tablero completo y luego cada fila de riel de arriba hacia abajo. */
 export function filasOcupacionPdf(o: Ocupacion): FilaOcupacionPdf[] {
+  const maximo = formatearPorcentaje(o.limitePorcentaje);
   const fila = (nombre: string, n: Ocupacion['total'], textos: Record<EstadoOcupacion, string>, total: boolean): FilaOcupacionPdf => ({
     fila: nombre,
     modulos: `${formatearModulos(n.modulos)} de ${n.capacidad}`,
-    maximo: String(n.limite),
+    maximo,
     porcentaje: formatearPorcentaje(n.porcentaje),
     estado: textos[n.estado],
     color: rgb(COLOR_OCUPACION[n.estado]),

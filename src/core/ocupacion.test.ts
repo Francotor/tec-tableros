@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calcularOcupacion, filasDeRiel } from './ocupacion';
+import { calcularOcupacion, filasDeRiel, nivelDeOcupacion } from './ocupacion';
 import { armarEjemplo, cargarBiblioteca, crearContextoDe } from './ejemplo.testutil';
 import { agregarElemento } from './colocacion';
 import { valoresPorDefecto } from './modelo';
@@ -92,5 +92,37 @@ describe('ocupación de riel frente al máximo de la reserva del 25 % (75 % de l
     const filas = filasDeRiel(invertido, ctx);
     expect(filas.map((f) => f.numero)).toEqual([1, 2]);
     expect(filas[0]!.yCentro).toBeLessThan(filas[1]!.yCentro);
+  });
+});
+
+describe('el estado compara el porcentaje real contra el 75 %, no los módulos decimales contra el máximo entero', () => {
+  it('12,2 de 17 módulos (71,8 %) está dentro del máximo aunque pase de los 12 enteros', () => {
+    const n = nivelDeOcupacion(12.2, 17, 0.25);
+    expect(n.limite).toBe(12);
+    expect(n.porcentaje).toBeCloseTo(71.76, 1);
+    expect(n.estado).toBe('ok');
+  });
+
+  it('72 % y 71 % caen del mismo lado; 76 % ya es sin reserva; justo el 75 % cuenta como dentro', () => {
+    expect(nivelDeOcupacion(0.72 * 25, 25, 0.25).estado).toBe('ok');
+    expect(nivelDeOcupacion(0.71 * 25, 25, 0.25).estado).toBe('ok');
+    expect(nivelDeOcupacion(0.76 * 25, 25, 0.25).estado).toBe('sin_reserva');
+    expect(nivelDeOcupacion(15, 20, 0.25).estado).toBe('ok');
+    expect(nivelDeOcupacion(15.5, 20, 0.25).estado).toBe('sin_reserva');
+  });
+
+  it('más de la capacidad es "excede"; capacidad 0 no divide por cero', () => {
+    expect(nivelDeOcupacion(20.5, 20, 0.25).estado).toBe('excede');
+    expect(nivelDeOcupacion(3, 0, 0.25)).toMatchObject({ porcentaje: 0, estado: 'excede' });
+  });
+
+  it('el estado de una fila y el del total siguen el mismo criterio con fracciones de módulo', () => {
+    const ctx = ctxDe();
+    const base = armarEjemplo(ctx);
+    const o = calcularOcupacion(base, ctx)!;
+    for (const f of [...o.filas, o.total]) {
+      const esperado = f.modulos > f.capacidad + 1e-9 ? 'excede' : f.porcentaje > 75 + 1e-6 ? 'sin_reserva' : 'ok';
+      expect(f.estado).toBe(esperado);
+    }
   });
 });
