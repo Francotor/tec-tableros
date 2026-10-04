@@ -8,7 +8,9 @@ import { contextoActual, useEditor } from '../store/editor';
 import { descargarDataUrl, descargar } from './descarga';
 import { cargarLineales, textoDeBiblioteca } from './imagenes';
 import type { FilaLista } from './pdfLista';
-import { dibujarConexionesPaginada, dibujarListaPaginada, numerarPaginas } from './pdfLista';
+import { dibujarConexionesPaginada, dibujarListaPaginada, dibujarOcupacionPaginada, numerarPaginas } from './pdfLista';
+import { calcularOcupacion } from '../core/ocupacion';
+import { filasOcupacionPdf, notaOcupacion } from './ocupacionUi';
 import { dibujarVistaFrontal } from './pdfVistas';
 
 /** El lienzo registra aquí cómo dibujar el tablero limpio (sin rejilla ni selección). */
@@ -181,10 +183,16 @@ export async function generarPdf(): Promise<Blob> {
   ];
   const opLista = { margen: MARGEN, anchoPagina: A4_ANCHO, altoPagina: A4_ALTO, pie: PIE_MM };
   const colocadas = dibujarListaPaginada(doc, filas, opLista);
-  const ultima = colocadas[colocadas.length - 1];
-  if (ultima && lista.conexiones.length > 0) {
+  let fin = colocadas[colocadas.length - 1];
+  // Ocupación de riel frente al máximo de la reserva del 25 % (solo en tableros con filas de riel), después de la lista.
+  const ocupacion = calcularOcupacion(proyecto.elementos, ctx);
+  if (fin && ocupacion) {
+    const puestas = dibujarOcupacionPaginada(doc, filasOcupacionPdf(ocupacion), opLista, { pagina: fin.pagina, y: fin.y + fin.alto }, notaOcupacion(ocupacion));
+    fin = puestas[puestas.length - 1] ?? fin;
+  }
+  if (fin && lista.conexiones.length > 0) {
     const conexiones = lista.conexiones.map((c) => ({ pieza: c.pieza, accionadoPor: c.accionadoPor ?? SIN_DEFINIR, alimentadoPor: c.alimentadoPor ?? SIN_DEFINIR }));
-    dibujarConexionesPaginada(doc, conexiones, opLista, { pagina: ultima.pagina, y: ultima.y + ultima.alto }, conexionesConIdentificador(lista.conexiones) ? NOTA_IDENTIFICADOR : undefined);
+    dibujarConexionesPaginada(doc, conexiones, opLista, { pagina: fin.pagina, y: fin.y + fin.alto }, conexionesConIdentificador(lista.conexiones) ? NOTA_IDENTIFICADOR : undefined);
   }
   numerarPaginas(doc, proyecto.nombre || 'Tablero eléctrico', A4_ANCHO, A4_ALTO, MARGEN);
 

@@ -103,6 +103,106 @@ export function numerarPaginas(doc: jsPDF, texto: string, anchoPagina: number, a
   }
 }
 
+export interface FilaOcupacionTabla {
+  fila: string;
+  modulos: string;
+  maximo: string;
+  porcentaje: string;
+  estado: string;
+  color: [number, number, number];
+  total: boolean;
+}
+
+/**
+ * Tabla "Ocupación de riel" (fila | módulos | máximo | % | estado), a continuación de la lista de materiales: parte debajo de
+ * lo último dibujado si caben el título, la leyenda y una fila (si no, en una página nueva), no parte filas y repite la
+ * cabecera al cambiar de página. El estado va escrito y además con un punto de color. `desde` es dónde terminó lo anterior.
+ */
+export function dibujarOcupacionPaginada(
+  doc: jsPDF,
+  filas: readonly FilaOcupacionTabla[],
+  op: OpcionesLista,
+  desde: { pagina: number; y: number },
+  leyenda?: string,
+): FilaColocada[] {
+  const tamano = op.tamano ?? 9;
+  const altoLinea = op.altoLinea ?? 4.4;
+  const anchoUtil = op.anchoPagina - 2 * op.margen;
+  const yMax = op.altoPagina - op.margen - op.pie;
+  const anchos = [anchoUtil * 0.22, anchoUtil * 0.22, anchoUtil * 0.14, anchoUtil * 0.12, anchoUtil * 0.3];
+  const xs: number[] = [];
+  anchos.reduce((x, a) => {
+    xs.push(x);
+    return x + a;
+  }, op.margen);
+  const colocadas: FilaColocada[] = [];
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  const partesLeyenda = leyenda ? (doc.splitTextToSize(leyenda, anchoUtil) as string[]) : [];
+  const altoLeyenda = partesLeyenda.length > 0 ? partesLeyenda.length * 3.6 + 1 : 0;
+
+  const cabecera = (y: number, continuacion: boolean): number => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...NAVY);
+    doc.text(continuacion ? 'Ocupación de riel (continuación)' : 'Ocupación de riel', op.margen, y);
+    y += 5;
+    if (!continuacion && partesLeyenda.length > 0) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      doc.setTextColor(90, 90, 90);
+      doc.text(partesLeyenda, op.margen, y);
+      y += altoLeyenda + 1;
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(tamano);
+    doc.setTextColor(...NAVY);
+    ['Fila', 'Módulos', 'Máximo', '%', 'Estado'].forEach((t, k) => doc.text(t, xs[k]!, y));
+    doc.setDrawColor(...NAVY);
+    doc.setLineWidth(0.3);
+    doc.line(op.margen, y + 1.5, op.margen + anchoUtil, y + 1.5);
+    return y + 1.5 + altoLinea;
+  };
+  const altoMinimo = 5 + altoLeyenda + 1 + 1.5 + altoLinea + altoLinea + RELLENO_FILA;
+
+  doc.setPage(desde.pagina);
+  let y = desde.y + 8;
+  if (y + altoMinimo > yMax) {
+    doc.addPage();
+    y = op.margen + 6;
+  }
+  y = cabecera(y, false);
+
+  filas.forEach((f, i) => {
+    const alto = altoLinea + RELLENO_FILA;
+    if (y - altoLinea + 1 + alto > yMax) {
+      doc.addPage();
+      y = cabecera(op.margen + 6, true);
+    }
+    doc.setFont('helvetica', f.total ? 'bold' : 'normal');
+    doc.setFontSize(tamano);
+    doc.setTextColor(...GRAFITO);
+    doc.text(f.fila, xs[0]!, y);
+    doc.text(f.modulos, xs[1]!, y);
+    doc.text(f.maximo, xs[2]!, y);
+    doc.text(f.porcentaje, xs[3]!, y);
+    doc.setFillColor(...f.color);
+    doc.circle(xs[4]! + 1.2, y - 1.1, 1.2, 'F');
+    doc.text(f.estado, xs[4]! + 4, y);
+    colocadas.push({ fila: i, pagina: doc.getCurrentPageInfo().pageNumber, y: y - altoLinea + 1, alto });
+    y += alto;
+    if (f.total && filas[i + 1]) {
+      // línea fina entre el total y el detalle por fila
+      doc.setDrawColor(...PLATA);
+      doc.setLineWidth(0.3);
+      doc.line(op.margen, y - altoLinea + 1, op.margen + anchoUtil, y - altoLinea + 1);
+      y += 1.5;
+    }
+  });
+  return colocadas;
+}
+
 export interface FilaConexionPdf {
   pieza: string;
   accionadoPor: string;
