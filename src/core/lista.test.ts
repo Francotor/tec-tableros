@@ -6,6 +6,7 @@ import { agregarElemento, resolverColocacion } from './colocacion';
 import type { Contexto } from './colocacion';
 import { armarEjemplo, cargarBiblioteca, crearContextoDe, RAIZ_BIBLIOTECA } from './ejemplo.testutil';
 import { conexionesConIdentificador, formatearMetros, generarConexiones, generarLista, generarListaPorCircuito, listaACsv, listaATexto, NOTA_IDENTIFICADOR } from './lista';
+import { calcularOcupacion } from './ocupacion';
 import { agregarCircuito, asignarCircuito, descripcionesDistinguidas, fijarAccionadoPor, fijarAlimentadoPor, identificadorDePieza } from './conexion';
 import { nuevoUid, valoresPorDefecto } from './modelo';
 import type { CajaProyecto, Elemento } from './modelo';
@@ -269,12 +270,16 @@ describe('avisos', () => {
     expect(calcularAvisos(els, ctx, sugerirCaja(els, ctx, bib.gabinetes))).toEqual([]);
   });
 
-  it('la caja referencial 400x500x200 avisa cuando una fila supera su capacidad (modo con canaleta: 16 módulos por fila)', () => {
-    // El ejemplo de la biblioteca deja la fila 2 justo bajo el límite del modo compacto (20): en con canaleta la pasa.
+  it('en una metálica la fila se mide contra el largo real de su riel: el ejemplo (riel de 396 mm, 22 módulos) no avisa, ni en modo con canaleta', () => {
     const ctx = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' }, { modo: 'con_canaleta' });
-    const avisos = calcularAvisos(armarEjemplo(ctx), ctx, null);
-    expect(avisos).toHaveLength(1);
-    expect(avisos[0]?.texto).toMatch(/La fila 2 ocupa 19 módulos; con el margen y el modo actuales entran 16 por fila/);
+    expect(calcularAvisos(armarEjemplo(ctx), ctx, null).filter((a) => a.id.startsWith('fila:'))).toEqual([]);
+  });
+
+  it('en una plástica (rieles fijos) la fila avisa contra los módulos por fila de la biblioteca, con los mismos números del indicador', () => {
+    const base = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' });
+    const ctx: Contexto = { ...base, capacidad: null, caja: { ...base.caja, modulosPorFila: 10 } };
+    const avisos = calcularAvisos(armarEjemplo(base), ctx, null).filter((a) => a.id.startsWith('fila:'));
+    expect(avisos.map((a) => a.texto)).toEqual(['La fila 1 ocupa 14 módulos y la caja admite 10 por fila.', 'La fila 2 ocupa 18,9 módulos y la caja admite 10 por fila.']);
   });
 
   it('avisa de elementos fuera de la caja', () => {
@@ -494,13 +499,12 @@ describe('regletas de conexión (montaje en riel, de pie sobre un tramo corto)',
   });
 
   it('como cualquier aparato de riel, cuentan en la capacidad de la fila (10,5 mm de riel cada una)', () => {
-    const ctxCanaleta = crearContextoDe(bib, { id: 'caja_metalica_400x500x200' }, { modo: 'con_canaleta' });
-    const base = armarEjemplo(ctxCanaleta);
-    const antes = calcularAvisos(base, ctxCanaleta, null)[0]?.texto ?? '';
+    const base = armarEjemplo(ctx);
+    const antes = calcularOcupacion(base, ctx)!;
     // Fila 2: hueco de 33 mm entre las borneras y la barra.
-    const con = poner(base, ctxCanaleta, 'regleta_conexion_12v', 343, 242);
-    const despues = calcularAvisos(con, ctxCanaleta, null)[0]?.texto ?? '';
-    expect(antes).toMatch(/La fila 2 ocupa 19 módulos/);
-    expect(despues).toMatch(/La fila 2 ocupa 20 módulos/);
+    const con = poner(base, ctx, 'regleta_conexion_12v', 343, 242);
+    const despues = calcularOcupacion(con, ctx)!;
+    expect(despues.filas[1]!.modulos - antes.filas[1]!.modulos).toBeCloseTo(10.5 / 18, 9);
+    expect(despues.filas[0]!.modulos).toBeCloseTo(antes.filas[0]!.modulos, 9);
   });
 });

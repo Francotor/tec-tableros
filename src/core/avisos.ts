@@ -1,8 +1,7 @@
 import { calcularTopes, elementosFuera, listarRieles } from './colocacion';
-import { filasDeRiel } from './ocupacion';
+import { calcularOcupacion } from './ocupacion';
 import type { Contexto } from './colocacion';
 import type { Elemento } from './modelo';
-import { usaCapacidadDeRiel } from './tipoProyecto';
 import type { Sugerencia } from './sugerencia';
 
 /** La caja se considera "mucho más grande" si su placa es al menos el doble (en área) que la sugerida. */
@@ -25,21 +24,17 @@ export function calcularAvisos(elementos: readonly Elemento[], ctx: Contexto, su
     });
   }
 
-  // Fila que excede los módulos de la caja: metálicas/inox usan la capacidad dinámica
-  // (margen, modo y sección de canaleta del proyecto); las plásticas, su valor fijo.
-  const limiteModulos = ctx.capacidad ? ctx.capacidad.modulosPorFila : ctx.caja.modulosPorFila;
-  // La capacidad por fila es del riel DIN de los tableros: en un medidor no hay filas que comparar.
-  const filasConLimite = usaCapacidadDeRiel(ctx.tipo) ? filasDeRiel(elementos, ctx) : [];
-  for (const f of filasConLimite) {
-    if (f.modulos > limiteModulos + 1e-9) {
-      avisos.push({
-        id: `fila:${f.uid}`,
-        // Metálicas e inox: el límite depende del margen, el modo y la sección de canaleta del proyecto, no es físico. Las plásticas tienen un valor fijo.
-        texto: ctx.capacidad
-          ? `La fila ${f.numero} ocupa ${Math.ceil(f.modulos)} módulos; con el margen y el modo actuales entran ${limiteModulos} por fila.`
-          : `La fila ${f.numero} ocupa ${Math.ceil(f.modulos)} módulos y la caja admite ${limiteModulos} por fila.`,
-      });
-    }
+  // Fila que no cabe: mismos números que el indicador de ocupación (calcularOcupacion). En metálicas e inox la capacidad es el
+  // largo real del riel; en las plásticas, los módulos por fila de la biblioteca. En un medidor no hay filas de riel.
+  const numero = (n: number): string => String(Number(n.toFixed(1))).replace('.', ',');
+  for (const f of calcularOcupacion(elementos, ctx)?.filas ?? []) {
+    if (f.estado !== 'excede') continue;
+    avisos.push({
+      id: `fila:${f.uid}`,
+      texto: ctx.capacidad
+        ? `La fila ${f.numero} ocupa ${numero(f.modulos)} módulos y su riel de ${Math.round(f.largo)} mm admite ${numero(f.capacidad)}.`
+        : `La fila ${f.numero} ocupa ${numero(f.modulos)} módulos y la caja admite ${numero(f.capacidad)} por fila.`,
+    });
   }
 
   // Topes que no caben dentro del riel.
