@@ -50,9 +50,10 @@ describe('filas de la tabla "Ocupación de riel" del PDF', () => {
   });
 
   it('los números son los del panel: el ejemplo tiene 40 módulos de capacidad y el máximo es el 75 %', () => {
-    expect(filas[0]!.modulos.endsWith(' de 40')).toBe(true);
+    expect(filas[0]!.modulos.endsWith(' de 44')).toBe(true); // dos rieles de 396 mm: 2 x 22 módulos
     expect(filas.every((f) => f.maximo === '75 %')).toBe(true);
-    expect(filas[0]!.estado).toBe('Sin reserva del 25 %');
+    expect(filas[0]!.estado).toBe('Dentro del máximo'); // ~32,9 de 44 = 74,9 %
+    expect(filas[2]!.estado).toBe('Sin reserva del 25 %'); // la fila 2: ~86 %
   });
 
   it('la leyenda dice de dónde sale el máximo', () => {

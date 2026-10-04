@@ -11,7 +11,7 @@ export type EstadoOcupacion = 'ok' | 'sin_reserva' | 'excede';
 export interface OcupacionNivel {
   /** Módulos ocupados (el ancho de los aparatos dividido por el módulo; puede ser fraccionario). */
   modulos: number;
-  /** Módulos que caben (por fila o en todo el tablero). */
+  /** Módulos que caben: el largo del riel dividido por el módulo (por fila) o la suma de las filas (tablero). Puede ser fraccionario. */
   capacidad: number;
   /** Cuántos módulos enteros caben dentro de la reserva: capacidad × (1 − reserva) hacia abajo. Es informativo: el estado sale del porcentaje. */
   limite: number;
@@ -83,18 +83,27 @@ export function nivelDeOcupacion(modulos: number, capacidad: number, reserva: nu
 
 /**
  * Ocupación de riel de cada fila y del tablero completo frente a la capacidad y al máximo que deja la reserva del 25 %
- * de la capacidad total (RIC N°02 6.1.16.3): se ocupa como mucho el 75 %. null donde no aplica (un medidor no tiene filas de riel) o si no hay ninguna fila.
+ * de la capacidad total (RIC N°02 6.1.16.3): se ocupa como mucho el 75 %. null donde no aplica (un medidor no tiene
+ * filas de riel) o si no hay ninguna fila.
+ *
+ * La capacidad de cada fila sale del **largo real de su riel** (largo / módulo): si se alarga o se acorta el riel, cambia.
+ * Un riel del largo por defecto (módulos por fila × módulo) da exactamente los módulos por fila de la caja. Las cajas
+ * plásticas, con rieles fijos, usan los módulos por fila de la biblioteca. La capacidad del tablero completo suma la de
+ * los rieles que hay y, mientras haya menos rieles que filas posibles en la caja, las filas que faltan con su capacidad
+ * por defecto.
  */
 export function calcularOcupacion(elementos: readonly Elemento[], ctx: Contexto): Ocupacion | null {
   if (!usaCapacidadDeRiel(ctx.tipo)) return null;
   const filas = filasDeRiel(elementos, ctx);
   if (filas.length === 0) return null;
   const { reserva } = ctx;
-  const porFila = ctx.capacidad ? ctx.capacidad.modulosPorFila : ctx.caja.modulosPorFila;
-  // Total: todas las filas que caben en la caja (metálicas/inox) o las que traen las plásticas.
-  const capacidadTotal = ctx.capacidad ? ctx.capacidad.modulosTotal : filas.length * porFila;
+  const porFilaPorDefecto = ctx.capacidad ? ctx.capacidad.modulosPorFila : ctx.caja.modulosPorFila;
+  const capacidadDe = (f: FilaDeRiel): number => (ctx.capacidad ? f.largo / ctx.moduloMm : porFilaPorDefecto);
+  const capacidades = filas.map(capacidadDe);
+  const filasQueFaltan = ctx.capacidad ? Math.max(0, ctx.capacidad.filas - filas.length) : 0;
+  const capacidadTotal = capacidades.reduce((s, c) => s + c, 0) + filasQueFaltan * porFilaPorDefecto;
   return {
-    filas: filas.map((f) => ({ ...f, ...nivelDeOcupacion(f.modulos, porFila, reserva) })),
+    filas: filas.map((f, i) => ({ ...f, ...nivelDeOcupacion(f.modulos, capacidades[i] ?? porFilaPorDefecto, reserva) })),
     total: nivelDeOcupacion(
       filas.reduce((s, f) => s + f.modulos, 0),
       capacidadTotal,

@@ -49,7 +49,7 @@ export function filasOcupacionPdf(o: Ocupacion): FilaOcupacionPdf[] {
   const maximo = formatearPorcentaje(o.limitePorcentaje);
   const fila = (nombre: string, n: Ocupacion['total'], textos: Record<EstadoOcupacion, string>, total: boolean): FilaOcupacionPdf => ({
     fila: nombre,
-    modulos: `${formatearModulos(n.modulos)} de ${n.capacidad}`,
+    modulos: `${formatearModulos(n.modulos)} de ${formatearModulos(n.capacidad)}`,
     maximo,
     porcentaje: formatearPorcentaje(n.porcentaje),
     estado: textos[n.estado],

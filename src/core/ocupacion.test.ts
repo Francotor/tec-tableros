@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { calcularOcupacion, filasDeRiel, nivelDeOcupacion } from './ocupacion';
 import { armarEjemplo, cargarBiblioteca, crearContextoDe } from './ejemplo.testutil';
-import { agregarElemento } from './colocacion';
+import { agregarElemento, cambiarLargo } from './colocacion';
 import { valoresPorDefecto } from './modelo';
 import type { Elemento } from './modelo';
 
@@ -18,20 +18,19 @@ describe('ocupación de riel frente al máximo de la reserva del 25 % (75 % de l
     expect(o.limitePorcentaje).toBe(75);
   });
 
-  it('por fila: módulos, capacidad (20 en compacto), límite (15) y estado', () => {
+  it('por fila: módulos, capacidad (el riel de 396 mm del ejemplo = 22 módulos), límite (16) y estado', () => {
     const ctx = ctxDe();
     const o = calcularOcupacion(armarEjemplo(ctx), ctx)!;
     const [f1, f2] = o.filas;
-    expect(f1!.capacidad).toBe(20);
-    expect(f1!.limite).toBe(15);
-    // fila 1: ~13,8 módulos -> dentro del límite; fila 2: ~19 módulos -> cabe pero sin reserva
-    expect(f1!.modulos).toBeGreaterThan(12);
-    expect(f1!.modulos).toBeLessThanOrEqual(15);
+    expect(f1!.capacidad).toBeCloseTo(396 / 18, 9);
+    expect(f1!.limite).toBe(16);
+    // fila 1: 14 módulos (64 %) -> dentro del 75 %; fila 2: ~19 módulos (86 %) -> cabe pero sin reserva
+    expect(f1!.modulos).toBeCloseTo(14, 6);
     expect(f1!.estado).toBe('ok');
-    expect(f2!.modulos).toBeGreaterThan(15);
-    expect(f2!.modulos).toBeLessThanOrEqual(20);
+    expect(f2!.modulos).toBeGreaterThan(16);
+    expect(f2!.modulos).toBeLessThanOrEqual(22);
     expect(f2!.estado).toBe('sin_reserva');
-    expect(f2!.porcentaje).toBeCloseTo((f2!.modulos / 20) * 100, 6);
+    expect(f2!.porcentaje).toBeCloseTo((f2!.modulos / (396 / 18)) * 100, 6);
   });
 
   it('del tablero completo: suma de las filas contra la capacidad total y su máximo (los de la biblioteca)', () => {
@@ -39,14 +38,13 @@ describe('ocupación de riel frente al máximo de la reserva del 25 % (75 % de l
     const o = calcularOcupacion(armarEjemplo(ctx), ctx)!;
     const suma = o.filas.reduce((s, f) => s + f.modulos, 0);
     expect(o.total.modulos).toBeCloseTo(suma, 9);
-    expect(o.total.capacidad).toBe(ctx.capacidad!.modulosTotal);
-    expect(o.total.capacidad).toBe(40);
-    expect(o.total.limite).toBe(ctx.capacidad!.modulosMaxConReserva);
-    expect(o.total.limite).toBe(30); // coincide con modulos_max_con_reserva de la caja 400x500x200 en la biblioteca
-    // El ejemplo ocupa más del 75 % del total (pasa de 30 módulos) pero cabe en los 40: sin la reserva.
-    expect(o.total.modulos).toBeGreaterThan(30);
-    expect(o.total.modulos).toBeLessThanOrEqual(40);
-    expect(o.total.estado).toBe('sin_reserva');
+    // Dos rieles de 396 mm = 2 x 22 módulos; la caja tiene sitio para 2 filas, así que no falta ninguna.
+    expect(o.total.capacidad).toBeCloseTo(44, 9);
+    expect(o.total.limite).toBe(33);
+    // ~32,9 de 44 módulos: 74,9 %, justo dentro del 75 % (aunque pase de los 32 módulos enteros).
+    expect(o.total.modulos).toBeGreaterThan(32);
+    expect(o.total.porcentaje).toBeLessThan(75);
+    expect(o.total.estado).toBe('ok');
   });
 
   it('un riel sin aparatos está en 0 % y sin avisos de estado', () => {
@@ -63,12 +61,54 @@ describe('ocupación de riel frente al máximo de la reserva del 25 % (75 % de l
     expect(calcularOcupacion(armarEjemplo(ctx), { ...ctx, tipo: 'medidor' })).toBeNull();
   });
 
-  it('en modo con canaleta cambia la capacidad y el límite', () => {
+  it('la capacidad sigue al largo real del riel, no al supuesto por la caja', () => {
+    const ctx = ctxDe();
+    const comp = ctx.comps.get('riel_din')!;
+    const r0 = agregarElemento([], ctx, 'riel_din', { x: 250, y: 100 }, valoresPorDefecto(comp));
+    if (!r0.ok) throw new Error(r0.motivo);
+    const riel = r0.elementos[0]!;
+    const porDefecto = calcularOcupacion(r0.elementos, ctx)!;
+    // Un riel del largo por defecto (módulos por fila x módulo) da exactamente los módulos por fila de la caja.
+    expect(riel.largo_mm).toBe(ctx.capacidad!.modulosPorFila * ctx.moduloMm);
+    expect(porDefecto.filas[0]!.capacidad).toBeCloseTo(ctx.capacidad!.modulosPorFila, 9);
+    // Con aparatos encima, alargar el riel baja el % de esa fila y el del tablero; acortarlo lo sube.
+    let conAparatos: Elemento[] = r0.elementos;
+    for (let i = 0; i < 10; i++) {
+      const a = agregarElemento(conAparatos, ctx, 'automatico_1p', { x: riel.x_mm + 9 + i * 18, y: riel.y_mm + 3.75 }, valoresPorDefecto(ctx.comps.get('automatico_1p')!));
+      if (!a.ok) throw new Error(a.motivo);
+      conAparatos = a.elementos;
+    }
+    const antes = calcularOcupacion(conAparatos, ctx)!;
+    const largo = cambiarLargo(conAparatos, ctx, riel.uid, 400);
+    if (!largo.ok) throw new Error(largo.motivo);
+    const mas = calcularOcupacion(largo.elementos, ctx)!;
+    expect(mas.filas[0]!.modulos).toBeCloseTo(antes.filas[0]!.modulos, 9);
+    expect(mas.filas[0]!.capacidad).toBeCloseTo(400 / 18, 9);
+    expect(mas.filas[0]!.porcentaje).toBeLessThan(antes.filas[0]!.porcentaje);
+    expect(mas.total.porcentaje).toBeLessThan(antes.total.porcentaje);
+    const corto = cambiarLargo(conAparatos, ctx, riel.uid, 250);
+    if (!corto.ok) throw new Error(corto.motivo);
+    expect(calcularOcupacion(corto.elementos, ctx)!.filas[0]!.porcentaje).toBeGreaterThan(antes.filas[0]!.porcentaje);
+  });
+
+  it('el total cuenta con la capacidad por defecto de las filas que la caja admite y todavía no tienen riel', () => {
+    const ctx = ctxDe();
+    const comp = ctx.comps.get('riel_din')!;
+    const r0 = agregarElemento([], ctx, 'riel_din', { x: 250, y: 100 }, valoresPorDefecto(comp));
+    if (!r0.ok) throw new Error(r0.motivo);
+    const o = calcularOcupacion(r0.elementos, ctx)!;
+    expect(ctx.capacidad!.filas).toBe(2);
+    expect(o.total.capacidad).toBeCloseTo(ctx.capacidad!.modulosTotal, 9); // 20 de su riel + 20 de la fila que falta
+  });
+
+  it('en modo con canaleta el riel por defecto es más corto y la capacidad de la fila baja con él', () => {
     const ctx = ctxDe('caja_metalica_400x500x200', { modo: 'con_canaleta' });
-    const o = calcularOcupacion(armarEjemplo(ctx), ctx)!;
-    expect(o.filas[0]!.capacidad).toBe(16);
+    const comp = ctx.comps.get('riel_din')!;
+    const r0 = agregarElemento([], ctx, 'riel_din', { x: 250, y: 100 }, valoresPorDefecto(comp));
+    if (!r0.ok) throw new Error(r0.motivo);
+    const o = calcularOcupacion(r0.elementos, ctx)!;
+    expect(o.filas[0]!.capacidad).toBeCloseTo(16, 9);
     expect(o.filas[0]!.limite).toBe(12);
-    expect(o.filas[1]!.estado).toBe('excede'); // ~19 módulos en una fila de 16
   });
 
   it('agregar un aparato sube la ocupación de su fila en su ancho en módulos', () => {

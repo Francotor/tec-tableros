@@ -97,13 +97,13 @@ function OcupacionRiel({ ocupacion }: { ocupacion: Ocupacion }) {
         <div
           className="barra-ocupacion"
           role="img"
-          aria-label={`Tablero completo: ${formatearModulos(total.modulos)} de ${total.capacidad} módulos, ${formatearPorcentaje(total.porcentaje)}; máximo ${limitePorcentaje} %`}
+          aria-label={`Tablero completo: ${formatearModulos(total.modulos)} de ${formatearModulos(total.capacidad)} módulos, ${formatearPorcentaje(total.porcentaje)}; máximo ${limitePorcentaje} %`}
         >
           <div className="relleno-ocupacion" style={{ width: ancho(total.porcentaje), background: COLOR_OCUPACION[total.estado] }} />
           <div className="limite-ocupacion" style={{ left: ancho(limitePorcentaje) }} />
         </div>
         <div className="ocupacion-detalle">
-          {formatearModulos(total.modulos)} de {total.capacidad} módulos · máximo {limitePorcentaje} % · <strong>{TEXTO_TOTAL[total.estado]}</strong>
+          {formatearModulos(total.modulos)} de {formatearModulos(total.capacidad)} módulos · máximo {limitePorcentaje} % · <strong>{TEXTO_TOTAL[total.estado]}</strong>
         </div>
       </div>
       <table className="tabla-lista tabla-ocupacion">
@@ -120,7 +120,7 @@ function OcupacionRiel({ ocupacion }: { ocupacion: Ocupacion }) {
             <tr key={f.uid} className={`estado-${f.estado}`}>
               <td>F{f.numero}</td>
               <td>
-                {formatearModulos(f.modulos)} / {f.capacidad} (máx. {limitePorcentaje} %)
+                {formatearModulos(f.modulos)} / {formatearModulos(f.capacidad)} (máx. {limitePorcentaje} %)
               </td>
               <td>{formatearPorcentaje(f.porcentaje)}</td>
               <td>
