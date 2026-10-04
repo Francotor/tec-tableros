@@ -1,4 +1,4 @@
-import { calcularTopes, elementosFuera, listarRieles } from './colocacion';
+import { buscarColision, calcularTopes, elementosFuera, listarPiezas, listarRieles } from './colocacion';
 import { calcularOcupacion } from './ocupacion';
 import type { Contexto } from './colocacion';
 import type { Elemento } from './modelo';
@@ -21,6 +21,25 @@ export function calcularAvisos(elementos: readonly Elemento[], ctx: Contexto, su
     avisos.push({
       id: 'fuera',
       texto: fuera === 1 ? '1 elemento queda fuera de la caja.' : `${fuera} elementos quedan fuera de la caja.`,
+    });
+  }
+
+  // El editor no deja soltar una pieza sobre otra, pero un proyecto, plantilla o respaldo guardado puede traer piezas
+  // superpuestas (p. ej. si el catálogo cambió una medida después de guardarlo): sin este aviso, la ocupación de riel
+  // marcaría un porcentaje que no se explica con lo que se ve.
+  const piezas = listarPiezas(elementos, ctx);
+  const superpuestas = piezas.filter((p) => buscarColision(p, piezas, new Set([p.uid])) !== undefined).length;
+  if (superpuestas > 0) {
+    avisos.push({
+      id: 'superpuestas',
+      texto: `${superpuestas} ${superpuestas === 1 ? 'pieza se superpone' : 'piezas se superponen'} con otra. Si el proyecto se guardó antes de un cambio del catálogo, las medidas pueden haber cambiado: mueve o borra las piezas que chocan.`,
+    });
+  }
+  const sinRiel = piezas.filter((p) => p.clase === 'aparato' && p.rielUid === undefined).length;
+  if (sinRiel > 0) {
+    avisos.push({
+      id: 'sin-riel',
+      texto: `${sinRiel} ${sinRiel === 1 ? 'aparato no está' : 'aparatos no están'} sobre ningún riel, así que no ${sinRiel === 1 ? 'cuenta' : 'cuentan'} en la ocupación. Muévelo${sinRiel === 1 ? '' : 's'} sobre un riel.`,
     });
   }
 

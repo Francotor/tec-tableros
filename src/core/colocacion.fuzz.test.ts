@@ -15,6 +15,7 @@ import {
   rotarElemento,
 } from './colocacion';
 import type { Cambio, Contexto } from './colocacion';
+import { calcularAvisos } from './avisos';
 import { distribuirAutomaticamente } from './distribucion';
 import { armarEjemplo, cargarBiblioteca, crearContextoDe } from './ejemplo.testutil';
 import { contiene } from './geometria';
@@ -50,6 +51,8 @@ function verificar(elementos: readonly Elemento[], ctx: Contexto, contexto: stri
     expect(choca, `${contexto}: ${p.uid} (${p.clase}) choca con ${choca?.uid} (${choca?.clase})`).toBeUndefined();
     if (p.clase === 'aparato') expect(p.rielUid, `${contexto}: aparato ${p.uid} fuera de todo riel`).toBeDefined();
   }
+  // Lo que el editor acepta nunca debe disparar los avisos de estados inconsistentes.
+  expect(calcularAvisos(elementos, ctx, null).filter((a) => a.id === 'superpuestas' || a.id === 'sin-riel'), contexto).toEqual([]);
   const o = calcularOcupacion(elementos, ctx);
   for (const f of o?.filas ?? []) expect(f.estado, `${contexto}: fila ${f.numero} excedida (${f.modulos} de ${f.capacidad})`).not.toBe('excede');
 }

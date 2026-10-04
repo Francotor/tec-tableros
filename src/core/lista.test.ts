@@ -508,3 +508,37 @@ describe('regletas de conexión (montaje en riel, de pie sobre un tramo corto)',
     expect(despues.filas[0]!.modulos).toBeCloseTo(antes.filas[0]!.modulos, 9);
   });
 });
+
+describe('aviso de piezas superpuestas o fuera de todo riel (proyectos guardados con otras medidas)', () => {
+  const ctx = ctxDe();
+  const avisosDe = (els: Elemento[]) => calcularAvisos(els, ctx, null).filter((a) => a.id === 'superpuestas' || a.id === 'sin-riel');
+
+  it('el ejemplo, armado con las reglas del editor, no tiene ninguno', () => {
+    expect(avisosDe(armarEjemplo(ctx))).toEqual([]);
+  });
+
+  it('dos aparatos en el mismo tramo de riel (dato forzado) avisan con la cantidad de piezas que chocan', () => {
+    const base = armarEjemplo(ctx);
+    const a = base.find((e) => e.componenteId === 'automatico_1p')!;
+    const forzado = [...base, { ...a, uid: 'copia-superpuesta' }];
+    const [aviso] = avisosDe(forzado);
+    expect(aviso?.id).toBe('superpuestas');
+    expect(aviso?.texto).toMatch(/^2 piezas se superponen con otra\./); // el original y su copia
+    expect(aviso?.texto).toContain('cambio del catálogo');
+  });
+
+  it('una sola pieza que choca habla en singular', () => {
+    const base = armarEjemplo(ctx).filter((e) => e.componenteId === 'riel_din' || e.componenteId === 'contactor_3p');
+    const contactor = base.find((e) => e.componenteId === 'contactor_3p')!;
+    const avisos = avisosDe([...base, { ...contactor, uid: 'otro', x_mm: contactor.x_mm + 5 }]);
+    expect(avisos[0]?.texto).toMatch(/^2 piezas se superponen/);
+  });
+
+  it('un aparato que quedó fuera de todo riel avisa que no cuenta en la ocupación', () => {
+    const base = armarEjemplo(ctx);
+    const a = base.find((e) => e.componenteId === 'automatico_1p')!;
+    const suelto = base.map((e) => (e.uid === a.uid ? { ...e, y_mm: e.y_mm - 60 } : e));
+    const aviso = avisosDe(suelto).find((x) => x.id === 'sin-riel');
+    expect(aviso?.texto).toMatch(/^1 aparato no está sobre ningún riel, así que no cuenta en la ocupación/);
+  });
+});
