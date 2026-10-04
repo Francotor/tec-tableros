@@ -3,6 +3,8 @@ import { usaCircuitos } from '../core/tipoProyecto';
 import { calcularAvisos } from '../core/avisos';
 import type { AvisoLista } from '../core/avisos';
 import { formatearMm } from '../core/biblioteca';
+import { calcularOcupacion } from '../core/ocupacion';
+import type { Ocupacion } from '../core/ocupacion';
 import { conexionesConIdentificador, formatearMetros, generarLista, generarListaPorCircuito, lineasTotales, listaACsv, listaATexto, NOTA_IDENTIFICADOR, SIN_DEFINIR } from '../core/lista';
 import type { GrupoLista, ListaMateriales } from '../core/lista';
 import { sugerirCaja } from '../core/sugerencia';
@@ -11,6 +13,7 @@ import { nombreSeguro } from '../core/proyectos';
 import { useBiblioteca } from '../store/biblioteca';
 import { useContexto, useEditor } from '../store/editor';
 import { descargar } from './descarga';
+import { COLOR_OCUPACION, formatearModulos, formatearPorcentaje, TEXTO_FILA, TEXTO_TOTAL } from './ocupacionUi';
 
 interface Analisis {
   lista: ListaMateriales;
@@ -76,6 +79,62 @@ function TablaLineas({ lineas, titulo }: { lineas: GrupoLista['lineas']; titulo?
   );
 }
 
+/** Ocupación de riel frente al máximo de la reserva del 25 % (RIC N°02 6.1.16.3): por fila y del tablero completo. */
+function OcupacionRiel({ ocupacion }: { ocupacion: Ocupacion }) {
+  const { total, filas, limitePorcentaje } = ocupacion;
+  const ancho = (p: number): string => `${Math.min(100, Math.max(0, p))}%`;
+  return (
+    <section className="ocupacion" aria-label="Ocupación de riel">
+      <h3>Ocupación de riel</h3>
+      <p className="ayuda">
+        La reserva del 25 % de la capacidad total (RIC N°02 6.1.16.3) deja un máximo de {limitePorcentaje} % ocupado.
+      </p>
+      <div className={`ocupacion-total estado-${total.estado}`}>
+        <div className="ocupacion-titulo">
+          <span>Tablero completo</span>
+          <strong>{formatearPorcentaje(total.porcentaje)}</strong>
+        </div>
+        <div
+          className="barra-ocupacion"
+          role="img"
+          aria-label={`Tablero completo: ${formatearModulos(total.modulos)} de ${total.capacidad} módulos, ${formatearPorcentaje(total.porcentaje)}; máximo ${total.limite}`}
+        >
+          <div className="relleno-ocupacion" style={{ width: ancho(total.porcentaje), background: COLOR_OCUPACION[total.estado] }} />
+          <div className="limite-ocupacion" style={{ left: ancho(limitePorcentaje) }} />
+        </div>
+        <div className="ocupacion-detalle">
+          {formatearModulos(total.modulos)} de {total.capacidad} módulos · máximo {total.limite} · <strong>{TEXTO_TOTAL[total.estado]}</strong>
+        </div>
+      </div>
+      <table className="tabla-lista tabla-ocupacion">
+        <thead>
+          <tr>
+            <th scope="col">Fila</th>
+            <th scope="col">Módulos</th>
+            <th scope="col">%</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filas.map((f) => (
+            <tr key={f.uid} className={`estado-${f.estado}`}>
+              <td>F{f.numero}</td>
+              <td>
+                {formatearModulos(f.modulos)} / {f.capacidad} (máx. {f.limite})
+              </td>
+              <td>{formatearPorcentaje(f.porcentaje)}</td>
+              <td>
+                <span className="punto-estado" style={{ background: COLOR_OCUPACION[f.estado] }} aria-hidden="true" />
+                {TEXTO_FILA[f.estado]}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
 export function PanelLista() {
   const analisis = useAnalisis();
   const proyecto = useEditor((s) => s.proyecto);
@@ -88,6 +147,7 @@ export function PanelLista() {
   const { lista, sugerencia, avisos } = analisis;
   const hayDibujo = proyecto.elementos.length > 0;
   const grupos = agruparPorCircuito && ctx ? generarListaPorCircuito(proyecto.elementos, ctx, proyecto.circuitos) : null;
+  const ocupacion = ctx ? calcularOcupacion(proyecto.elementos, ctx) : null;
 
   const copiar = async () => {
     const ok = await copiarAlPortapapeles(listaATexto(lista));
@@ -107,6 +167,8 @@ export function PanelLista() {
           ))}
         </ul>
       )}
+
+      {ocupacion && <OcupacionRiel ocupacion={ocupacion} />}
 
       {sugerencia && hayDibujo && (
         <div className="sugerencia">

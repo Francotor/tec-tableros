@@ -55,7 +55,8 @@ export function calcularCapacidad(
   filas = Math.max(0, filas);
   const modulosPorFila = Math.max(0, Math.floor((largoRiel - 2 * topeRiel) / moduloMm));
   const modulosTotal = filas * modulosPorFila;
-  const modulosMaxConReserva = Math.floor(modulosTotal / (1 + reserva));
+  // RIC N°02 6.1.16.3: se debe prever una ampliación del 25 % de la capacidad total, o sea que se ocupa como máximo el 75 %.
+  const modulosMaxConReserva = Math.floor(modulosTotal * (1 - reserva) + 1e-9);
 
   return { pasoFilasMm: pasoFilas, largoRielMm: largoRiel, filas, modulosPorFila, modulosTotal, modulosMaxConReserva };
 }

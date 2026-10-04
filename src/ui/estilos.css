@@ -88,6 +88,17 @@ body { overflow: hidden; }
 .sugerencia button:hover { background: var(--tec-azul-acero); }
 .acciones-lista button:hover { background: var(--tec-plata-clara); }
 .ayuda { font-size: .8rem; color: var(--tec-gris-texto); }
+.ocupacion { margin-bottom: 16px; padding: 12px; background: var(--tec-plata-clara); border-radius: 6px; }
+.ocupacion h3 { margin: 0 0 4px; font-size: .95rem; color: var(--tec-navy); }
+.ocupacion .ayuda { margin: 0 0 10px; }
+.ocupacion-titulo { display: flex; justify-content: space-between; align-items: baseline; font-size: .9rem; color: var(--tec-navy); }
+.ocupacion-titulo strong { font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.barra-ocupacion { position: relative; height: 10px; margin: 6px 0; background: #fff; border: 1px solid var(--tec-gris-metal); border-radius: 5px; }
+.relleno-ocupacion { height: 100%; border-radius: 4px; }
+.limite-ocupacion { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--tec-navy); }
+.ocupacion-detalle { font-size: .8rem; color: var(--tec-gris-texto); font-variant-numeric: tabular-nums; }
+.tabla-ocupacion { margin-top: 10px; background: #fff; }
+.punto-estado { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; }
 .tabla-lista { width: 100%; border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; }
 .tabla-lista th, .tabla-lista td { padding: 8px 6px; text-align: left; vertical-align: top; line-height: 1.35; border-bottom: 1px solid var(--tec-plata-clara); }
 .tabla-lista th { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--tec-gris-texto); border-bottom: 2px solid var(--tec-navy); }

@@ -1,4 +1,5 @@
-import { calcularTopes, elementosFuera, listarPiezas, listarRieles } from './colocacion';
+import { calcularTopes, elementosFuera, listarRieles } from './colocacion';
+import { filasDeRiel } from './ocupacion';
 import type { Contexto } from './colocacion';
 import type { Elemento } from './modelo';
 import { usaCapacidadDeRiel } from './tipoProyecto';
@@ -26,27 +27,23 @@ export function calcularAvisos(elementos: readonly Elemento[], ctx: Contexto, su
 
   // Fila que excede los módulos de la caja: metálicas/inox usan la capacidad dinámica
   // (margen, modo y sección de canaleta del proyecto); las plásticas, su valor fijo.
-  const modulo = ctx.comps.get('automatico_1p')?.ancho_mm ?? 18;
   const limiteModulos = ctx.capacidad ? ctx.capacidad.modulosPorFila : ctx.caja.modulosPorFila;
-  const piezas = listarPiezas(elementos, ctx).filter((p) => p.clase === 'aparato');
-  const rieles = listarRieles(elementos, ctx);
   // La capacidad por fila es del riel DIN de los tableros: en un medidor no hay filas que comparar.
-  const filasConLimite = usaCapacidadDeRiel(ctx.tipo) ? rieles : [];
-  filasConLimite.forEach((r, i) => {
-    const mm = piezas.filter((p) => p.rielUid === r.uid).reduce((s, p) => s + p.rect.w, 0);
-    const modulos = mm / modulo;
-    if (modulos > limiteModulos + 1e-9) {
+  const filasConLimite = usaCapacidadDeRiel(ctx.tipo) ? filasDeRiel(elementos, ctx) : [];
+  for (const f of filasConLimite) {
+    if (f.modulos > limiteModulos + 1e-9) {
       avisos.push({
-        id: `fila:${r.uid}`,
+        id: `fila:${f.uid}`,
         // Metálicas e inox: el límite depende del margen, el modo y la sección de canaleta del proyecto, no es físico. Las plásticas tienen un valor fijo.
         texto: ctx.capacidad
-          ? `La fila ${i + 1} ocupa ${Math.ceil(modulos)} módulos; con el margen y el modo actuales entran ${limiteModulos} por fila.`
-          : `La fila ${i + 1} ocupa ${Math.ceil(modulos)} módulos y la caja admite ${limiteModulos} por fila.`,
+          ? `La fila ${f.numero} ocupa ${Math.ceil(f.modulos)} módulos; con el margen y el modo actuales entran ${limiteModulos} por fila.`
+          : `La fila ${f.numero} ocupa ${Math.ceil(f.modulos)} módulos y la caja admite ${limiteModulos} por fila.`,
       });
     }
-  });
+  }
 
   // Topes que no caben dentro del riel.
+  const rieles = listarRieles(elementos, ctx);
   const topesFuera = calcularTopes(elementos, ctx).filter((t) => {
     const r = rieles.find((x) => x.uid === t.rielUid);
     return r ? t.rect.x < r.x - 0.01 || t.rect.x + t.rect.w > r.x + r.largo + 0.01 : false;

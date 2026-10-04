@@ -44,6 +44,8 @@ export interface Contexto {
   tipo: TipoProyecto;
   /** Capacidad de riel con el margen/modo/sección actuales; null en cajas plásticas (rieles fijos). */
   capacidad: Capacidad | null;
+  /** Reserva de espacio exigida en un tablero (0,25 = 25 %, RIC N°02 6.1.16.3). */
+  reserva: number;
   /** Placa reducida por el margen de borde: referencia para largos por defecto, no un límite duro. */
   areaUtil: Rect;
 }
@@ -75,6 +77,7 @@ export function crearContexto(catalogo: Catalogo, caja: CajaResuelta, ajustes: A
     topes: ajustes.topes ?? false,
     tipo,
     capacidad,
+    reserva: ajustes.parametrosLayout.reserva,
     areaUtil: calcularAreaUtil(caja.area, ajustes.margenes),
   };
 }

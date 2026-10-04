@@ -107,6 +107,8 @@ export interface CapacidadModo {
   modulos_por_fila: number;
   modulos_total: number;
   modulos_max_con_reserva: number;
+  /** % máximo del total que se puede ocupar (75 con la reserva del 25 %); lo trae el catálogo, el cálculo del editor no lo lee. */
+  porcentaje_max_ocupacion?: number;
 }
 
 /** Cajas metálicas e inox: capacidad precalculada por la biblioteca (vector de prueba; el editor la recalcula). */

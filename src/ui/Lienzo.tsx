@@ -9,6 +9,8 @@ import type { Extremo } from '../core/colocacion';
 import type { Contexto } from '../core/colocacion';
 import type { Rect as Rectangulo } from '../core/geometria';
 import { lineasEtiqueta, tamanoAjustado } from '../core/etiquetas';
+import { calcularOcupacion } from '../core/ocupacion';
+import type { OcupacionFila } from '../core/ocupacion';
 import type { Elemento } from '../core/modelo';
 import type { Componente } from '../core/tipos';
 import { contextoActual, useContexto, useEditor } from '../store/editor';
@@ -16,6 +18,7 @@ import { usaCircuitos } from '../core/tipoProyecto';
 import { BarraIconos } from './BarraIconos';
 import { registrarGeneradorPng } from './exportacion';
 import { cargarLineales, textoDeBiblioteca, useImagen } from './imagenes';
+import { COLOR_OCUPACION, formatearPorcentaje } from './ocupacionUi';
 
 const ZOOM_MIN = 0.1;
 const ZOOM_MAX = 12;
@@ -169,6 +172,37 @@ const ElementoKonva = memo(function ElementoKonva({
     </Group>
   );
 });
+
+const INSIGNIA_ANCHO = 21;
+const INSIGNIA_ALTO = 7.4;
+
+/**
+ * Ocupación de una fila de riel (% de su capacidad) junto al extremo derecho del riel, o encima de él si no queda lugar a la
+ * derecha. Se pinta de verde, ámbar (sin la reserva del 25 %) o rojo (no cabe). Lleva el nombre "marca": no sale en el PNG ni en el PDF.
+ */
+function InsigniaOcupacion({ fila, area }: { fila: OcupacionFila; area: Rectangulo }) {
+  const finRiel = fila.x + fila.largo;
+  const caben = finRiel + 1 + INSIGNIA_ANCHO <= area.x + area.w;
+  const x = caben ? finRiel + 1 : finRiel - INSIGNIA_ANCHO;
+  const y = caben ? fila.yCentro - INSIGNIA_ALTO / 2 : fila.yCentro - 18 - INSIGNIA_ALTO;
+  return (
+    <Group name="marca" x={x} y={y} listening={false}>
+      <Rect width={INSIGNIA_ANCHO} height={INSIGNIA_ALTO} cornerRadius={2} fill={COLOR_OCUPACION[fila.estado]} stroke="#fff" strokeWidth={0.5} />
+      <Text
+        text={`F${fila.numero} ${formatearPorcentaje(fila.porcentaje)}`}
+        width={INSIGNIA_ANCHO}
+        height={INSIGNIA_ALTO}
+        align="center"
+        verticalAlign="middle"
+        wrap="none"
+        fontSize={4.2}
+        fontStyle="bold"
+        fontFamily="Arial, Helvetica, sans-serif"
+        fill="#fff"
+      />
+    </Group>
+  );
+}
 
 interface ExtremoHandleProps {
   el: Elemento;
@@ -504,6 +538,7 @@ export function Lienzo() {
   }, [aviso]);
 
   const fuera = useMemo(() => (ctx ? elementosFuera(elementos, ctx) : new Set<string>()), [ctx, elementos]);
+  const ocupacion = useMemo(() => (ctx ? calcularOcupacion(elementos, ctx) : null), [ctx, elementos]);
   const ordenados = useMemo(() => {
     if (!ctx) return [];
     // Rieles y canaletas al fondo; aparatos encima.
@@ -563,6 +598,7 @@ export function Lienzo() {
                 />
               ) : null;
             })}
+            {ctx && ocupacion?.filas.map((f) => <InsigniaOcupacion key={f.uid} fila={f} area={ctx.caja.area} />)}
             {fantasma && (
               <Rect
                 name="marca"
